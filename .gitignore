@@ -1,6 +1,7 @@
 .vs
 .gradle
 .DS_Store
+release/
 /build
 
 # IntelliJ
