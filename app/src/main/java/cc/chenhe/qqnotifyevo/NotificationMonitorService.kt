@@ -129,7 +129,9 @@ class NotificationMonitorService : NotificationListenerService() {
             }
         }
 
-        if (isQzone && isQzoneNotify(this) && !content.isNullOrEmpty()) {
+        if (isQzone && !content.isNullOrEmpty()) {
+            if (!isQzoneNotify(this))
+                return
             saveConversationIcon(this, CONVERSATION_NAME_QZONE.hashCode(), getNotifyLargeIcon(original))
             qzoneHistory.add(Message(getString(R.string.notify_qzone_channel_name),
                     getConversionIcon(this, CONVERSATION_NAME_QZONE.hashCode()), content))
@@ -145,7 +147,9 @@ class NotificationMonitorService : NotificationListenerService() {
             return
 
         groupMsgPattern.matcher(ticker).let { matcher ->
-            if (matcher.matches() && isGroupNotify(this)) {
+            if (matcher.matches()) {
+                if (!isGroupNotify(this))
+                    return
                 val name = matcher.group(1) ?: return
                 val groupName = matcher.group(2) ?: return
                 val text = matcher.group(3) ?: return

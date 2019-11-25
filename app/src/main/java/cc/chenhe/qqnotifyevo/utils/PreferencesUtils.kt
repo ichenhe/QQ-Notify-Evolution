@@ -38,7 +38,7 @@ fun isVibrate(context: Context, channel: NotifyChannel): Boolean {
  */
 fun isGroupNotify(context: Context): Boolean {
     return PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean("group_notify", false)
+            .getBoolean("group_notify", true)
 }
 
 /**
@@ -46,7 +46,7 @@ fun isGroupNotify(context: Context): Boolean {
  */
 fun isQzoneNotify(context: Context): Boolean {
     return PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean("qzone_notify", false)
+            .getBoolean("qzone_notify", true)
 }
 
 fun getVersion(context: Context): String {
