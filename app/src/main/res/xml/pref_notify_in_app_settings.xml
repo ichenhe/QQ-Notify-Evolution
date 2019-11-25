@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/pref_cate_friend">
+        <Preference
+            app:key="friend_ringtone"
+            app:summary="@string/pref_ringtone_summary"
+            app:title="@string/pref_ringtone" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="friend_vibrate"
+            app:summary="@string/pref_vibrate_summary"
+            app:title="@string/pref_vibrate" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cate_group">
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="group_notify"
+            app:summary="@string/pref_show_group_notify_summary"
+            app:title="@string/pref_show_group_notify" />
+        <Preference
+            app:dependency="group_notify"
+            app:key="group_ringtone"
+            app:title="@string/pref_ringtone" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="group_notify"
+            app:key="group_vibrate"
+            app:title="@string/pref_vibrate" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cate_qzone">
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="qzone_notify"
+            app:summary="@string/pref_show_group_notify_summary"
+            app:title="@string/pref_show_group_notify" />
+        <Preference
+            app:dependency="qzone_notify"
+            app:key="qzone_ringtone"
+            app:title="@string/pref_ringtone" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="qzone_notify"
+            app:key="qzone_vibrate"
+            app:title="@string/pref_vibrate" />
+    </PreferenceCategory>
+</PreferenceScreen>

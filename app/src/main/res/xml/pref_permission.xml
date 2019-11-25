@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="notf_permit"
+        android:title="@string/pref_notf_permit" />
+    <Preference
+        android:key="aces_permit"
+        android:title="@string/pref_aces_permit" />
+    <Preference
+        android:key="bet_permit"
+        android:title="@string/pref_cancel_battery_optimize" />
+</PreferenceScreen>

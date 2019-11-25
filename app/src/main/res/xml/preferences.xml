@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/pref_cate_permit">
+        <Preference
+            app:key="permission"
+            app:title="@string/pref_cate_permit" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cate_other">
+        <Preference
+            app:isPreferenceVisible="false"
+            app:key="system_notify_setting"
+            app:summary="@string/pref_cate_notify_system_summary"
+            app:title="@string/pref_cate_notify_system" />
+        <Preference
+            app:isPreferenceVisible="false"
+            app:key="in_app_notify_setting"
+            app:title="@string/pref_cate_notify_alert" />
+        <ListPreference
+            app:defaultValue="0"
+            app:entries="@array/pref_icon_mode"
+            app:entryValues="@array/pref_icon_mode_value"
+            app:key="icon_mode"
+            app:title="@string/pref_icon_mode"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cate_about">
+        <Preference
+            app:key="best_practice"
+            app:title="@string/best_practice" />
+        <Preference
+            app:key="version_code"
+            app:title="@string/pref_version_code" />
+        <Preference
+            app:key="QA"
+            app:title="@string/QA" />
+    </PreferenceCategory>
+</PreferenceScreen>

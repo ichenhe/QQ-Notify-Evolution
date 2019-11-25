@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4284F3</color>
+    <color name="colorQzone">#fece00</color>
+
+    <color name="transparent">#00000000</color>
+</resources>
