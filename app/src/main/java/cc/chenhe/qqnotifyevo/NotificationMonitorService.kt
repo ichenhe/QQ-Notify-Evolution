@@ -391,7 +391,7 @@ class NotificationMonitorService : NotificationListenerService() {
      */
     private data class Message(val name: String, val icon: Bitmap?, val content: String) {
         val person: Person = Person.Builder()
-                .setIcon(IconCompat.createWithBitmap(icon))
+                .setIcon(icon?.let { IconCompat.createWithBitmap(it) })
                 .setName(name).build()
         val time = System.currentTimeMillis()
     }
