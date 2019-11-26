@@ -4,9 +4,14 @@
 
 由于改动较大（几乎全改了）因此不便提交 PR 请原作者谅解。
 
+<a href="https://github.com/liangchenhe55/QQ-Notify-Evolution/releases"><img src="https://img.shields.io/github/release-pre/liangchenhe55/QQ-Notify-Evolution.svg?style=flat-square"></a>  <a target="_blank" href="https://www.coolapk.com/apk/249693"><img src="https://img.shields.io/badge/download-酷安网-green.svg?style=flat-square"></a>   <a href="https://github.com/liangchenhe55/QQ-Notify-Evolution/blob/master/LICENSE"><img src="https://img.shields.io/github/license/liangchenhe55/QQ-Notify-Evolution.svg?style=flat-square"></a>
+
+
 ## 主要功能
 
 支持原版 QQ / Tim / 轻聊版。
+
+![](https://i.loli.net/2019/11/26/arPE72UdlKsfe64.png)
 
 **强制腐朽的 QQ 通知进化为现代化的样式，包括以下特性：**
 
