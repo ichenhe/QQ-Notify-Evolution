@@ -47,7 +47,7 @@ class NotificationMonitorService : NotificationListenerService() {
     }
 
     private val groupMsgPattern = Pattern.compile("^(.+)\\((.*)\\):(.+)$")
-    private val msgPattern = Pattern.compile("^(.+):(.+)$")
+    private val msgPattern = Pattern.compile("^(.+?):(.+)$")
     private val qzonePattern = Pattern.compile("^QQ空间动态\\(共(\\d+)条未读\\)$")
     private val hideMsgPattern = Pattern.compile("^你收到了(\\d+)条新消息$")
 
