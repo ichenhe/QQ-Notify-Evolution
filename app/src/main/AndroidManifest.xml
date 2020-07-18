@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="cc.chenhe.qqnotifyevo">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -11,8 +12,10 @@
 
     <application
         android:name="cc.chenhe.qqnotifyevo.MyApplication"
+        android:allowBackup="true"
         android:autoRemoveFromRecents="true"
         android:excludeFromRecents="true"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:persistent="true"
@@ -36,7 +39,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <service
-            android:name="cc.chenhe.qqnotifyevo.NotificationMonitorService"
+            android:name="cc.chenhe.qqnotifyevo.service.NotificationMonitorService"
             android:label="@string/service_notify"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
@@ -45,7 +48,7 @@
             </intent-filter>
         </service>
         <service
-            android:name="cc.chenhe.qqnotifyevo.AccessibilityMonitorService"
+            android:name="cc.chenhe.qqnotifyevo.service.AccessibilityMonitorService"
             android:label="@string/service_access"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
@@ -57,9 +60,26 @@
                 android:resource="@xml/accessibility" />
         </service>
 
+        <!-- Nevo 插件服务 -->
+        <service
+            android:name=".service.NevoDecorator"
+            android:description="@string/nevo_desc"
+            android:directBootAware="true"
+            android:label="@string/nevo_name"
+            android:permission="com.oasisfeng.nevo.permission.BIND_DECORATOR_SERVICE"
+            android:process="com.oasisfeng.nevo.decorators"
+            tools:targetApi="N">
+            <intent-filter android:priority="5">
+                <action android:name="com.oasisfeng.nevo.Decorator" />
+            </intent-filter>
+            <meta-data
+                android:name="packages"
+                android:value="com.tencent.mobileqq|com.tencent.tim|com.tencent.qqlite" />
+        </service>
+
+        <!-- 开机自启 -->
         <receiver android:name="cc.chenhe.qqnotifyevo.BootCompletedReceiver">
             <intent-filter>
-                <!-- 开机广播 -->
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>

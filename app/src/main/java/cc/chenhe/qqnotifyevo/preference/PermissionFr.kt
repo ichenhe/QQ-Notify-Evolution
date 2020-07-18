@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Context.POWER_SERVICE
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
@@ -14,8 +13,8 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import cc.chenhe.qqnotifyevo.AccessibilityMonitorService
 import cc.chenhe.qqnotifyevo.R
+import cc.chenhe.qqnotifyevo.service.AccessibilityMonitorService
 
 class PermissionFr : PreferenceFragmentCompat() {
 
@@ -47,7 +46,7 @@ class PermissionFr : PreferenceFragmentCompat() {
                 return true
             }
             "bet_permit" -> {
-                ignoreBatteryOptimization(activity!!)
+                ignoreBatteryOptimization(requireActivity())
                 return true
             }
         }
@@ -100,18 +99,12 @@ class PermissionFr : PreferenceFragmentCompat() {
 
     private fun isIgnoreBatteryOptimization(context: Context): Boolean {
         val powerManager = context.getSystemService(POWER_SERVICE) as PowerManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            powerManager.isIgnoringBatteryOptimizations(context.packageName)
-        else true
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
 
     private fun openNotificationListenSettings() {
         try {
-            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-            } else {
-                Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-            }
+            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -125,14 +118,12 @@ class PermissionFr : PreferenceFragmentCompat() {
     private fun ignoreBatteryOptimization(activity: Activity) {
         val powerManager = activity.getSystemService(POWER_SERVICE) as PowerManager
         val hasIgnored: Boolean
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            hasIgnored = powerManager.isIgnoringBatteryOptimizations(activity.packageName)
-            Log.e("JHH", hasIgnored.toString() + "")
-            if (!hasIgnored) {
-                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                        Uri.parse("package:" + activity.packageName)).let {
-                    activity.startActivity(it)
-                }
+        hasIgnored = powerManager.isIgnoringBatteryOptimizations(activity.packageName)
+        Log.e("JHH", hasIgnored.toString() + "")
+        if (!hasIgnored) {
+            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:" + activity.packageName)).let {
+                activity.startActivity(it)
             }
         }
     }

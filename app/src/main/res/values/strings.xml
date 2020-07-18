@@ -7,6 +7,9 @@
     <string name="activity_splash">QQ通知进化</string>
     <string name="acc_desc">用于在 QQ 打开时清除通知</string>
 
+    <string name="nevo_name">QQ 通知进化</string>
+    <string name="nevo_desc">适配原生分渠道通知；使用原生铃声与振动适配可穿戴设备；支持多组会话与历史消息。</string>
+
     <!--通知-->
     <string name="notify_friend_channel_name">联系人消息</string>
     <string name="notify_friend_channel_des">QQ 私聊消息通知</string>

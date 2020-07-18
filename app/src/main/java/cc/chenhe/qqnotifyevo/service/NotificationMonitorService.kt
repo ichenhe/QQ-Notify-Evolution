@@ -1,4 +1,4 @@
-package cc.chenhe.qqnotifyevo
+package cc.chenhe.qqnotifyevo.service
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -7,7 +7,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -15,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
+import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.utils.*
 import java.util.*
 import java.util.regex.Pattern
@@ -160,8 +160,8 @@ class NotificationMonitorService : NotificationListenerService() {
                         getConversionIcon(this, groupName.hashCode()),
                         original.contentIntent, original.deleteIntent)
                         .name.let { conversationName ->
-                    notifyConversionMessage(tag, NotifyChannel.GROUP, conversationName, original)
-                }
+                            notifyConversionMessage(tag, NotifyChannel.GROUP, conversationName, original)
+                        }
                 cancelNotification(sbn.key)
                 Log.d(TAG, "[Group] Name: $name; Group: $groupName; text: $text")
                 return
@@ -179,8 +179,8 @@ class NotificationMonitorService : NotificationListenerService() {
                         getConversionIcon(this, name.hashCode()),
                         original.contentIntent, original.deleteIntent)
                         .name.let { conversationName ->
-                    notifyConversionMessage(tag, NotifyChannel.FRIEND, conversationName, original)
-                }
+                            notifyConversionMessage(tag, NotifyChannel.FRIEND, conversationName, original)
+                        }
                 cancelNotification(sbn.key)
                 Log.d(TAG, "[Friend] Name: $name; text: $text")
                 return
@@ -235,12 +235,7 @@ class NotificationMonitorService : NotificationListenerService() {
      * @return 通知的大图标。
      */
     private fun getNotifyLargeIcon(notification: Notification): Bitmap {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            notification.getLargeIcon().loadDrawable(this).toBitmap()
-        } else {
-            @Suppress("DEPRECATION")
-            notification.extras.get(Notification.EXTRA_LARGE_ICON) as Bitmap
-        }
+        return notification.getLargeIcon().loadDrawable(this).toBitmap()
     }
 
     /**
@@ -287,14 +282,7 @@ class NotificationMonitorService : NotificationListenerService() {
 
         setIcon(builder, tag, channel == NotifyChannel.QZONE)
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            if (!isVibrate(this, channel)) {
-                builder.setVibrate(longArrayOf(0))
-            }
-            builder.setSound(getRingtone(this, channel))
-        }
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                .notify(id, builder.build())
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(id, builder.build())
         addNotifyId(tag, id)
     }
 

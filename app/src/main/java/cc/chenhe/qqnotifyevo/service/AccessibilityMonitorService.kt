@@ -1,4 +1,4 @@
-package cc.chenhe.qqnotifyevo
+package cc.chenhe.qqnotifyevo.service
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
