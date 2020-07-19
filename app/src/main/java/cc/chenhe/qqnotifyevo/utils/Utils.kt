@@ -63,7 +63,7 @@ fun getChannelId(channel: NotifyChannel): String = when (channel) {
  * 创建通知渠道。仅创建渠道实例，未注册到系统。
  */
 fun getNotificationChannels(context: Context, nevo: Boolean): List<NotificationChannel> {
-    val prefix = if (nevo) context.getString(R.string.notify_nevo_prefix) else null
+    val prefix = if (nevo) context.getString(R.string.notify_nevo_prefix) else ""
 
     val att = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
