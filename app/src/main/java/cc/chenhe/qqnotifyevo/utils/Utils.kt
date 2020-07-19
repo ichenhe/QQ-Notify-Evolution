@@ -25,6 +25,9 @@ const val NOTIFY_FRIEND_SPECIAL_CHANNEL_ID = "QQ_Friend_Special"
 const val NOTIFY_GROUP_CHANNEL_ID = "QQ_Group"
 const val NOTIFY_QZONE_CHANNEL_ID = "QQ_Zone"
 
+// 自身默认的通知类别
+const val NOTIFY_GROUP_ID = "base"
+
 const val GITHUB_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution"
 const val MANUAL_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/wiki"
 
@@ -59,33 +62,35 @@ fun getChannelId(channel: NotifyChannel): String = when (channel) {
 /**
  * 创建通知渠道。仅创建渠道实例，未注册到系统。
  */
-fun getNotificationChannels(context: Context): List<NotificationChannel> {
+fun getNotificationChannels(context: Context, nevo: Boolean): List<NotificationChannel> {
+    val prefix = if (nevo) context.getString(R.string.notify_nevo_prefix) else null
+
     val att = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
 
     val friendChannel = NotificationChannel(NOTIFY_FRIEND_CHANNEL_ID,
-            context.getString(R.string.notify_friend_channel_name),
+            prefix + context.getString(R.string.notify_friend_channel_name),
             NotificationManager.IMPORTANCE_HIGH)
     friendChannel.description = context.getString(R.string.notify_friend_channel_des)
     friendChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
 
     val friendSpecialChannel = NotificationChannel(NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
-            context.getString(R.string.notify_friend_special_channel_name),
+            prefix + context.getString(R.string.notify_friend_special_channel_name),
             NotificationManager.IMPORTANCE_HIGH).apply {
         description = context.getString(R.string.notify_friend_special_channel_des)
         setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
     }
 
     val groupChannel = NotificationChannel(NOTIFY_GROUP_CHANNEL_ID,
-            context.getString(R.string.notify_group_channel_name),
+            prefix + context.getString(R.string.notify_group_channel_name),
             NotificationManager.IMPORTANCE_HIGH)
     groupChannel.description = context.getString(R.string.notify_group_channel_des)
     groupChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
 
     val qzoneChannel = NotificationChannel(NOTIFY_QZONE_CHANNEL_ID,
-            context.getString(R.string.notify_qzone_channel_name),
+            prefix + context.getString(R.string.notify_qzone_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT)
     qzoneChannel.description = context.getString(R.string.notify_qzone_channel_des)
     qzoneChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)

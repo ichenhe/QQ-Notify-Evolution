@@ -12,6 +12,8 @@
     <string name="nevo_desc">适配原生分渠道通知；使用原生铃声与振动适配可穿戴设备；支持多组会话与历史消息。</string>
 
     <!--通知-->
+    <string name="notify_group_base">仅传统模式有效，Nevo 模式请前往 Nevo 应用设置</string>
+    <string name="notify_nevo_prefix">Q进化-</string>
     <string name="notify_friend_channel_name">联系人消息</string>
     <string name="notify_friend_channel_des">QQ 私聊消息通知</string>
     <string name="notify_friend_special_channel_name">特别关心消息</string>

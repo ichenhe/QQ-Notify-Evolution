@@ -84,14 +84,14 @@ class NevoDecorator : NevoDecoratorService() {
 
     private fun createChannels(packageName: String?) {
         if (!notificationChannelCreated.contains(packageName)) {
-            Log.d(TAG, "注册通知渠道 $packageName")
+            Log.d(TAG, "注册通知渠道 ${packageName ?: "All"}")
             if (packageName != null) {
                 notificationChannelCreated.add(packageName)
-                createNotificationChannels(packageName, Process.myUserHandle(), getNotificationChannels(this))
+                createNotificationChannels(packageName, Process.myUserHandle(), getNotificationChannels(this, true))
             } else {
                 packageNameList.forEach { pkg ->
                     try {
-                        createNotificationChannels(pkg, Process.myUserHandle(), getNotificationChannels(this))
+                        createNotificationChannels(pkg, Process.myUserHandle(), getNotificationChannels(this, true))
                     } catch (e: SecurityException) {
                         Log.w(TAG, "注册通知渠道异常：" + e.message)
                     }
