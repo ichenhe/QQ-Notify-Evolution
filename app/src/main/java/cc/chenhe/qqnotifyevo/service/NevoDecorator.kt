@@ -13,6 +13,19 @@ import com.oasisfeng.nevo.sdk.NevoDecoratorService
 
 class NevoDecorator : NevoDecoratorService() {
 
+    companion object {
+        var instance: NevoDecorator? = null
+
+        fun isRunning(): Boolean {
+            return try {
+                // 如果服务被强制结束，标记没有释放，那么此处会抛出异常。
+                instance?.ping() ?: false
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
     /**
      * 保存已创建过通知渠道的包名，尽力避免多次创建。
      */
@@ -31,16 +44,20 @@ class NevoDecorator : NevoDecoratorService() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         receiver = Receiver()
         registerReceiver(receiver, IntentFilter(ACTION_DELETE_NEVO_CHANNEL))
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        instance = null
         if (::receiver.isInitialized) {
             unregisterReceiver(receiver)
         }
     }
+
+    private fun ping() = true
 
     override fun onConnected() {
         super.onConnected()

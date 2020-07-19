@@ -11,15 +11,36 @@ import cc.chenhe.qqnotifyevo.utils.getMode
 
 class NotificationMonitorService : NotificationListenerService(), InnerNotificationProcessor.Commander {
 
+    companion object {
+        var instance: NotificationMonitorService? = null
+
+        fun isRunning(): Boolean {
+            return try {
+                // 如果服务被强制结束，标记没有释放，那么此处会抛出异常。
+                instance?.ping() ?: false
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
     private lateinit var ctx: Context
 
     private lateinit var processor: InnerNotificationProcessor
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         ctx = this
         processor = InnerNotificationProcessor(this)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        instance = null
+    }
+
+    private fun ping() = true
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         if (getMode(this) != MODE_LEGACY)

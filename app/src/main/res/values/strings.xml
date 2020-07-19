@@ -19,6 +19,11 @@
     <string name="notify_qzone_channel_name">QQ 空间</string>
     <string name="notify_qzone_channel_des">QQ 空间与我相关的消息</string>
 
+    <string name="warning_nevo_service">Nevo 插件服务未运行</string>
+    <string name="warning_nevo_service_summary">请尝试在 Nevo 中重新启用本插件，并确认已允许 Nevo 和本应用自启动/后台运行。</string>
+    <string name="warning_monitor_service">通知监听服务未运行</string>
+    <string name="warning_monitor_service_summary">请到「必要权限」里授予通知访问权，并确认已允许本应用自启动/后台运行。</string>
+
     <!--设置页-->
     <string name="pref_cate_base">基础</string>
     <string name="pref_mode">工作模式</string>

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <Preference
+        app:icon="@drawable/ic_warning"
+        app:isPreferenceVisible="false"
+        app:key="service_warning"
+        app:summary="@string/warning_nevo_service_summary"
+        app:title="@string/warning_nevo_service"
+        tools:isPreferenceVisible="true" />
 
     <PreferenceCategory android:title="@string/pref_cate_base">
 
