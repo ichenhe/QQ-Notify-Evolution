@@ -52,9 +52,13 @@
             <intent-filter android:priority="5">
                 <action android:name="com.oasisfeng.nevo.Decorator" />
             </intent-filter>
+
             <meta-data
                 android:name="packages"
                 android:value="com.tencent.mobileqq|com.tencent.tim|com.tencent.qqlite" />
+            <meta-data
+                android:name="settings.activity"
+                android:value="cc.chenhe.qqnotifyevo.preference.PreferenceAty" />
         </service>
 
         <!-- 开机自启 -->
@@ -65,7 +69,7 @@
         </receiver>
 
         <activity
-            android:name="cc.chenhe.qqnotifyevo.preference.PreferenceAty"
+            android:name=".preference.PreferenceAty"
             android:autoRemoveFromRecents="true"
             android:excludeFromRecents="true"
             android:label="@string/activity_splash">
