@@ -101,7 +101,7 @@ class NevoDecorator : NevoDecoratorService() {
     }
 
     override fun apply(evolving: MutableStatusBarNotification?): Boolean {
-        if (evolving == null)
+        if (getMode(this) != MODE_NEVO || evolving == null)
             return false
 
         createChannels(evolving.packageName)
