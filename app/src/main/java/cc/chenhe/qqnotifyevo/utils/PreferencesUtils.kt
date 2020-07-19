@@ -3,8 +3,6 @@ package cc.chenhe.qqnotifyevo.utils
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Build
 import androidx.annotation.IntDef
 import androidx.lifecycle.LiveData
@@ -67,42 +65,6 @@ fun getIconMode(context: Context): Int {
         2 -> ICON_TIM
         else -> ICON_AUTO
     }
-}
-
-fun getRingtone(context: Context, channel: NotifyChannel): Uri? {
-    val sp = PreferenceManager.getDefaultSharedPreferences(context)
-    val uri = when (channel) {
-        NotifyChannel.FRIEND -> sp.getString("friend_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
-        NotifyChannel.GROUP -> sp.getString("group_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
-        NotifyChannel.QZONE -> sp.getString("qzone_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
-    }
-    return uri?.let { Uri.parse(uri) }
-}
-
-fun isVibrate(context: Context, channel: NotifyChannel): Boolean {
-    val key = when (channel) {
-        NotifyChannel.FRIEND -> "friend_vibrate"
-        NotifyChannel.GROUP -> "group_vibrate"
-        NotifyChannel.QZONE -> "qzone_vibrate"
-    }
-    return PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean(key, false)
-}
-
-/**
- * 群组消息是否显示通知。
- */
-fun isGroupNotify(context: Context): Boolean {
-    return PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean("group_notify", true)
-}
-
-/**
- * QQ空间消息是否显示通知。
- */
-fun isQzoneNotify(context: Context): Boolean {
-    return PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean("qzone_notify", true)
 }
 
 fun getVersion(context: Context): String {
