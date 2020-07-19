@@ -1,8 +1,6 @@
 package cc.chenhe.qqnotifyevo.core
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.*
 import org.junit.Test
 
 class NotificationProcessorTest {
@@ -13,6 +11,10 @@ class NotificationProcessorTest {
 
     private fun generateFriendTicker(nickName: String, message: String): String {
         return "$nickName: $message"
+    }
+
+    private fun generateFriendTitle(nickName: String, messageNum: Int, special: Boolean = false): String {
+        return (if (special) "[特别关心]" else "") + nickName + if (messageNum > 1) " (${messageNum}条新消息)" else ""
     }
 
     private fun generateQzoneTitle(messageNum: Int = 1): String {
@@ -59,6 +61,46 @@ class NotificationProcessorTest {
     }
 
     @Test
+    fun friend_title_match_single() {
+        val title = generateFriendTitle("Bob", 1, false)
+        val matcher = NotificationProcessor.msgTitlePattern.matcher(title)
+        matcher.matches().shouldBeTrue()
+
+        matcher.group(1).shouldBeNull()
+        matcher.group(2).shouldBeNull()
+    }
+
+    @Test
+    fun friend_special_title_match_single() {
+        val title = generateFriendTitle("Bob", 1, true)
+        val matcher = NotificationProcessor.msgTitlePattern.matcher(title)
+        matcher.matches().shouldBeTrue()
+
+        matcher.group(1).shouldNotBeNull()
+        matcher.group(2).shouldBeNull()
+    }
+
+    @Test
+    fun friend_title_match_multi() {
+        val title = generateFriendTitle("Bob", 11, false)
+        val matcher = NotificationProcessor.msgTitlePattern.matcher(title)
+        matcher.matches().shouldBeTrue()
+
+        matcher.group(1).shouldBeNull()
+        matcher.group(2)!!.toInt() shouldBeEqualTo 11
+    }
+
+    @Test
+    fun friend_special_title_match_multi() {
+        val title = generateFriendTitle("Bob", 11, true)
+        val matcher = NotificationProcessor.msgTitlePattern.matcher(title)
+        matcher.matches().shouldBeTrue()
+
+        matcher.group(1).shouldNotBeNull()
+        matcher.group(2)!!.toInt() shouldBeEqualTo 11
+    }
+
+    @Test
     fun qzone_title_match() {
         val title = generateQzoneTitle(2)
         val matcher = NotificationProcessor.qzonePattern.matcher(title)
@@ -89,9 +131,17 @@ class NotificationProcessorTest {
 
     @Test
     fun chat_message_num_match() {
-        val title = "Bob (11条新消息)"
+        val title = "Bob (2条新消息)"
         val matcher = NotificationProcessor.msgTitlePattern.matcher(title)
         matcher.matches().shouldBeTrue()
-        matcher.group(1)!!.toInt() shouldBeEqualTo 11
+        matcher.group(2)!!.toInt() shouldBeEqualTo 2
+    }
+
+    @Test
+    fun chat_message_num_mismatch() {
+        val title = generateFriendTitle("Bob", 1)
+        val matcher = NotificationProcessor.msgTitlePattern.matcher(title)
+        matcher.matches().shouldBeTrue()
+        matcher.group(2).shouldBeNull()
     }
 }

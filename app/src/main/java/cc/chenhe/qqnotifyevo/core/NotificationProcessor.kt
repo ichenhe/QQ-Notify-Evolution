@@ -16,6 +16,7 @@ import androidx.core.graphics.drawable.toBitmap
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.utils.*
 import java.util.*
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 abstract class NotificationProcessor {
@@ -59,7 +60,7 @@ abstract class NotificationProcessor {
         val msgPattern: Pattern = Pattern.compile("^(.+?): (.+)$")
 
         @VisibleForTesting
-        val msgTitlePattern: Pattern = Pattern.compile("^.* \\((\\d+)条新消息\\)$")
+        val msgTitlePattern: Pattern = Pattern.compile("^(\\[特别关心])?.*?(?: \\((\\d+)条新消息\\))?$")
 
         // Q空间动态
         // title: QQ空间动态(共x条未读)
@@ -207,15 +208,23 @@ abstract class NotificationProcessor {
         // 私聊消息
         msgPattern.matcher(ticker).also { matcher ->
             if (matcher.matches()) {
+                val titleMatcher = msgTitlePattern.matcher(title ?: "")
+                val special = titleMatcher.matches() && titleMatcher.group(1) != null
                 val name = matcher.group(1) ?: return null
                 val text = matcher.group(2) ?: return null
                 if (!isMulti)
                     saveConversationIcon(context, name.hashCode(), getNotifyLargeIcon(context, original))
                 val conversation = addMessage(tag, name, text, null, getConversionIcon(context, name.hashCode()),
                         original.contentIntent, original.deleteIntent)
-                deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(title))
-                Log.d(TAG, "[Friend] Name: $name; Text: $text")
-                return renewConversionNotification(context, tag, NotifyChannel.FRIEND, conversation, sbn, original)
+                deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
+                Log.d(TAG, ticker + "; " + matcher.group(1))
+                return if (special) {
+                    Log.d(TAG, "[Special] Name: $name; Text: $text")
+                    renewConversionNotification(context, tag, NotifyChannel.FRIEND_SPECIAL, conversation, sbn, original)
+                } else {
+                    Log.d(TAG, "[Friend] Name: $name; Text: $text")
+                    renewConversionNotification(context, tag, NotifyChannel.FRIEND, conversation, sbn, original)
+                }
             }
         }
         Log.w(TAG, "[None] Not match any pattern.")
@@ -227,10 +236,15 @@ abstract class NotificationProcessor {
      */
     private fun matchMessageNum(text: String?): Int {
         if (text.isNullOrEmpty()) return 0
-        msgTitlePattern.matcher(text).also { matcher ->
-            if (matcher.matches()) {
-                return matcher.group(1)!!.toInt()
-            }
+        return matchMessageNum(msgTitlePattern.matcher(text))
+    }
+
+    /**
+     * @param matcher [msgTitlePattern] 生成的匹配器。
+     */
+    private fun matchMessageNum(matcher: Matcher): Int {
+        if (matcher.matches()) {
+            return matcher.group(2)?.toInt() ?: 1
         }
         return 1
     }
@@ -332,7 +346,8 @@ abstract class NotificationProcessor {
         conversation.messages.forEach { msg ->
             style.addMessage(msg.content, msg.time, msg.person)
         }
-        return createNotification(context, tag, channel, style, getConversionIcon(context, conversation.name.hashCode()), original)
+        return createNotification(context, tag, channel, style,
+                getConversionIcon(context, conversation.name.hashCode()), original)
     }
 
 

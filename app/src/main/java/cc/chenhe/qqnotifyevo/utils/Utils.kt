@@ -21,6 +21,7 @@ const val ACTION_DELETE_NEVO_CHANNEL = "deleteNevoChannel"
 
 // Android O+ 通知渠道 id
 const val NOTIFY_FRIEND_CHANNEL_ID = "QQ_Friend"
+const val NOTIFY_FRIEND_SPECIAL_CHANNEL_ID = "QQ_Friend_Special"
 const val NOTIFY_GROUP_CHANNEL_ID = "QQ_Group"
 const val NOTIFY_QZONE_CHANNEL_ID = "QQ_Zone"
 
@@ -43,12 +44,14 @@ val packageNameList: List<String>
 val notificationChannelIdList: List<String>
     get() = listOf(
             NOTIFY_FRIEND_CHANNEL_ID,
+            NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
             NOTIFY_GROUP_CHANNEL_ID,
             NOTIFY_QZONE_CHANNEL_ID
     )
 
 fun getChannelId(channel: NotifyChannel): String = when (channel) {
     NotifyChannel.FRIEND -> NOTIFY_FRIEND_CHANNEL_ID
+    NotifyChannel.FRIEND_SPECIAL -> NOTIFY_FRIEND_SPECIAL_CHANNEL_ID
     NotifyChannel.GROUP -> NOTIFY_GROUP_CHANNEL_ID
     NotifyChannel.QZONE -> NOTIFY_QZONE_CHANNEL_ID
 }
@@ -68,6 +71,13 @@ fun getNotificationChannels(context: Context): List<NotificationChannel> {
     friendChannel.description = context.getString(R.string.notify_friend_channel_des)
     friendChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
 
+    val friendSpecialChannel = NotificationChannel(NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
+            context.getString(R.string.notify_friend_special_channel_name),
+            NotificationManager.IMPORTANCE_HIGH).apply {
+        description = context.getString(R.string.notify_friend_special_channel_des)
+        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+    }
+
     val groupChannel = NotificationChannel(NOTIFY_GROUP_CHANNEL_ID,
             context.getString(R.string.notify_group_channel_name),
             NotificationManager.IMPORTANCE_HIGH)
@@ -80,7 +90,7 @@ fun getNotificationChannels(context: Context): List<NotificationChannel> {
     qzoneChannel.description = context.getString(R.string.notify_qzone_channel_des)
     qzoneChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
 
-    return listOf(friendChannel, groupChannel, qzoneChannel)
+    return listOf(friendChannel, friendSpecialChannel, groupChannel, qzoneChannel)
 }
 
 fun getConversionIcon(context: Context, conversionId: Int): Bitmap? {

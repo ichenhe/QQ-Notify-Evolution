@@ -14,6 +14,8 @@
     <!--通知-->
     <string name="notify_friend_channel_name">联系人消息</string>
     <string name="notify_friend_channel_des">QQ 私聊消息通知</string>
+    <string name="notify_friend_special_channel_name">特别关心消息</string>
+    <string name="notify_friend_special_channel_des">QQ 特别关心好友私聊消息通知</string>
     <string name="notify_group_channel_name">群消息</string>
     <string name="notify_group_channel_des">QQ 群消息通知</string>
     <string name="notify_qzone_channel_name">QQ 空间</string>
