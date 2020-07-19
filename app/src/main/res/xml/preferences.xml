@@ -29,6 +29,7 @@
     <PreferenceCategory android:title="@string/pref_cate_notify">
 
         <Preference
+            app:icon="@drawable/ic_notification"
             app:key="system_notify_setting"
             app:summary="@string/pref_notify_system_summary"
             app:title="@string/pref_notify_system" />
@@ -42,22 +43,19 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/pref_cate_operation">
-
-        <Preference
-            app:key="delete_nevo_channel"
-            app:title="@string/pref_delete_nevo_channel" />
-    </PreferenceCategory>
-
     <PreferenceCategory android:title="@string/pref_cate_about">
+
         <Preference
-            app:key="best_practice"
-            app:title="@string/best_practice" />
+            app:key="advanced"
+            app:title="@string/pref_cate_advanced" />
+
+        <Preference
+            app:icon="@drawable/ic_manual"
+            app:key="manual"
+            app:title="@string/about_manual" />
+
         <Preference
             app:key="version_code"
             app:title="@string/pref_version_code" />
-        <Preference
-            app:key="QA"
-            app:title="@string/QA" />
     </PreferenceCategory>
 </PreferenceScreen>

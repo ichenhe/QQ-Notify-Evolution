@@ -65,46 +65,21 @@
     <string name="pref_enable_permit">已启用</string>
     <string name="pref_disable_permit">已禁用</string>
 
-    <string name="pref_cate_operation">操作</string>
+    <!-- 高级 -->
+    <string name="pref_cate_advanced">高级选项</string>
     <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
 
     <!--关于页-->
-    <string name="best_practice">最佳实践</string>
-    <string name="best_practice_content">
-    <![CDATA[
-1. 允许自启与后台并关闭电量优化，以确保能够转发通知并及时清除。\n\n
-2. 关闭 QQ 应用内的通知声音、打开震动、打开通知时显示消息内容。\n\n
-3. 在本应用内统一进行各项通知的设置。\n\n
-
-PS:\n
-1. 不开启无障碍服务或禁止后台有可能导致通知点击无法跳转。\n
-2. 本应用依赖关键字区分联系人与群组。①请开启显示消息内容。②好友备注请勿以英文括号(xxx)结尾。\n
-3. 本应用免费开源，平常后台无活动，不会影响续航。
-]]>
-</string>
+    <string name="about_manual">使用手册</string>
     <string name="about_dialog_title">关于</string>
     <string name="about_dialog_message">
 <![CDATA[
-1. 替换QQ消息通知（支持QQ正式版轻聊版和TIM）\n
-采用 Android 标准的通知样式\n
-可显示多个联系人与消息历史\n\n
-2. 基于开源项目 QQNotfAndShare 以及 @Jinhaihan QQ-Notfiy-Improve 二次开发，感谢原作者。\n\n
-3. 严格遵守通知样式规范，去除了多余选项与功能，整合了 Android O+ 的原生分渠道通知。
+1. 本应用完全免费开源\n
+严禁用于商用/出售/引流\n\n
+2. 支持 Nevo 插件与独立运行\n
+请参考使用手册选择合适的模式\n\n
+3. 参考开源项目 @Jinhaihan QQ-Notfiy-Improve，感谢原作者
 ]]>
     </string>
-    <!--QA-->
-    <string name="about_qa_title">Q&amp;A</string>
-    <string name="about_qa_message">
-        1、关于Root功能：\n
-            不支持\n
-        2、关于一些机型无效、权限给了不能用：\n
-            部分系统把通知栏搞得面目全非，建议换手机。例如：MIUI/Flyme\n
-        3、无障碍服务自动关闭：\n
-            确定允许自启、允许后台\n
-        4、自定义图标：\n
-            现在 Android 已经不再允许自定义外部图标，只能开发时内置\n
-    </string>
     <string name="about_dialog_github">GitHub</string>
-    <string name="about_dialog_button">确定</string>
-    <string name="QA"><![CDATA[Q&A]]></string>
 </resources>

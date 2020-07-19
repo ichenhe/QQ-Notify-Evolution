@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
@@ -48,6 +47,7 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
         serviceWarning = findPreference("service_warning")!!
 
         findPreference<Preference>("permission")?.fragment = PermissionFr::class.java.name
+        findPreference<Preference>("advanced")?.fragment = AdvancedFr::class.java.name
         findPreference<Preference>("version_code")?.summary = getVersion(ctx)
     }
 
@@ -90,21 +90,11 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
                 }
                 return true
             }
-            "delete_nevo_channel" -> {
-                requireContext().sendBroadcast(Intent(ACTION_DELETE_NEVO_CHANNEL))
-                Toast.makeText(requireContext(), R.string.requested, Toast.LENGTH_SHORT).show()
-                return true
-            }
-            "best_practice" -> {
-                showDialog(R.string.best_practice, R.string.best_practice_content)
-                return true
+            "manual" -> {
+                openUrl(MANUAL_URL)
             }
             "version_code" -> {
                 showInfo()
-                return true
-            }
-            "QA" -> {
-                showQA()
                 return true
             }
         }
@@ -127,40 +117,21 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
                 .setTitle(getString(R.string.about_dialog_title))
                 .setMessage(getString(R.string.about_dialog_message))
                 .setNeutralButton(R.string.about_dialog_github) { _, _ ->
-                    openGitHub()
+                    openUrl(GITHUB_URL)
                 }
-                .setPositiveButton(R.string.about_dialog_button, null)
-                .show()
-    }
-
-    private fun showQA() {
-        AlertDialog.Builder(context)
-                .setTitle(getString(R.string.about_qa_title))
-                .setMessage(getString(R.string.about_qa_message))
-                .setNeutralButton(R.string.about_dialog_github) { _, _ ->
-                    openGitHub()
-                }
-                .setPositiveButton(R.string.about_dialog_button, null)
-                .show()
-    }
-
-    private fun showDialog(@StringRes title: Int, @StringRes message: Int) {
-        AlertDialog.Builder(context)
-                .setTitle(getString(title))
-                .setMessage(getString(message))
                 .setPositiveButton(R.string.confirm, null)
                 .show()
     }
 
-    private fun openGitHub() {
+    private fun openUrl(url: String) {
         try {
             Intent().let {
                 it.action = Intent.ACTION_VIEW
-                it.data = Uri.parse(GITHUB_URL)
+                it.data = Uri.parse(url)
                 startActivity(Intent.createChooser(it, null))
             }
-
         } catch (e: Exception) {
+            Toast.makeText(requireContext(), "找不到浏览器", Toast.LENGTH_SHORT).show()
         }
     }
 
