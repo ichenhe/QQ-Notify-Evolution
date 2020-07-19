@@ -1,10 +1,11 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="confirm">确定</string>
+    <string name="requested">已发送请求</string>
 
     <string name="app_name">QQ 通知</string>
     <string name="service_notify">QQ 通知增强服务</string>
     <string name="service_access">QQ 通知隐藏服务</string>
-    <string name="activity_splash">QQ通知进化</string>
+    <string name="activity_splash">QQ 通知进化</string>
     <string name="acc_desc">用于在 QQ 打开时清除通知</string>
 
     <string name="nevo_name">QQ 通知进化</string>
@@ -19,47 +20,48 @@
     <string name="notify_qzone_channel_des">QQ 空间与我相关的消息</string>
 
     <!--设置页-->
+    <string name="pref_cate_base">基础</string>
+    <string name="pref_mode">工作模式</string>
+    <string-array name="pref_mode_entries">
+        <item>Nevo 插件</item>
+        <item>传统</item>
+    </string-array>
+    <string-array name="pref_mode_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
     <string name="pref_cate_permit">必要权限</string>
     <string name="pref_notf_permit">通知访问权</string>
     <string name="pref_aces_permit">无障碍服务</string>
     <string name="pref_cancel_battery_optimize">停用电池优化</string>
-    <!--<string name="pref_save_permit">存储权限</string>-->
-    <string name="pref_cate_other">通知</string>
-    <string name="pref_cate_notify_system">系统设置</string>
-    <string name="pref_cate_notify_system_summary">前往原生系统设置不同类别的声音与振动</string>
-    <string name="pref_cate_notify_alert">声音与振动</string>
+    <string name="pref_auto_start">自启动与后台运行</string>
+    <string name="pref_auto_start_summary">需要手动检查</string>
+    <string name="pref_auto_start_message">根据设备型号的不同，请前往手机管家、智能管理器等位置允许本应用的自动启动与后台运行。</string>
+
+    <string name="pref_cate_notify">通知</string>
+    <string name="pref_notify_system">系统设置</string>
+    <string name="pref_notify_system_summary">前往系统原生页面设置不同类别的声音与振动</string>
+    <string name="pref_notify_nevo">Nevo 设置</string>
+    <string name="pref_notify_nevo_summary">前往 Nevo 页面设置不同类别的声音与振动。\n部分类别可能需要触发一次通知才会显示。</string>
     <string name="pref_icon_mode">图标样式</string>
     <string-array name="pref_icon_mode">
-        <item>默认</item>
-        <item>彩色tim</item>
-        <item>聊天气泡</item>
-        <item>聊天气泡2</item>
-        <item>实心QQ图标</item>
+        <item>自动</item>
+        <item>QQ</item>
+        <item>TIM</item>
     </string-array>
     <string-array name="pref_icon_mode_value">
         <item>0</item>
         <item>1</item>
         <item>2</item>
-        <item>3</item>
-        <item>4</item>
     </string-array>
-    <string name="pref_ringtone">提示音</string>
-    <string name="pref_ringtone_none">无</string>
-    <string name="pref_ringtone_summary">%1$s\n使用系统原生通知提示，请关闭QQ内部的通知声音以免重叠</string>
-    <string name="pref_vibrate">震动</string>
-    <string name="pref_vibrate_summary">使用系统原生的通知震动\n原生震动有更好的智能手环/手表兼容性</string>
-
-    <string name="pref_cate_friend">联系人消息</string>
-    <string name="pref_cate_group">群组消息</string>
-    <string name="pref_cate_qzone">QQ 空间</string>
-    <string name="pref_show_group_notify">开启通知</string>
-    <string name="pref_show_group_notify_summary">需要在 QQ 应用内开启相关选项</string>
-    <string name="pref_use_multi_line" tools:keep="@string/pref_use_multi_line">多行显示单条消息</string>
     <string name="pref_cate_about">关于</string>
     <string name="pref_version_code">版本号</string>
 
     <string name="pref_enable_permit">已启用</string>
     <string name="pref_disable_permit">已禁用</string>
+
+    <string name="pref_cate_operation">操作</string>
+    <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
 
     <!--关于页-->
     <string name="best_practice">最佳实践</string>

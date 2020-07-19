@@ -11,7 +11,7 @@ class PreferenceAty : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.preference_layout)
         supportFragmentManager.beginTransaction()
-                .replace(R.id.frameLayout, MainPrefFr())
+                .replace(R.id.frameLayout, MainPreferenceFr())
                 .commit()
     }
 

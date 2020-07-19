@@ -341,16 +341,14 @@ abstract class NotificationProcessor {
             builder.setSmallIcon(R.drawable.ic_qzone)
             return
         }
-        val mode = Integer.parseInt(getIconMode(context))
-        when (mode) {
-            0 -> when (tag) {
+        when (getIconMode(context)) {
+            ICON_AUTO -> when (tag) {
                 TAG_QQ, TAG_QQ_LITE -> R.drawable.ic_qq
                 TAG_TIM -> R.drawable.ic_tim
                 else -> R.drawable.ic_qq
             }
-            1 -> R.drawable.ic_tim
-            2 -> R.drawable.chat2
-            3 -> R.drawable.chat
+            ICON_QQ -> R.drawable.ic_qq
+            ICON_TIM -> R.drawable.ic_tim
             else -> R.drawable.ic_qq
         }.let { iconRes -> builder.setSmallIcon(iconRes) }
     }

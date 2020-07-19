@@ -1,9 +1,13 @@
 package cc.chenhe.qqnotifyevo.service
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Process
 import android.util.Log
 import cc.chenhe.qqnotifyevo.core.NevoNotificationProcessor
-import cc.chenhe.qqnotifyevo.utils.getNotificationChannels
+import cc.chenhe.qqnotifyevo.utils.*
 import com.oasisfeng.nevo.sdk.MutableStatusBarNotification
 import com.oasisfeng.nevo.sdk.NevoDecoratorService
 
@@ -15,14 +19,50 @@ class NevoDecorator : NevoDecoratorService() {
     private lateinit var notificationChannelCreated: MutableSet<String>
 
     private lateinit var processor: NevoNotificationProcessor
+    private lateinit var receiver: Receiver
+
+    private inner class Receiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, i: Intent?) {
+            if (i?.action == ACTION_DELETE_NEVO_CHANNEL) {
+                deleteChannels()
+            }
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        receiver = Receiver()
+        registerReceiver(receiver, IntentFilter(ACTION_DELETE_NEVO_CHANNEL))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::receiver.isInitialized) {
+            unregisterReceiver(receiver)
+        }
+    }
 
     override fun onConnected() {
         super.onConnected()
-        Log.w(TAG, "Nevo onConnected")
         notificationChannelCreated = mutableSetOf()
         processor = NevoNotificationProcessor()
 
-        createChannels(null)
+        if (getMode(this) == MODE_NEVO) {
+            createChannels(null)
+        }
+    }
+
+    private fun deleteChannels() {
+        packageNameList.forEach out@{ pkg ->
+            notificationChannelIdList.forEach { id ->
+                try {
+                    deleteNotificationChannel(pkg, Process.myUserHandle(), id)
+                    Log.d(TAG, "已删除 Nevo 通知渠道, pkg=$pkg, id=$id")
+                } catch (e: SecurityException) {
+                    return@out
+                }
+            }
+        }
     }
 
     private fun createChannels(packageName: String?) {
@@ -32,11 +72,7 @@ class NevoDecorator : NevoDecoratorService() {
                 notificationChannelCreated.add(packageName)
                 createNotificationChannels(packageName, Process.myUserHandle(), getNotificationChannels(this))
             } else {
-                listOf(
-                        "com.tencent.mobileqq",
-                        "com.tencent.tim",
-                        "com.tencent.qqlite"
-                ).forEach { pkg ->
+                packageNameList.forEach { pkg ->
                     try {
                         createNotificationChannels(pkg, Process.myUserHandle(), getNotificationChannels(this))
                     } catch (e: SecurityException) {

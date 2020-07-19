@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory android:title="@string/pref_cate_permit">
+
+    <PreferenceCategory android:title="@string/pref_cate_base">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_mode_entries"
+            android:entryValues="@array/pref_mode_values"
+            app:key="mode"
+            app:title="@string/pref_mode"
+            app:useSimpleSummaryProvider="true" />
+
         <Preference
             app:key="permission"
             app:title="@string/pref_cate_permit" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/pref_cate_other">
+    <PreferenceCategory android:title="@string/pref_cate_notify">
+
         <Preference
-            app:isPreferenceVisible="false"
             app:key="system_notify_setting"
-            app:summary="@string/pref_cate_notify_system_summary"
-            app:title="@string/pref_cate_notify_system" />
-        <Preference
-            app:isPreferenceVisible="false"
-            app:key="in_app_notify_setting"
-            app:title="@string/pref_cate_notify_alert" />
+            app:summary="@string/pref_notify_system_summary"
+            app:title="@string/pref_notify_system" />
+
         <ListPreference
             app:defaultValue="0"
             app:entries="@array/pref_icon_mode"
@@ -24,6 +31,13 @@
             app:key="icon_mode"
             app:title="@string/pref_icon_mode"
             app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/pref_cate_operation">
+
+        <Preference
+            app:key="delete_nevo_channel"
+            app:title="@string/pref_delete_nevo_channel" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_cate_about">

@@ -2,6 +2,7 @@ package cc.chenhe.qqnotifyevo.preference
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.POWER_SERVICE
 import android.content.Intent
@@ -15,10 +16,16 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.service.AccessibilityMonitorService
+import cc.chenhe.qqnotifyevo.utils.MODE_NEVO
+import cc.chenhe.qqnotifyevo.utils.getMode
 
 class PermissionFr : PreferenceFragmentCompat() {
 
     private lateinit var ctx: Context
+
+    private lateinit var notification: Preference
+    private lateinit var accessibility: Preference
+    private lateinit var battery: Preference
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -27,6 +34,14 @@ class PermissionFr : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_permission, rootKey)
+        notification = findPreference("notf_permit")!!
+        accessibility = findPreference("aces_permit")!!
+        battery = findPreference("bet_permit")!!
+
+        val nevoMode = getMode(requireContext()) == MODE_NEVO
+        notification.isVisible = !nevoMode
+        accessibility.isVisible = !nevoMode
+
         refreshSummary()
     }
 
@@ -49,19 +64,24 @@ class PermissionFr : PreferenceFragmentCompat() {
                 ignoreBatteryOptimization(requireActivity())
                 return true
             }
+            "auto_start" -> {
+                AlertDialog.Builder(context)
+                        .setTitle(R.string.pref_auto_start)
+                        .setMessage(R.string.pref_auto_start_message)
+                        .setPositiveButton(R.string.confirm, null)
+                        .show()
+                return true
+            }
         }
         return super.onPreferenceTreeClick(preference)
     }
 
     private fun refreshSummary() {
-        findPreference<Preference>("notf_permit")?.summary =
-                getString(if (isNotificationListenerEnabled(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        notification.summary = getString(if (isNotificationListenerEnabled(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
 
-        findPreference<Preference>("aces_permit")?.summary =
-                getString(if (isAccessibilitySettingsOn(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        accessibility.summary = getString(if (isAccessibilitySettingsOn(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
 
-        findPreference<Preference>("bet_permit")?.summary =
-                getString(if (isIgnoreBatteryOptimization(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        battery.summary = getString(if (isIgnoreBatteryOptimization(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
     }
 
     private fun isNotificationListenerEnabled(context: Context): Boolean {

@@ -6,11 +6,18 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Environment
 import cc.chenhe.qqnotifyevo.R
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+
+//-----------------------------------------------------------
+// Intent Action
+//-----------------------------------------------------------
+
+const val ACTION_DELETE_NEVO_CHANNEL = "deleteNevoChannel"
 
 // Android O+ 通知渠道 id
 const val NOTIFY_FRIEND_CHANNEL_ID = "QQ_Friend"
@@ -18,6 +25,26 @@ const val NOTIFY_GROUP_CHANNEL_ID = "QQ_Group"
 const val NOTIFY_QZONE_CHANNEL_ID = "QQ_Zone"
 
 const val GITHUB_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution"
+
+/**
+ * 适配的应用包名列表。
+ */
+val packageNameList: List<String>
+    get() = listOf(
+            "com.tencent.mobileqq",
+            "com.tencent.tim",
+            "com.tencent.qqlite"
+    )
+
+/**
+ * 通知渠道 id 列表。
+ */
+val notificationChannelIdList: List<String>
+    get() = listOf(
+            NOTIFY_FRIEND_CHANNEL_ID,
+            NOTIFY_GROUP_CHANNEL_ID,
+            NOTIFY_QZONE_CHANNEL_ID
+    )
 
 fun getChannelId(channel: NotifyChannel): String = when (channel) {
     NotifyChannel.FRIEND -> NOTIFY_FRIEND_CHANNEL_ID
@@ -38,22 +65,19 @@ fun getNotificationChannels(context: Context): List<NotificationChannel> {
             context.getString(R.string.notify_friend_channel_name),
             NotificationManager.IMPORTANCE_HIGH)
     friendChannel.description = context.getString(R.string.notify_friend_channel_des)
-    friendChannel.setSound(getRingtone(context, NotifyChannel.FRIEND), att)
-    friendChannel.enableVibration(isVibrate(context, NotifyChannel.FRIEND))
+    friendChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
 
     val groupChannel = NotificationChannel(NOTIFY_GROUP_CHANNEL_ID,
             context.getString(R.string.notify_group_channel_name),
             NotificationManager.IMPORTANCE_HIGH)
     groupChannel.description = context.getString(R.string.notify_group_channel_des)
-    groupChannel.setSound(getRingtone(context, NotifyChannel.GROUP), att)
-    groupChannel.enableVibration(isVibrate(context, NotifyChannel.GROUP))
+    groupChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
 
     val qzoneChannel = NotificationChannel(NOTIFY_QZONE_CHANNEL_ID,
             context.getString(R.string.notify_qzone_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT)
     qzoneChannel.description = context.getString(R.string.notify_qzone_channel_des)
-    qzoneChannel.setSound(getRingtone(context, NotifyChannel.QZONE), att)
-    qzoneChannel.enableVibration(isVibrate(context, NotifyChannel.QZONE))
+    qzoneChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
 
     return listOf(friendChannel, groupChannel, qzoneChannel)
 }

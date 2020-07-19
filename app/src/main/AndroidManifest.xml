@@ -48,7 +48,6 @@
             android:directBootAware="true"
             android:label="@string/nevo_name"
             android:permission="com.oasisfeng.nevo.permission.BIND_DECORATOR_SERVICE"
-            android:process="com.oasisfeng.nevo.decorators"
             tools:targetApi="N">
             <intent-filter android:priority="5">
                 <action android:name="com.oasisfeng.nevo.Decorator" />

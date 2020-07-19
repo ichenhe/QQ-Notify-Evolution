@@ -6,19 +6,75 @@ import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
+import androidx.annotation.IntDef
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import androidx.preference.PreferenceManager
 
-fun getIconMode(context: Context): String {
-    return PreferenceManager.getDefaultSharedPreferences(context)
-            .getString("icon_mode", "0")?:"0"
+// ---------------------------------------------------------
+// 工作模式
+// ---------------------------------------------------------
+
+/** Nevo 插件 */
+const val MODE_NEVO = 1
+
+/** 通过通知访问权、辅助服务等特殊权限替换原生通知 */
+const val MODE_LEGACY = 2
+
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(MODE_NEVO, MODE_LEGACY)
+annotation class Mode
+
+// ---------------------------------------------------------
+// 通知图标
+// ---------------------------------------------------------
+
+const val ICON_AUTO = 0
+const val ICON_QQ = 1
+const val ICON_TIM = 2
+
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(ICON_AUTO, ICON_QQ, ICON_TIM)
+annotation class Icon
+
+// ---------------------------------------------------------
+// Functions
+// ---------------------------------------------------------
+
+@Mode
+fun getMode(context: Context): Int {
+    val mode = PreferenceManager.getDefaultSharedPreferences(context).getString("mode", "0") ?: "0"
+    return when (mode.toInt()) {
+        1 -> MODE_NEVO
+        2 -> MODE_LEGACY
+        else -> MODE_NEVO
+    }
+}
+
+fun fetchMode(context: Context): LiveData<Int> {
+    val source = SpStringLiveData(PreferenceManager.getDefaultSharedPreferences(context), "mode", "0", true)
+    return Transformations.map(source) { src ->
+        src!!.toInt()
+    }
+}
+
+@Icon
+fun getIconMode(context: Context): Int {
+    val icon = PreferenceManager.getDefaultSharedPreferences(context).getString("icon_mode", "0") ?: "0"
+    return when (icon.toInt()) {
+        0 -> ICON_AUTO
+        1 -> ICON_QQ
+        2 -> ICON_TIM
+        else -> ICON_AUTO
+    }
 }
 
 fun getRingtone(context: Context, channel: NotifyChannel): Uri? {
     val sp = PreferenceManager.getDefaultSharedPreferences(context)
     val uri = when (channel) {
         NotifyChannel.FRIEND -> sp.getString("friend_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
-        NotifyChannel.GROUP -> sp.getString("group_ringtone",  RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
-        NotifyChannel.QZONE -> sp.getString("qzone_ringtone",  RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
+        NotifyChannel.GROUP -> sp.getString("group_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
+        NotifyChannel.QZONE -> sp.getString("qzone_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString())
     }
     return uri?.let { Uri.parse(uri) }
 }
@@ -58,7 +114,7 @@ fun getVersion(context: Context): String {
         versionName = pi.versionName
         versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             pi.longVersionCode
-        }else{
+        } else {
             @Suppress("DEPRECATION")
             pi.versionCode.toLong()
         }
