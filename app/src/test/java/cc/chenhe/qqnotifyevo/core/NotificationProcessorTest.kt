@@ -3,17 +3,9 @@ package cc.chenhe.qqnotifyevo.core
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
-import org.junit.Before
 import org.junit.Test
 
 class NotificationProcessorTest {
-
-    private lateinit var processor: NotificationProcessor
-
-    @Before
-    fun setup() {
-        processor = NotificationProcessor()
-    }
 
     private fun generateGroupTicker(nickName: String, groupName: String, message: String): String {
         return "$nickName($groupName):$message"
@@ -25,6 +17,10 @@ class NotificationProcessorTest {
 
     private fun generateQzoneTitle(messageNum: Int = 1): String {
         return "QQ空间动态(共${messageNum}条未读)"
+    }
+
+    private fun generateHiddenTicker(messageNum: Int = 1): String {
+        return "你收到了${messageNum}条新消息"
     }
 
     @Test
@@ -68,5 +64,34 @@ class NotificationProcessorTest {
         val matcher = NotificationProcessor.qzonePattern.matcher(title)
         matcher.matches().shouldBeTrue()
         matcher.group(1)!!.toInt() shouldBeEqualTo 2
+    }
+
+    @Test
+    fun hidden_message_match() {
+        val ticker = generateHiddenTicker()
+        val matcher = NotificationProcessor.hideMsgPattern.matcher(ticker)
+        matcher.matches().shouldBeTrue()
+    }
+
+    @Test
+    fun hidden_message_mismatch_friend() {
+        val ticker = generateFriendTicker("Bob", "Hello~")
+        val matcher = NotificationProcessor.hideMsgPattern.matcher(ticker)
+        matcher.matches().shouldBeFalse()
+    }
+
+    @Test
+    fun hidden_message_mismatch_group() {
+        val ticker = generateGroupTicker("Alice", "group", "hi")
+        val matcher = NotificationProcessor.hideMsgPattern.matcher(ticker)
+        matcher.matches().shouldBeFalse()
+    }
+
+    @Test
+    fun chat_message_num_match() {
+        val title = "Bob (11条新消息)"
+        val matcher = NotificationProcessor.msgTitlePattern.matcher(title)
+        matcher.matches().shouldBeTrue()
+        matcher.group(1)!!.toInt() shouldBeEqualTo 11
     }
 }

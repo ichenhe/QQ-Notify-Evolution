@@ -2,7 +2,7 @@ package cc.chenhe.qqnotifyevo.service
 
 import android.os.Process
 import android.util.Log
-import cc.chenhe.qqnotifyevo.core.NotificationProcessor
+import cc.chenhe.qqnotifyevo.core.NevoNotificationProcessor
 import cc.chenhe.qqnotifyevo.utils.getNotificationChannels
 import com.oasisfeng.nevo.sdk.MutableStatusBarNotification
 import com.oasisfeng.nevo.sdk.NevoDecoratorService
@@ -14,13 +14,13 @@ class NevoDecorator : NevoDecoratorService() {
      */
     private lateinit var notificationChannelCreated: MutableSet<String>
 
-    private lateinit var processor: NotificationProcessor
+    private lateinit var processor: NevoNotificationProcessor
 
     override fun onConnected() {
         super.onConnected()
         Log.w(TAG, "Nevo onConnected")
         notificationChannelCreated = mutableSetOf()
-        processor = NotificationProcessor()
+        processor = NevoNotificationProcessor()
 
         createChannels(null)
     }
