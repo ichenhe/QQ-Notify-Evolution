@@ -319,6 +319,7 @@ abstract class NotificationProcessor {
             style: NotificationCompat.Style?,
             largeIcon: Bitmap?,
             original: Notification,
+            subtext: String? = null,
             title: String? = null, text: String? = null, ticker: String? = null): Notification {
         val channelId = getChannelId(channel)
 
@@ -337,6 +338,8 @@ abstract class NotificationProcessor {
                 .setLargeIcon(largeIcon)
                 .setChannelId(channelId)
 
+        if (subtext != null)
+            builder.setSubText(subtext)
         if (title != null)
             builder.setContentTitle(title)
         if (text != null)
@@ -377,8 +380,10 @@ abstract class NotificationProcessor {
         conversation.messages.forEach { msg ->
             style.addMessage(msg.content, msg.time, msg.person)
         }
+        val num = conversation.messages.size
+        val subtext = if (num > 1) context.getString(R.string.notify_subtext_message_num, num) else null
         return createNotification(context, tag, channel, style,
-                getConversionIcon(context, conversation.name.hashCode()), original)
+                getConversionIcon(context, conversation.name.hashCode()), original, subtext)
     }
 
 
