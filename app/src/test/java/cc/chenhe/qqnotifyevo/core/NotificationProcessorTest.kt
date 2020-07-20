@@ -27,12 +27,12 @@ class NotificationProcessorTest {
 
     @Test
     fun group_ticker_match() {
-        val ticker = generateGroupTicker("Bob", "Family", "Hello~")
+        val ticker = generateGroupTicker("Bob", "Family(1)", "Hello~")
         val matcher = NotificationProcessor.groupMsgPattern.matcher(ticker)
         matcher.matches().shouldBeTrue()
 
         matcher.group(1)!! shouldBeEqualTo "Bob"
-        matcher.group(2)!! shouldBeEqualTo "Family"
+        matcher.group(2)!! shouldBeEqualTo "Family(1)"
         matcher.group(3)!! shouldBeEqualTo "Hello~"
     }
 

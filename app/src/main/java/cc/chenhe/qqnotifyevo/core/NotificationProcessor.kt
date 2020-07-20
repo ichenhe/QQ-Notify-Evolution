@@ -49,16 +49,35 @@ abstract class NotificationProcessor {
         // title: 群名 | 群名 (x条新消息)
         // ticker: 昵称(群名):消息内容
         // text: 昵称: 消息内容
+
+        /**
+         * 匹配群聊消息 Ticker.
+         *
+         * Group: 1昵称, 2群名, 3消息内容
+         *
+         * 限制：昵称不能包含英文括号 `()`.
+         */
         @VisibleForTesting
-        val groupMsgPattern: Pattern = Pattern.compile("^(.+)\\((.*)\\):(.+)$")
+        val groupMsgPattern: Pattern = Pattern.compile("^(.+?)\\((.+)\\):(.+)\$")
 
         // 私聊消息
         // title: 昵称 | 昵称 (x条新消息) //特别关心前缀：[特别关心]
         // ticker: 昵称: 消息内容
         // text: 消息内容
+
+        /**
+         * 匹配私聊消息 Ticker.
+         *
+         * Group: 1昵称, 2消息内容
+         */
         @VisibleForTesting
         val msgPattern: Pattern = Pattern.compile("^(.+?): (.+)$")
 
+        /**
+         * 匹配私聊消息 Title.
+         *
+         * Group: 1\[特别关心\], 2新消息数目
+         */
         @VisibleForTesting
         val msgTitlePattern: Pattern = Pattern.compile("^(\\[特别关心])?.*?(?: \\((\\d+)条新消息\\))?$")
 
@@ -66,6 +85,12 @@ abstract class NotificationProcessor {
         // title: QQ空间动态(共x条未读)
         // ticker: 详情（例如xxx评论了你）
         // text: 与 ticker 相同
+
+        /**
+         * 匹配 QQ 空间 Ticker.
+         *
+         * Group: 1新消息数目
+         */
         @VisibleForTesting
         val qzonePattern: Pattern = Pattern.compile("^QQ空间动态\\(共(\\d+)条未读\\)$")
 
@@ -73,6 +98,12 @@ abstract class NotificationProcessor {
         // title: QQ
         // ticker: 你收到了x条新消息
         // text: 与 ticker 相同
+
+        /**
+         * 匹配隐藏通知详情时的 Ticker.
+         *
+         * Group: 1新消息数目
+         */
         @VisibleForTesting
         val hideMsgPattern: Pattern = Pattern.compile("^你收到了(\\d+)条新消息$")
 
