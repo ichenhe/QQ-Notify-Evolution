@@ -49,9 +49,9 @@
 
     <string name="pref_cate_notify">通知</string>
     <string name="pref_notify_system">系统设置</string>
-    <string name="pref_notify_system_summary">前往系统原生页面设置不同类别的声音与振动</string>
+    <string name="pref_notify_system_summary">前往系统原生页面设置不同渠道的声音与振动</string>
     <string name="pref_notify_nevo">Nevo 设置</string>
-    <string name="pref_notify_nevo_summary">前往 Nevo 页面设置不同类别的声音与振动。\n部分类别可能需要触发一次通知才会显示。</string>
+    <string name="pref_notify_nevo_summary">前往 Nevo 页面设置不同渠道的声音与振动。\n由于 Nevo 限制需要触发一次通知对应渠道才会显示。</string>
     <string name="pref_icon_mode">图标样式</string>
     <string-array name="pref_icon_mode">
         <item>自动</item>
