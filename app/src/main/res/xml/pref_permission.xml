@@ -9,4 +9,8 @@
     <Preference
         android:key="bet_permit"
         android:title="@string/pref_cancel_battery_optimize" />
+    <Preference
+        android:key="auto_start"
+        android:summary="@string/pref_auto_start_summary"
+        android:title="@string/pref_auto_start" />
 </PreferenceScreen>

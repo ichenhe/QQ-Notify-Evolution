@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <Preference
+        app:icon="@drawable/ic_warning"
+        app:isPreferenceVisible="false"
+        app:key="service_warning"
+        app:summary="@string/warning_nevo_service_summary"
+        app:title="@string/warning_nevo_service"
+        tools:isPreferenceVisible="true" />
+
+    <PreferenceCategory android:title="@string/pref_cate_base">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_mode_entries"
+            android:entryValues="@array/pref_mode_values"
+            app:key="mode"
+            app:title="@string/pref_mode"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
+            app:key="permission"
+            app:title="@string/pref_cate_permit" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cate_notify">
+
+        <Preference
+            app:icon="@drawable/ic_notification"
+            app:key="system_notify_setting"
+            app:summary="@string/pref_notify_system_summary"
+            app:title="@string/pref_notify_system" />
+
+        <ListPreference
+            app:defaultValue="0"
+            app:entries="@array/pref_icon_mode"
+            app:entryValues="@array/pref_icon_mode_value"
+            app:key="icon_mode"
+            app:title="@string/pref_icon_mode"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cate_about">
+
+        <Preference
+            app:key="advanced"
+            app:title="@string/pref_cate_advanced" />
+
+        <Preference
+            app:icon="@drawable/ic_manual"
+            app:key="manual"
+            app:summary="@string/about_manual_summary"
+            app:title="@string/about_manual" />
+
+        <Preference
+            app:key="donate"
+            app:title="@string/pref_donate" />
+
+        <Preference
+            app:key="version_code"
+            app:title="@string/pref_osc" />
+    </PreferenceCategory>
+</PreferenceScreen>

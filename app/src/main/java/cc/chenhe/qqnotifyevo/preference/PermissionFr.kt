@@ -2,11 +2,11 @@ package cc.chenhe.qqnotifyevo.preference
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.POWER_SERVICE
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
@@ -14,12 +14,18 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import cc.chenhe.qqnotifyevo.AccessibilityMonitorService
 import cc.chenhe.qqnotifyevo.R
+import cc.chenhe.qqnotifyevo.service.AccessibilityMonitorService
+import cc.chenhe.qqnotifyevo.utils.MODE_NEVO
+import cc.chenhe.qqnotifyevo.utils.getMode
 
 class PermissionFr : PreferenceFragmentCompat() {
 
     private lateinit var ctx: Context
+
+    private lateinit var notification: Preference
+    private lateinit var accessibility: Preference
+    private lateinit var battery: Preference
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -28,6 +34,14 @@ class PermissionFr : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_permission, rootKey)
+        notification = findPreference("notf_permit")!!
+        accessibility = findPreference("aces_permit")!!
+        battery = findPreference("bet_permit")!!
+
+        val nevoMode = getMode(requireContext()) == MODE_NEVO
+        notification.isVisible = !nevoMode
+        accessibility.isVisible = !nevoMode
+
         refreshSummary()
     }
 
@@ -47,7 +61,15 @@ class PermissionFr : PreferenceFragmentCompat() {
                 return true
             }
             "bet_permit" -> {
-                ignoreBatteryOptimization(activity!!)
+                ignoreBatteryOptimization(requireActivity())
+                return true
+            }
+            "auto_start" -> {
+                AlertDialog.Builder(context)
+                        .setTitle(R.string.pref_auto_start)
+                        .setMessage(R.string.pref_auto_start_message)
+                        .setPositiveButton(R.string.confirm, null)
+                        .show()
                 return true
             }
         }
@@ -55,14 +77,14 @@ class PermissionFr : PreferenceFragmentCompat() {
     }
 
     private fun refreshSummary() {
-        findPreference<Preference>("notf_permit")?.summary =
-                getString(if (isNotificationListenerEnabled(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        notification.summary = getString(if (isNotificationListenerEnabled(ctx))
+            R.string.pref_enable_permit else R.string.pref_disable_permit)
 
-        findPreference<Preference>("aces_permit")?.summary =
-                getString(if (isAccessibilitySettingsOn(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        accessibility.summary = getString(if (isAccessibilitySettingsOn(ctx))
+            R.string.pref_enable_permit else R.string.pref_disable_permit)
 
-        findPreference<Preference>("bet_permit")?.summary =
-                getString(if (isIgnoreBatteryOptimization(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        battery.summary = getString(if (isIgnoreBatteryOptimization(ctx))
+            R.string.pref_battery_optimize_disable else R.string.pref_battery_optimize_enable)
     }
 
     private fun isNotificationListenerEnabled(context: Context): Boolean {
@@ -100,18 +122,12 @@ class PermissionFr : PreferenceFragmentCompat() {
 
     private fun isIgnoreBatteryOptimization(context: Context): Boolean {
         val powerManager = context.getSystemService(POWER_SERVICE) as PowerManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            powerManager.isIgnoringBatteryOptimizations(context.packageName)
-        else true
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
 
     private fun openNotificationListenSettings() {
         try {
-            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-            } else {
-                Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-            }
+            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -125,14 +141,12 @@ class PermissionFr : PreferenceFragmentCompat() {
     private fun ignoreBatteryOptimization(activity: Activity) {
         val powerManager = activity.getSystemService(POWER_SERVICE) as PowerManager
         val hasIgnored: Boolean
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            hasIgnored = powerManager.isIgnoringBatteryOptimizations(activity.packageName)
-            Log.e("JHH", hasIgnored.toString() + "")
-            if (!hasIgnored) {
-                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                        Uri.parse("package:" + activity.packageName)).let {
-                    activity.startActivity(it)
-                }
+        hasIgnored = powerManager.isIgnoringBatteryOptimizations(activity.packageName)
+        Log.e("JHH", hasIgnored.toString() + "")
+        if (!hasIgnored) {
+            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:" + activity.packageName)).let {
+                activity.startActivity(it)
             }
         }
     }

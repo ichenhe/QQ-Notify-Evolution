@@ -2,6 +2,4 @@
 <resources>
     <color name="colorPrimary">#4284F3</color>
     <color name="colorQzone">#fece00</color>
-
-    <color name="transparent">#00000000</color>
 </resources>
