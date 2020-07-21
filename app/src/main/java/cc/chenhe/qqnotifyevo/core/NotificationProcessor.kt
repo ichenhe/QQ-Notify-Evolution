@@ -58,7 +58,7 @@ abstract class NotificationProcessor {
          * 限制：昵称不能包含英文括号 `()`.
          */
         @VisibleForTesting
-        val groupMsgPattern: Pattern = Pattern.compile("^(.+?)\\((.+)\\):(.+)\$")
+        val groupMsgPattern: Pattern = Pattern.compile("^(.+?)\\((.+)\\):(.+)$")
 
         // 私聊消息
         // title: 昵称 | 昵称 (x条新消息) //特别关心前缀：[特别关心]
