@@ -82,6 +82,12 @@
     <string name="pref_cate_about">关于</string>
     <string name="about_manual">使用手册</string>
     <string name="about_manual_summary">模式选择 · 双重通知 · 最佳实践</string>
+    <string name="pref_donate">捐助</string>
+    <string name="pref_donate_message">请选择扶贫方式</string>
+    <string-array name="pref_donate_options">
+        <item>支付宝</item>
+    </string-array>
+    <string name="pref_donate_alipay_error">打开支付宝失败</string>
     <string name="pref_osc">开放源代码</string>
     <string name="pref_version_code">版本号：%1$s</string>
     <string name="about_dialog_title">关于</string>

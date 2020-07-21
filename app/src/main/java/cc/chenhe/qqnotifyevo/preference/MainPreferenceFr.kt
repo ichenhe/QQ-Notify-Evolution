@@ -93,6 +93,9 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
             "manual" -> {
                 openUrl(MANUAL_URL)
             }
+            "donate" -> {
+                donate()
+            }
             "version_code" -> {
                 showInfo()
                 return true
@@ -112,6 +115,15 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
         }
     }
 
+    private fun donate() {
+        AlertDialog.Builder(context)
+                .setTitle(R.string.pref_donate_message)
+                .setSingleChoiceItems(R.array.pref_donate_options, -1) { _, i ->
+                    startAliPay()
+                }
+                .show()
+    }
+
     private fun showInfo() {
         AlertDialog.Builder(context)
                 .setTitle(getString(R.string.about_dialog_title))
@@ -121,6 +133,16 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
                 }
                 .setPositiveButton(R.string.confirm, null)
                 .show()
+    }
+
+    private fun startAliPay() {
+        try {
+            val uri = Uri.parse(ALIPAY)
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            startActivity(intent)
+        } catch (e: java.lang.Exception) {
+            Toast.makeText(requireContext(), R.string.pref_donate_alipay_error, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun openUrl(url: String) {

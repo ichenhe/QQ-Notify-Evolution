@@ -56,6 +56,10 @@
             app:title="@string/about_manual" />
 
         <Preference
+            app:key="donate"
+            app:title="@string/pref_donate" />
+
+        <Preference
             app:key="version_code"
             app:title="@string/pref_osc" />
     </PreferenceCategory>

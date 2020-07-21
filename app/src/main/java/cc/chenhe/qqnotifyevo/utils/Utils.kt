@@ -31,6 +31,9 @@ const val NOTIFY_GROUP_ID = "base"
 const val GITHUB_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/releases"
 const val MANUAL_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/wiki"
 
+const val ALIPAY =
+        "alipayqr://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/tsx12672qtk37hufsxfkub7"
+
 /**
  * 适配的应用包名列表。
  */
