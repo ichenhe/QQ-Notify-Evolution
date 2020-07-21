@@ -66,34 +66,44 @@ fun getNotificationChannels(context: Context, nevo: Boolean): List<NotificationC
     val prefix = if (nevo) context.getString(R.string.notify_nevo_prefix) else ""
 
     val att = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
 
     val friendChannel = NotificationChannel(NOTIFY_FRIEND_CHANNEL_ID,
             prefix + context.getString(R.string.notify_friend_channel_name),
-            NotificationManager.IMPORTANCE_HIGH)
-    friendChannel.description = context.getString(R.string.notify_friend_channel_des)
-    friendChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+            NotificationManager.IMPORTANCE_HIGH).apply {
+        description = context.getString(R.string.notify_friend_channel_des)
+        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+        enableVibration(true)
+        enableLights(true)
+    }
 
     val friendSpecialChannel = NotificationChannel(NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
             prefix + context.getString(R.string.notify_friend_special_channel_name),
             NotificationManager.IMPORTANCE_HIGH).apply {
         description = context.getString(R.string.notify_friend_special_channel_des)
         setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+        enableVibration(true)
+        enableLights(true)
     }
 
     val groupChannel = NotificationChannel(NOTIFY_GROUP_CHANNEL_ID,
             prefix + context.getString(R.string.notify_group_channel_name),
-            NotificationManager.IMPORTANCE_HIGH)
-    groupChannel.description = context.getString(R.string.notify_group_channel_des)
-    groupChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+            NotificationManager.IMPORTANCE_HIGH).apply {
+        description = context.getString(R.string.notify_group_channel_des)
+        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+        enableVibration(true)
+        enableLights(true)
+    }
 
     val qzoneChannel = NotificationChannel(NOTIFY_QZONE_CHANNEL_ID,
             prefix + context.getString(R.string.notify_qzone_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT)
-    qzoneChannel.description = context.getString(R.string.notify_qzone_channel_des)
-    qzoneChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+            NotificationManager.IMPORTANCE_DEFAULT).apply {
+        description = context.getString(R.string.notify_qzone_channel_des)
+        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
+        enableLights(true)
+    }
 
     return listOf(friendChannel, friendSpecialChannel, groupChannel, qzoneChannel)
 }
