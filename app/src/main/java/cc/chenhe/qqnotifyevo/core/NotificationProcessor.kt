@@ -248,7 +248,6 @@ abstract class NotificationProcessor {
                 val conversation = addMessage(tag, name, text, null, getConversionIcon(context, name.hashCode()),
                         original.contentIntent, original.deleteIntent)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
-                Log.d(TAG, ticker + "; " + matcher.group(1))
                 return if (special) {
                     Log.d(TAG, "[Special] Name: $name; Text: $text")
                     renewConversionNotification(context, tag, NotifyChannel.FRIEND_SPECIAL, conversation, sbn, original)
@@ -359,8 +358,10 @@ abstract class NotificationProcessor {
         conversation.messages.forEach { msg ->
             style.addMessage(msg.content, msg.time, msg.person)
         }
+        val num = conversation.messages.size
+        val subtext = if (num > 1) context.getString(R.string.notify_subtext_qzone_num, num) else null
         return createNotification(context, tag, NotifyChannel.QZONE, style,
-                getConversionIcon(context, CONVERSATION_NAME_QZONE.hashCode()), original)
+                getConversionIcon(context, CONVERSATION_NAME_QZONE.hashCode()), original, subtext)
     }
 
 
