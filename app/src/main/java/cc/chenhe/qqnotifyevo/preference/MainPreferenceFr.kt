@@ -41,14 +41,14 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.preferences, rootKey)
+        setPreferencesFromResource(R.xml.pref_main, rootKey)
 
         notification = findPreference("system_notify_setting")!!
         serviceWarning = findPreference("service_warning")!!
 
         findPreference<Preference>("permission")?.fragment = PermissionFr::class.java.name
         findPreference<Preference>("advanced")?.fragment = AdvancedFr::class.java.name
-        findPreference<Preference>("version_code")?.summary = getVersion(ctx)
+        findPreference<Preference>("version_code")?.summary = getString(R.string.pref_version_code, getVersion(ctx))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

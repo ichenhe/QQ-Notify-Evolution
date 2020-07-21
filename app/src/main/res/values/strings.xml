@@ -20,8 +20,8 @@
     <string name="notify_friend_special_channel_des">QQ 特别关心好友私聊消息通知</string>
     <string name="notify_group_channel_name">群消息</string>
     <string name="notify_group_channel_des">QQ 群消息通知</string>
-    <string name="notify_qzone_channel_name">QQ 空间</string>
-    <string name="notify_qzone_channel_des">QQ 空间与我相关的消息</string>
+    <string name="notify_qzone_channel_name">空间动态</string>
+    <string name="notify_qzone_channel_des">QQ 空间动态通知</string>
 
     <string name="notify_subtext_message_num">%1$d条新消息</string>
     <string name="notify_subtext_qzone_num">%1$d条新动态</string>
@@ -42,6 +42,8 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <!-- 必要权限 -->
     <string name="pref_cate_permit">必要权限</string>
     <string name="pref_notf_permit">通知访问权</string>
     <string name="pref_aces_permit">无障碍服务</string>
@@ -49,7 +51,12 @@
     <string name="pref_auto_start">自启动与后台运行</string>
     <string name="pref_auto_start_summary">需要手动检查</string>
     <string name="pref_auto_start_message">根据设备型号的不同，请前往手机管家、智能管理器等位置允许本应用的自动启动与后台运行。</string>
+    <string name="pref_enable_permit">已启用</string>
+    <string name="pref_disable_permit">已禁用</string>
+    <string name="pref_battery_optimize_disable">已停用</string>
+    <string name="pref_battery_optimize_enable">未停用</string>
 
+    <!-- 通知 -->
     <string name="pref_cate_notify">通知</string>
     <string name="pref_notify_system">系统设置</string>
     <string name="pref_notify_system_summary">前往系统原生页面设置不同渠道的声音与振动</string>
@@ -66,18 +73,17 @@
         <item>1</item>
         <item>2</item>
     </string-array>
-    <string name="pref_cate_about">关于</string>
-    <string name="pref_version_code">版本号</string>
-
-    <string name="pref_enable_permit">已启用</string>
-    <string name="pref_disable_permit">已禁用</string>
 
     <!-- 高级 -->
     <string name="pref_cate_advanced">高级选项</string>
     <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
 
     <!--关于页-->
+    <string name="pref_cate_about">关于</string>
     <string name="about_manual">使用手册</string>
+    <string name="about_manual_summary">模式选择 · 双重通知 · 最佳实践</string>
+    <string name="pref_osc">开放源代码</string>
+    <string name="pref_version_code">版本号：%1$s</string>
     <string name="about_dialog_title">关于</string>
     <string name="about_dialog_message">
 <![CDATA[
@@ -85,8 +91,8 @@
 严禁用于商用/出售/引流\n\n
 2. 支持 Nevo 插件与独立运行\n
 请参考使用手册选择合适的模式\n\n
-3. 参考开源项目 @Jinhaihan QQ-Notfiy-Improve，感谢原作者
+3. 唯一发布地址为 GitHub\n戳下面按钮直达
 ]]>
     </string>
-    <string name="about_dialog_github">GitHub</string>
+    <string name="about_dialog_github">GitHub 发布页</string>
 </resources>

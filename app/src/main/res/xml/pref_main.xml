@@ -52,10 +52,11 @@
         <Preference
             app:icon="@drawable/ic_manual"
             app:key="manual"
+            app:summary="@string/about_manual_summary"
             app:title="@string/about_manual" />
 
         <Preference
             app:key="version_code"
-            app:title="@string/pref_version_code" />
+            app:title="@string/pref_osc" />
     </PreferenceCategory>
 </PreferenceScreen>

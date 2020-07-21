@@ -28,7 +28,7 @@ const val NOTIFY_QZONE_CHANNEL_ID = "QQ_Zone"
 // 自身默认的通知类别
 const val NOTIFY_GROUP_ID = "base"
 
-const val GITHUB_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution"
+const val GITHUB_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/releases"
 const val MANUAL_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/wiki"
 
 /**

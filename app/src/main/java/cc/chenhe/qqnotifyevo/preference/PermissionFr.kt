@@ -77,11 +77,14 @@ class PermissionFr : PreferenceFragmentCompat() {
     }
 
     private fun refreshSummary() {
-        notification.summary = getString(if (isNotificationListenerEnabled(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        notification.summary = getString(if (isNotificationListenerEnabled(ctx))
+            R.string.pref_enable_permit else R.string.pref_disable_permit)
 
-        accessibility.summary = getString(if (isAccessibilitySettingsOn(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        accessibility.summary = getString(if (isAccessibilitySettingsOn(ctx))
+            R.string.pref_enable_permit else R.string.pref_disable_permit)
 
-        battery.summary = getString(if (isIgnoreBatteryOptimization(ctx)) R.string.pref_enable_permit else R.string.pref_disable_permit)
+        battery.summary = getString(if (isIgnoreBatteryOptimization(ctx))
+            R.string.pref_battery_optimize_disable else R.string.pref_battery_optimize_enable)
     }
 
     private fun isNotificationListenerEnabled(context: Context): Boolean {
