@@ -237,7 +237,7 @@ abstract class NotificationProcessor(context: Context) {
                 if (!isMulti)
                     avatarManager.saveAvatar(groupName.hashCode(), getNotifyLargeIcon(context, original))
                 val conversation = addMessage(tag, name, text, groupName,
-                        avatarManager.getAvatar(groupName.hashCode()), original.contentIntent, original.deleteIntent)
+                        avatarManager.getAvatar(name.hashCode()), original.contentIntent, original.deleteIntent)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(title))
                 Log.d(TAG, "[Group] Name: $name; Group: $groupName; Text: $text")
                 return renewConversionNotification(context, tag, NotifyChannel.GROUP, conversation, sbn, original)
