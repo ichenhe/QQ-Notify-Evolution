@@ -3,13 +3,20 @@ package cc.chenhe.qqnotifyevo.service
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.observe
 import cc.chenhe.qqnotifyevo.core.InnerNotificationProcessor
 import cc.chenhe.qqnotifyevo.utils.MODE_LEGACY
+import cc.chenhe.qqnotifyevo.utils.fetchAvatarCachePeriod
 import cc.chenhe.qqnotifyevo.utils.getMode
 
-class NotificationMonitorService : NotificationListenerService(), InnerNotificationProcessor.Commander {
+class NotificationMonitorService : NotificationListenerService(), InnerNotificationProcessor.Commander,
+        LifecycleOwner {
 
     companion object {
         var instance: NotificationMonitorService? = null
@@ -24,18 +31,47 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
         }
     }
 
+    private lateinit var lifecycleRegistry: LifecycleRegistry
     private lateinit var ctx: Context
 
     private lateinit var processor: InnerNotificationProcessor
+
+    override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
     override fun onCreate() {
         super.onCreate()
         instance = this
         ctx = this
-        processor = InnerNotificationProcessor(this)
+        lifecycleRegistry = LifecycleRegistry(this).apply { currentState = Lifecycle.State.CREATED }
+        processor = InnerNotificationProcessor(this, this)
+        fetchAvatarCachePeriod(this).observe(this) { avatarCachePeriod ->
+            processor.setAvatarCachePeriod(avatarCachePeriod)
+        }
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        return super.onBind(intent)
+    }
+
+    override fun onStart(intent: Intent?, startId: Int) {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        @Suppress("DEPRECATION")
+        super.onStart(intent, startId)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        if (getMode(this) != MODE_LEGACY)
+            return Service.START_STICKY
+        if (intent?.hasExtra("tag") == true) {
+            processor.clearHistory(ctx, intent.getIntExtra("tag", 0))
+        }
+        return Service.START_STICKY
     }
 
     override fun onDestroy() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
         instance = null
     }
@@ -48,14 +84,6 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
         processor.resolveNotification(ctx, sbn.packageName, sbn)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (getMode(this) != MODE_LEGACY)
-            return Service.START_STICKY
-        if (intent?.hasExtra("tag") == true) {
-            processor.clearHistory(ctx, intent.getIntExtra("tag", 0))
-        }
-        return Service.START_STICKY
-    }
 
 }
 

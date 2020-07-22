@@ -19,7 +19,7 @@ import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-abstract class NotificationProcessor {
+abstract class NotificationProcessor(context: Context) {
 
     companion object {
         private const val TAG = "NotificationProcessor"
@@ -109,9 +109,17 @@ abstract class NotificationProcessor {
 
     }
 
+    private val ctx: Context = context.applicationContext
+
     private val qqHistory = ArrayList<Conversation>()
     private val qqLiteHistory = ArrayList<Conversation>()
     private val timHistory = ArrayList<Conversation>()
+
+    private val avatarManager = AvatarManager.get(getAvatarDiskCacheDir(ctx), getAvatarCachePeriod(context))
+
+    fun setAvatarCachePeriod(period: Long) {
+        avatarManager.period = period
+    }
 
     /**
      * 清除此来源所有通知，并清空历史记录。
@@ -207,10 +215,10 @@ abstract class NotificationProcessor {
 
         // QQ空间
         if (isQzone && !content.isNullOrEmpty()) {
-            saveConversationIcon(context, CONVERSATION_NAME_QZONE.hashCode(), getNotifyLargeIcon(context, original))
+            avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), getNotifyLargeIcon(context, original))
 
             val conversation = addMessage(tag, context.getString(R.string.notify_qzone_channel_name), content, null,
-                    getConversionIcon(context, CONVERSATION_NAME_QZONE.hashCode()), original.contentIntent,
+                    avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original.contentIntent,
                     original.deleteIntent)
             deleteOldMessage(conversation, matchQzoneNum(title))
             Log.d(TAG, "[QZone] Ticker: $ticker")
@@ -227,9 +235,9 @@ abstract class NotificationProcessor {
                 val groupName = matcher.group(2) ?: return null
                 val text = matcher.group(3) ?: return null
                 if (!isMulti)
-                    saveConversationIcon(context, groupName.hashCode(), getNotifyLargeIcon(context, original))
+                    avatarManager.saveAvatar(groupName.hashCode(), getNotifyLargeIcon(context, original))
                 val conversation = addMessage(tag, name, text, groupName,
-                        getConversionIcon(context, groupName.hashCode()), original.contentIntent, original.deleteIntent)
+                        avatarManager.getAvatar(name.hashCode()), original.contentIntent, original.deleteIntent)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(title))
                 Log.d(TAG, "[Group] Name: $name; Group: $groupName; Text: $text")
                 return renewConversionNotification(context, tag, NotifyChannel.GROUP, conversation, sbn, original)
@@ -244,8 +252,8 @@ abstract class NotificationProcessor {
                 val name = matcher.group(1) ?: return null
                 val text = matcher.group(2) ?: return null
                 if (!isMulti)
-                    saveConversationIcon(context, name.hashCode(), getNotifyLargeIcon(context, original))
-                val conversation = addMessage(tag, name, text, null, getConversionIcon(context, name.hashCode()),
+                    avatarManager.saveAvatar(name.hashCode(), getNotifyLargeIcon(context, original))
+                val conversation = addMessage(tag, name, text, null, avatarManager.getAvatar(name.hashCode()),
                         original.contentIntent, original.deleteIntent)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
                 return if (special) {
@@ -361,7 +369,7 @@ abstract class NotificationProcessor {
         val num = conversation.messages.size
         val subtext = if (num > 1) context.getString(R.string.notify_subtext_qzone_num, num) else null
         return createNotification(context, tag, NotifyChannel.QZONE, style,
-                getConversionIcon(context, CONVERSATION_NAME_QZONE.hashCode()), original, subtext)
+                avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original, subtext)
     }
 
 
@@ -384,7 +392,7 @@ abstract class NotificationProcessor {
         val num = conversation.messages.size
         val subtext = if (num > 1) context.getString(R.string.notify_subtext_message_num, num) else null
         return createNotification(context, tag, channel, style,
-                getConversionIcon(context, conversation.name.hashCode()), original, subtext)
+                avatarManager.getAvatar(conversation.name.hashCode()), original, subtext)
     }
 
 

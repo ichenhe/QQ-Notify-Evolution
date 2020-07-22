@@ -1,6 +1,12 @@
 <resources>
     <string name="confirm">确定</string>
     <string name="requested">已发送请求</string>
+    <string name="done">操作完成</string>
+
+    <string name="day">天</string>
+    <string name="hour">小时</string>
+    <string name="minute">分钟</string>
+    <string name="second">秒</string>
 
     <string name="app_name">QQ 通知</string>
     <string name="service_notify">QQ 通知增强服务</string>
@@ -76,6 +82,18 @@
 
     <!-- 高级 -->
     <string name="pref_cate_advanced">高级选项</string>
+    <string name="pref_avatar_cache_period">头像缓存刷新间隔</string>
+    <string-array name="pref_avatar_cache_period_entries">
+        <item>10分钟</item>
+        <item>1天</item>
+        <item>7天</item>
+    </string-array>
+    <string-array name="pref_avatar_cache_period_values">
+        <item>600000</item>
+        <item>86400000</item>
+        <item>604800000</item>
+    </string-array>
+    <string name="pref_delete_avatar_cache">删除头像缓存</string>
     <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
 
     <!--关于页-->
