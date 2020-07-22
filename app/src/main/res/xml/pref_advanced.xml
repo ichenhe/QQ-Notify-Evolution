@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <ListPreference
+        app:defaultValue="86400000"
+        app:entries="@array/pref_avatar_cache_period_entries"
+        app:entryValues="@array/pref_avatar_cache_period_values"
+        app:key="avatar_cache_period"
+        app:title="@string/pref_avatar_cache_period" />
+
+    <Preference
+        app:key="delete_avatar_cache"
+        app:title="@string/pref_delete_avatar_cache" />
+
     <Preference
         app:key="delete_nevo_channel"
         app:title="@string/pref_delete_nevo_channel" />

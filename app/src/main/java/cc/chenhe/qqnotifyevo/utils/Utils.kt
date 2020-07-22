@@ -3,15 +3,11 @@ package cc.chenhe.qqnotifyevo.utils
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Environment
 import cc.chenhe.qqnotifyevo.R
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 //-----------------------------------------------------------
 // Intent Action
@@ -111,44 +107,13 @@ fun getNotificationChannels(context: Context, nevo: Boolean): List<NotificationC
     return listOf(friendChannel, friendSpecialChannel, groupChannel, qzoneChannel)
 }
 
-fun getConversionIcon(context: Context, conversionId: Int): Bitmap? {
-    try {
-        val file = File(getDiskCacheDir(context, "conversion_icon").absolutePath, conversionId.toString())
-        if (file.exists())
-            return BitmapFactory.decodeFile(file.absolutePath)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    return null
-}
 
-fun saveConversationIcon(context: Context, conversionId: Int, bmp: Bitmap): File {
-    val dir = getDiskCacheDir(context, "conversion_icon")
-    if (!dir.exists()) {
-        dir.mkdirs()
-    }
-    val file = File(dir, conversionId.toString())
-    if (!file.exists()) {
-        try {
-            file.createNewFile()
-            val outStream = FileOutputStream(file)
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-            outStream.flush()
-            outStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
-    }
-    return file
-}
-
-private fun getDiskCacheDir(context: Context, uniqueName: String): File {
+fun getAvatarDiskCacheDir(context: Context): File {
     val cachePath: File = if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
             || !Environment.isExternalStorageRemovable()) {
         context.externalCacheDir!!
     } else {
         context.cacheDir
     }
-    return File(cachePath, uniqueName)
+    return File(cachePath, "conversion_icon")
 }

@@ -67,6 +67,18 @@ fun getIconMode(context: Context): Int {
     }
 }
 
+fun getAvatarCachePeriod(context: Context): Long {
+    val s = PreferenceManager.getDefaultSharedPreferences(context).getString("avatar_cache_period", "0") ?: "0"
+    return s.toLong()
+}
+
+fun fetchAvatarCachePeriod(context: Context): LiveData<Long> {
+    val source = SpStringLiveData(PreferenceManager.getDefaultSharedPreferences(context), "avatar_cache_period", "0", true)
+    return Transformations.map(source) { src ->
+        src?.toLong() ?: 0L
+    }
+}
+
 fun getVersion(context: Context): String {
     var versionName = ""
     var versionCode = 0L

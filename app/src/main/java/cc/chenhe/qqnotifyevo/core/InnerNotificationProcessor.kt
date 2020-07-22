@@ -14,7 +14,10 @@ import java.util.*
  * 只能对原始通知进行修改，无法把1个通知拆分成多个。[NotificationProcessor] 也仅会返回最新通知对应的会话，因此这个类进行了必要的修改，
  * 将会遍历所有历史会话并分别发送通知。
  */
-class InnerNotificationProcessor(private val commander: Commander) : NotificationProcessor() {
+class InnerNotificationProcessor(
+        private val commander: Commander,
+        context: Context
+) : NotificationProcessor(context) {
 
     interface Commander {
         fun cancelNotification(key: String)

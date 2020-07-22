@@ -8,7 +8,7 @@ import cc.chenhe.qqnotifyevo.utils.NotifyChannel
 /**
  * 配合 [cc.chenhe.qqnotifyevo.service.NevoDecorator] 使用的通知处理器，直接创建并返回优化后的通知。
  */
-class NevoNotificationProcessor : NotificationProcessor() {
+class NevoNotificationProcessor(context: Context) : NotificationProcessor(context) {
 
     override fun renewQzoneNotification(context: Context, tag: Int, conversation: Conversation,
                                         sbn: StatusBarNotification, original: Notification): Notification {
