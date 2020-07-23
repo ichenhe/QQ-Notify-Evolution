@@ -56,8 +56,10 @@
             app:title="@string/about_manual" />
 
         <Preference
+            app:isPreferenceVisible="false"
             app:key="donate"
-            app:title="@string/pref_donate" />
+            app:title="@string/pref_donate"
+            tools:isPreferenceVisible="true" />
 
         <Preference
             app:key="version_code"

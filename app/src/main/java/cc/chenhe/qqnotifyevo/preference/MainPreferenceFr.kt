@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import cc.chenhe.qqnotifyevo.BuildConfig
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.service.NevoDecorator
 import cc.chenhe.qqnotifyevo.service.NotificationMonitorService
@@ -42,6 +43,7 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_main, rootKey)
+        findPreference<Preference>("donate")?.isVisible = !BuildConfig.PLAY
 
         notification = findPreference("system_notify_setting")!!
         serviceWarning = findPreference("service_warning")!!

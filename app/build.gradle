@@ -19,6 +19,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    flavorDimensions "channel"
+    productFlavors {
+        normal {
+            dimension 'channel'
+            buildConfigField 'Boolean', 'PLAY', 'false'
+        }
+        play {
+            dimension 'channel'
+            buildConfigField 'Boolean', 'PLAY', 'true'
+        }
+    }
     compileOptions {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
