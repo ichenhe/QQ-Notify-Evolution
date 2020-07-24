@@ -6,7 +6,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ReleaseTree(logDir: File) : Timber.Tree() {
+class ReleaseTree(logDir: File) : Timber.Tree(), AutoCloseable {
 
     private val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.CHINA)
     private val date = Date()
@@ -30,6 +30,10 @@ class ReleaseTree(logDir: File) : Timber.Tree() {
             s += "\n${it.message}"
         }
         logWriter.write(s, date.time)
+    }
+
+    override fun close() {
+        logWriter.close()
     }
 
 }

@@ -123,3 +123,14 @@ fun getAvatarDiskCacheDir(context: Context): File {
 fun getLogDir(context: Context): File {
     return File(getCacheDir(context), "log")
 }
+
+
+fun describeFileSize(size: Long): String {
+    return if (size < 1000) {
+        "${size}B"
+    } else if (size < 1000 * 1000) {
+        String.format("%.2fKB", size / 1000f)
+    } else {
+        String.format("$.2fMB", size / (1000 * 1000f))
+    }
+}

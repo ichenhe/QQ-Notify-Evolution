@@ -29,7 +29,7 @@ class LogWriter(
         if (!logDir.isDirectory) {
             logDir.mkdirs()
         }
-        val format = SimpleDateFormat("yyyyMMdd", Locale.CHINA)
+        val format = SimpleDateFormat("yyyyMMdd-HHmmssSSS", Locale.CHINA)
         return File(logDir, format.format(Date(time)) + ".log")
     }
 

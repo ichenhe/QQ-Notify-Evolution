@@ -15,4 +15,16 @@
     <Preference
         app:key="delete_nevo_channel"
         app:title="@string/pref_delete_nevo_channel" />
+
+    <PreferenceCategory app:title="@string/pref_cat_debug">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="log"
+            app:title="@string/pref_log" />
+
+        <Preference
+            app:key="delete_log"
+            app:title="@string/pref_delete_log" />
+    </PreferenceCategory>
 </PreferenceScreen>

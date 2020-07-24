@@ -79,6 +79,9 @@ fun fetchAvatarCachePeriod(context: Context): LiveData<Long> {
     }
 }
 
+fun fetchLog(context: Context): SpBooleanLiveData = SpBooleanLiveData(PreferenceManager
+        .getDefaultSharedPreferences(context), "log", false, init = true)
+
 fun getVersion(context: Context): String {
     var versionName = ""
     var versionCode = 0L
