@@ -22,7 +22,7 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
     companion object {
         private const val TAG = "NotifyMonitor"
 
-        var instance: NotificationMonitorService? = null
+        private var instance: NotificationMonitorService? = null
 
         fun isRunning(): Boolean {
             return try {

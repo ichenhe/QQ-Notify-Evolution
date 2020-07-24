@@ -1,5 +1,6 @@
 package cc.chenhe.qqnotifyevo.service
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -19,7 +20,7 @@ import timber.log.Timber
 class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
 
     companion object {
-        var instance: NevoDecorator? = null
+        private var instance: NevoDecorator? = null
 
         fun isRunning(): Boolean {
             return try {
@@ -51,6 +52,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
 
     override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
+    @SuppressLint("WrongThread") // wrong report
     override fun onCreate() {
         super.onCreate()
         instance = this

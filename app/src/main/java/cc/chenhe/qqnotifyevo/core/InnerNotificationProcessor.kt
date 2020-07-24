@@ -51,8 +51,9 @@ class InnerNotificationProcessor(
             else -> null
         }
         Timber.tag(TAG).v("Clear all evolutionary notifications.")
-        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).run {
+        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
             ids?.forEach { id -> cancel(id) }
+            ids?.clear()
         }
     }
 
@@ -79,7 +80,7 @@ class InnerNotificationProcessor(
                                              conversation: Conversation, sbn: StatusBarNotification,
                                              original: Notification): Notification {
         val history = getHistoryMessage(tag)
-        var notification: Notification = createConversationNotification(context, tag, channel, conversation, original)
+        var notification: Notification? = null
         for (c in history) {
             if (c.name != conversation.name || c.isGroup && channel != NotifyChannel.GROUP ||
                     !c.isGroup && channel == NotifyChannel.GROUP) {
@@ -93,7 +94,7 @@ class InnerNotificationProcessor(
             sendNotification(context, tag, c.name.hashCode(), notification)
             commander.cancelNotification(sbn.key)
         }
-        return notification
+        return notification ?: Notification() // 此处返回值没有实际意义
     }
 
     private fun addNotifyId(@NotificationProcessor.Companion.SourceTag tag: Int, ids: Int) {
