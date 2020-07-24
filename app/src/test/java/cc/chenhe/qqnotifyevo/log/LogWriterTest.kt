@@ -4,6 +4,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.After
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import java.io.File
 import java.util.*
@@ -13,13 +14,24 @@ class LogWriterTest {
 
     companion object {
         private const val TIME = 1595582295000
+
+        private lateinit var cacheDir: File
+
+        @BeforeClass
+        @JvmStatic
+        fun classSetup() {
+            cacheDir = if (System.getenv("GITHUB_ACTIONS") == "true") {
+                File(System.getenv("HOME"), "qqevo_log_test")
+            } else {
+                File(System.getProperty("java.io.tmpdir"), "qqevo_log_test")
+            }
+            println("[LogWriterTest] Cache dir: ${cacheDir.absolutePath}")
+        }
     }
 
-    private lateinit var cacheDir: File
     private lateinit var writer: LogWriter
 
     private fun createLogWriter(time: Long = System.currentTimeMillis()): LogWriter {
-        cacheDir = File(System.getProperty("java.io.tmpdir"), "qqevo_log_test")
         return LogWriter(cacheDir, time)
     }
 
