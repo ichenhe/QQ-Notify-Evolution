@@ -1,7 +1,9 @@
 <resources>
     <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
     <string name="requested">已发送请求</string>
     <string name="done">操作完成</string>
+    <string name="tip">提示</string>
 
     <string name="day">天</string>
     <string name="hour">小时</string>
@@ -95,6 +97,12 @@
     </string-array>
     <string name="pref_delete_avatar_cache">删除头像缓存</string>
     <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
+    <string name="pref_cat_debug">调试</string>
+    <string name="pref_log">记录日志</string>
+    <string name="pref_log_dialog_message">开启后将记录应用日志并明文保存在本地，其中包含您的通知详情，请注意隐私安全。\n请不要从应用外部删除日志文件以免影响完整性。</string>
+    <string name="pref_delete_log">删除日志</string>
+    <string name="pref_delete_log_summary">%1$d个日志 总大小%2$s</string>
+    <string name="pref_delete_log_dialog_message">删除所有日志？</string>
 
     <!--关于页-->
     <string name="pref_cate_about">关于</string>

@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.service.notification.StatusBarNotification
-import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
@@ -15,6 +14,7 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.utils.*
+import timber.log.Timber
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -127,6 +127,7 @@ abstract class NotificationProcessor(context: Context) {
      * @param tag 来源标记。
      */
     fun clearHistory(@SourceTag tag: Int) {
+        Timber.tag(TAG).v("Clear history. tag=$tag")
         when (tag) {
             TAG_QQ -> {
                 qqHistory.clear()
@@ -187,8 +188,10 @@ abstract class NotificationProcessor(context: Context) {
     fun resolveNotification(context: Context, packageName: String, sbn: StatusBarNotification): Notification? {
         val original = sbn.notification ?: return null
         val tag = getTagFromPackageName(packageName)
-        if (tag == TAG_UNKNOWN)
+        if (tag == TAG_UNKNOWN) {
+            Timber.tag(TAG).d("Unknown tag, skip. pkgName=$packageName")
             return null
+        }
 
         val title = original.extras.getString(Notification.EXTRA_TITLE)
         val content = original.extras.getString(Notification.EXTRA_TEXT)
@@ -205,11 +208,11 @@ abstract class NotificationProcessor(context: Context) {
         // 单独处理QQ空间
         val isQzone = title?.let { qzonePattern.matcher(it).matches() } ?: false
 
-        Log.v(TAG, "标题: $title; Ticker: $ticker; Q空间: $isQzone; 内容: $content")
-
+        Timber.tag(TAG).v("Title: $title; Ticker: $ticker; QZone: $isQzone; Multi: $isMulti; Content: $content")
 
         // 隐藏消息详情
         if (ticker != null && ticker == content && hideMsgPattern.matcher(ticker).matches()) {
+            Timber.tag(TAG).v("Hidden message content, skip.")
             return null
         }
 
@@ -221,12 +224,14 @@ abstract class NotificationProcessor(context: Context) {
                     avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original.contentIntent,
                     original.deleteIntent)
             deleteOldMessage(conversation, matchQzoneNum(title))
-            Log.d(TAG, "[QZone] Ticker: $ticker")
+            Timber.tag(TAG).d("[QZone] Ticker: $ticker")
             return renewQzoneNotification(context, tag, conversation, sbn, original)
         }
 
-        if (ticker == null)
+        if (ticker == null) {
+            Timber.tag(TAG).i("Ticker is null, skip.")
             return null
+        }
 
         // 群消息
         groupMsgPattern.matcher(ticker).also { matcher ->
@@ -239,7 +244,7 @@ abstract class NotificationProcessor(context: Context) {
                 val conversation = addMessage(tag, name, text, groupName,
                         avatarManager.getAvatar(name.hashCode()), original.contentIntent, original.deleteIntent)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(title))
-                Log.d(TAG, "[Group] Name: $name; Group: $groupName; Text: $text")
+                Timber.tag(TAG).d("[Group] Name: $name; Group: $groupName; Text: $text")
                 return renewConversionNotification(context, tag, NotifyChannel.GROUP, conversation, sbn, original)
             }
         }
@@ -257,15 +262,15 @@ abstract class NotificationProcessor(context: Context) {
                         original.contentIntent, original.deleteIntent)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
                 return if (special) {
-                    Log.d(TAG, "[Special] Name: $name; Text: $text")
+                    Timber.tag(TAG).d("[Special] Name: $name; Text: $text")
                     renewConversionNotification(context, tag, NotifyChannel.FRIEND_SPECIAL, conversation, sbn, original)
                 } else {
-                    Log.d(TAG, "[Friend] Name: $name; Text: $text")
+                    Timber.tag(TAG).d("[Friend] Name: $name; Text: $text")
                     renewConversionNotification(context, tag, NotifyChannel.FRIEND, conversation, sbn, original)
                 }
             }
         }
-        Log.w(TAG, "[None] Not match any pattern.")
+        Timber.tag(TAG).w("[None] Not match any pattern.")
         return null
     }
 
@@ -368,6 +373,7 @@ abstract class NotificationProcessor(context: Context) {
         }
         val num = conversation.messages.size
         val subtext = if (num > 1) context.getString(R.string.notify_subtext_qzone_num, num) else null
+        Timber.tag(TAG).v("Create QZone notification for $num messages.")
         return createNotification(context, tag, NotifyChannel.QZONE, style,
                 avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original, subtext)
     }
@@ -379,8 +385,8 @@ abstract class NotificationProcessor(context: Context) {
      * @param tag      来源标记。
      * @param original 原始通知。
      */
-    protected fun createConversionNotification(context: Context, @SourceTag tag: Int, channel: NotifyChannel,
-                                               conversation: Conversation, original: Notification): Notification {
+    protected fun createConversationNotification(context: Context, @SourceTag tag: Int, channel: NotifyChannel,
+                                                 conversation: Conversation, original: Notification): Notification {
         val style = NotificationCompat.MessagingStyle(Person.Builder().setName(conversation.name).build())
         if (conversation.isGroup) {
             style.conversationTitle = conversation.name
@@ -391,6 +397,7 @@ abstract class NotificationProcessor(context: Context) {
         }
         val num = conversation.messages.size
         val subtext = if (num > 1) context.getString(R.string.notify_subtext_message_num, num) else null
+        Timber.tag(TAG).v("Create conversation notification for $num messages.")
         return createNotification(context, tag, channel, style,
                 avatarManager.getAvatar(conversation.name.hashCode()), original, subtext)
     }
@@ -466,6 +473,7 @@ abstract class NotificationProcessor(context: Context) {
             return
         if (conversation.messages.size <= maxMessageNum)
             return
+        Timber.tag(TAG).d("Delete old messages. conversation: ${conversation.name}, max: $maxMessageNum")
         while (conversation.messages.size > maxMessageNum) {
             conversation.messages.removeAt(0)
         }

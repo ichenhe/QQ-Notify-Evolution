@@ -107,13 +107,30 @@ fun getNotificationChannels(context: Context, nevo: Boolean): List<NotificationC
     return listOf(friendChannel, friendSpecialChannel, groupChannel, qzoneChannel)
 }
 
-
-fun getAvatarDiskCacheDir(context: Context): File {
-    val cachePath: File = if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+private fun getCacheDir(context: Context): File {
+    return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
             || !Environment.isExternalStorageRemovable()) {
         context.externalCacheDir!!
     } else {
         context.cacheDir
     }
-    return File(cachePath, "conversion_icon")
+}
+
+fun getAvatarDiskCacheDir(context: Context): File {
+    return File(getCacheDir(context), "conversion_icon")
+}
+
+fun getLogDir(context: Context): File {
+    return File(getCacheDir(context), "log")
+}
+
+
+fun describeFileSize(size: Long): String {
+    return if (size < 1000) {
+        "${size}B"
+    } else if (size < 1000 * 1000) {
+        String.format("%.2fKB", size / 1000f)
+    } else {
+        String.format("$.2fMB", size / (1000 * 1000f))
+    }
 }

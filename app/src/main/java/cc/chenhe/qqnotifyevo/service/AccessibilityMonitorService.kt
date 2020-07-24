@@ -2,13 +2,23 @@ package cc.chenhe.qqnotifyevo.service
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
-import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import cc.chenhe.qqnotifyevo.core.NotificationProcessor
+import timber.log.Timber
 
 class AccessibilityMonitorService : AccessibilityService() {
     companion object {
         const val TAG = "Accessibility"
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        Timber.tag(TAG).v("Service - onCreate")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.tag(TAG).v("Service - onDestroy")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -18,7 +28,6 @@ class AccessibilityMonitorService : AccessibilityService() {
             return
         val tag = NotificationProcessor.getTagFromPackageName(event.packageName.toString())
         val className = event.className.toString()
-        Log.v(TAG, className)
         if ("com.tencent.mobileqq.activity.SplashActivity" == event.className ||
                 "com.dataline.activities.LiteActivity" == event.className) {
             startService(Intent(this, NotificationMonitorService::class.java).putExtra("tag", tag))
@@ -28,7 +37,7 @@ class AccessibilityMonitorService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        Log.w(TAG, "无障碍服务关闭")
+        Timber.tag(TAG).w("Service - onInterrupt")
     }
 
 }

@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import cc.chenhe.qqnotifyevo.utils.NotifyChannel
+import timber.log.Timber
 import java.util.*
 
 /**
@@ -18,6 +19,10 @@ class InnerNotificationProcessor(
         private val commander: Commander,
         context: Context
 ) : NotificationProcessor(context) {
+
+    companion object {
+        private const val TAG = "InnerNotifyProcessor"
+    }
 
     interface Commander {
         fun cancelNotification(key: String)
@@ -45,12 +50,14 @@ class InnerNotificationProcessor(
             }
             else -> null
         }
+        Timber.tag(TAG).v("Clear all evolutionary notifications.")
         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).run {
             ids?.forEach { id -> cancel(id) }
         }
     }
 
-    private fun sendNotification(context: Context, @Companion.SourceTag tag: Int, id: Int, notification: Notification) {
+    private fun sendNotification(context: Context, @NotificationProcessor.Companion.SourceTag tag: Int, id: Int,
+                                 notification: Notification) {
         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(id, notification)
         addNotifyId(tag, id)
     }
@@ -72,14 +79,14 @@ class InnerNotificationProcessor(
                                              conversation: Conversation, sbn: StatusBarNotification,
                                              original: Notification): Notification {
         val history = getHistoryMessage(tag)
-        var notification: Notification = createConversionNotification(context, tag, channel, conversation, original)
+        var notification: Notification = createConversationNotification(context, tag, channel, conversation, original)
         for (c in history) {
             if (c.name != conversation.name || c.isGroup && channel != NotifyChannel.GROUP ||
                     !c.isGroup && channel == NotifyChannel.GROUP) {
                 // 确保只刷新新增的通知
                 continue
             }
-            notification = createConversionNotification(context, tag, channel, c, original).apply {
+            notification = createConversationNotification(context, tag, channel, c, original).apply {
                 contentIntent = original.contentIntent
                 deleteIntent = original.deleteIntent
             }
@@ -89,7 +96,7 @@ class InnerNotificationProcessor(
         return notification
     }
 
-    private fun addNotifyId(@Companion.SourceTag tag: Int, ids: Int) {
+    private fun addNotifyId(@NotificationProcessor.Companion.SourceTag tag: Int, ids: Int) {
         when (tag) {
             TAG_QQ -> qqNotifyIds.add(ids)
             TAG_TIM -> timNotifyIds.add(ids)

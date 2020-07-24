@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
 import android.os.Process
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -15,6 +14,7 @@ import cc.chenhe.qqnotifyevo.core.NevoNotificationProcessor
 import cc.chenhe.qqnotifyevo.utils.*
 import com.oasisfeng.nevo.sdk.MutableStatusBarNotification
 import com.oasisfeng.nevo.sdk.NevoDecoratorService
+import timber.log.Timber
 
 class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
 
@@ -54,6 +54,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        Timber.tag(TAG).v("Service - onCreate")
         lifecycleRegistry = LifecycleRegistry(this).apply { currentState = Lifecycle.State.CREATED }
 
         receiver = Receiver()
@@ -82,6 +83,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
     }
 
     override fun onDestroy() {
+        Timber.tag(TAG).v("Service - onDestroy")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
         instance = null
@@ -94,6 +96,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
 
     override fun onConnected() {
         super.onConnected()
+        Timber.tag(TAG).d("Nevo connected")
         notificationChannelCreated = mutableSetOf()
 
         if (getMode(this) == MODE_NEVO) {
@@ -106,7 +109,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
             notificationChannelIdList.forEach { id ->
                 try {
                     deleteNotificationChannel(pkg, Process.myUserHandle(), id)
-                    Log.d(TAG, "已删除 Nevo 通知渠道, pkg=$pkg, id=$id")
+                    Timber.tag(TAG).d("Delete nevo notification channel, pkg=$pkg, channelId=$id")
                 } catch (e: SecurityException) {
                     return@out
                 }
@@ -116,7 +119,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
 
     private fun createChannels(packageName: String?) {
         if (!notificationChannelCreated.contains(packageName)) {
-            Log.d(TAG, "注册通知渠道 ${packageName ?: "All"}")
+            Timber.tag(TAG).d("Register nevo notification channel for ${packageName ?: "All"}")
             if (packageName != null) {
                 notificationChannelCreated.add(packageName)
                 createNotificationChannels(packageName, Process.myUserHandle(), getNotificationChannels(this, true))
@@ -125,7 +128,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
                     try {
                         createNotificationChannels(pkg, Process.myUserHandle(), getNotificationChannels(this, true))
                     } catch (e: SecurityException) {
-                        Log.w(TAG, "注册通知渠道异常：" + e.message)
+                        Timber.tag(TAG).w(e, "Register nevo notification channel error.")
                     }
                 }
             }
@@ -133,12 +136,23 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
     }
 
     override fun apply(evolving: MutableStatusBarNotification?): Boolean {
-        if (getMode(this) != MODE_NEVO || evolving == null)
+        Timber.tag(TAG).v("Detect notification from ${evolving?.packageName}.")
+        if (getMode(this) != MODE_NEVO) {
+            Timber.tag(TAG).d("Not in nevo mode, skip.")
             return false
+        }
+        if (evolving == null) {
+            Timber.tag(TAG).w("<evolving> is null, skip.")
+            return false
+        }
 
         createChannels(evolving.packageName)
 
-        val newNotification = processor.resolveNotification(this, evolving.packageName, evolving) ?: return false
+        val newNotification = processor.resolveNotification(this, evolving.packageName, evolving)
+        if (newNotification == null) {
+            Timber.tag(TAG).i("No need to evolve, skip.")
+            return false
+        }
 
         val mutable = evolving.notification
         mutable.extras = newNotification.extras

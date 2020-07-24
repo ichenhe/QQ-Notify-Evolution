@@ -18,7 +18,7 @@ class NevoNotificationProcessor(context: Context) : NotificationProcessor(contex
     override fun renewConversionNotification(context: Context, tag: Int, channel: NotifyChannel,
                                              conversation: Conversation, sbn: StatusBarNotification,
                                              original: Notification): Notification {
-        return createConversionNotification(context, tag, channel, conversation, original)
+        return createConversationNotification(context, tag, channel, conversation, original)
     }
 
 }
