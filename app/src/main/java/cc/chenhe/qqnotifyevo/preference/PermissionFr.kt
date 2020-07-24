@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.TextUtils
-import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import cc.chenhe.qqnotifyevo.R
@@ -142,7 +141,6 @@ class PermissionFr : PreferenceFragmentCompat() {
         val powerManager = activity.getSystemService(POWER_SERVICE) as PowerManager
         val hasIgnored: Boolean
         hasIgnored = powerManager.isIgnoringBatteryOptimizations(activity.packageName)
-        Log.e("JHH", hasIgnored.toString() + "")
         if (!hasIgnored) {
             Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                     Uri.parse("package:" + activity.packageName)).let {

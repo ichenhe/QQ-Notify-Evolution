@@ -14,11 +14,14 @@ import cc.chenhe.qqnotifyevo.core.InnerNotificationProcessor
 import cc.chenhe.qqnotifyevo.utils.MODE_LEGACY
 import cc.chenhe.qqnotifyevo.utils.fetchAvatarCachePeriod
 import cc.chenhe.qqnotifyevo.utils.getMode
+import timber.log.Timber
 
 class NotificationMonitorService : NotificationListenerService(), InnerNotificationProcessor.Commander,
         LifecycleOwner {
 
     companion object {
+        private const val TAG = "NotifyMonitor"
+
         var instance: NotificationMonitorService? = null
 
         fun isRunning(): Boolean {
@@ -42,6 +45,7 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
         super.onCreate()
         instance = this
         ctx = this
+        Timber.tag(TAG).v("Service - onCreate")
         lifecycleRegistry = LifecycleRegistry(this).apply { currentState = Lifecycle.State.CREATED }
         processor = InnerNotificationProcessor(this, this)
         fetchAvatarCachePeriod(this).observe(this) { avatarCachePeriod ->
@@ -71,6 +75,7 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
     }
 
     override fun onDestroy() {
+        Timber.tag(TAG).v("Service - onDestroy")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
         instance = null
@@ -79,8 +84,12 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
     private fun ping() = true
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (getMode(this) != MODE_LEGACY)
+        Timber.tag(TAG).v("Detect notification from ${sbn.packageName}.")
+
+        if (getMode(this) != MODE_LEGACY) {
+            Timber.tag(TAG).d("Not in legacy mode, skip.")
             return
+        }
         processor.resolveNotification(ctx, sbn.packageName, sbn)
     }
 
