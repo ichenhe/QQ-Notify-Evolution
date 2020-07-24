@@ -47,10 +47,10 @@ class LogWriterTest {
     @Test
     fun appendLog() {
         createLogWriter(TIME).use { w ->
-            w.write("line1")
+            w.write("line1", TIME)
         }
         createLogWriter(TIME).use { w ->
-            w.write("line2")
+            w.write("line2", TIME)
             w.logFile.readText() shouldBeEqualTo "line1\nline2\n"
         }
     }
