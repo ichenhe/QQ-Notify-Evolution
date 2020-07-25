@@ -68,19 +68,31 @@ repositories {
 }
 
 
-private static int getVersionCode() {
+private int getVersionCode() {
     def cmd = 'git rev-list HEAD --first-parent --count'
-    cmd.execute().text.trim().toInteger()
+    try {
+        return cmd.execute().text.trim().toInteger()
+    } catch (Exception e) {
+        logger.error("Failed to get version code with git, return 1 by default.\n${e.message}")
+        return 1
+    }
 }
 
-private static String getVersionName() {
+private String getVersionName() {
     def cmd = 'git describe --tags --long --first-parent --abbrev=7 --dirty="-dev"'
-    def v = cmd.execute().text.trim()
-    def matcher = v =~ /^v([\d|.]+)-\d+-g[A-Za-z0-9]{7}(-dev)?$/
+    try {
+        def v = cmd.execute().text.trim()
+        def matcher = v =~ /^v([\d|.]+)-\d+-g[A-Za-z0-9]{7}(-dev)?$/
 
-    if (!matcher) {
-        throw new RuntimeException("Cannot match git tag name. raw=$v")
+        if (!matcher) {
+            logger.error("Failed to get version name with git.\n" +
+                    "Cannot match git tag describe, return <UNKNOWN> by default. raw=$v")
+            return "UNKNOWN"
+        }
+        def suffix = matcher[0][2] ? matcher[0][2] : ''
+        return "${matcher[0][1]}$suffix"
+    } catch (Exception e) {
+        logger.error("Failed to get version name with git, return <UNKNOWN> by default.\n${e.message}")
+        return "UNKNOWN"
     }
-    def suffix = matcher[0][2] ? matcher[0][2] : ''
-    "${matcher[0][1]}$suffix"
 }
