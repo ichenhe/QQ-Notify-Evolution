@@ -37,10 +37,10 @@ class LogWriterTest {
 
     @Before
     fun setup() {
-        writer = createLogWriter()
         if (cacheDir.isDirectory) {
             cacheDir.deleteRecursively()
         }
+        writer = createLogWriter()
     }
 
     @After
