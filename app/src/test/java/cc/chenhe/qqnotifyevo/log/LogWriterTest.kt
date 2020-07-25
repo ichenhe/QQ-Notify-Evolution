@@ -31,8 +31,8 @@ class LogWriterTest {
 
     private lateinit var writer: LogWriter
 
-    private fun createLogWriter(time: Long = System.currentTimeMillis()): LogWriter {
-        return LogWriter(cacheDir, time)
+    private fun createLogWriter(): LogWriter {
+        return LogWriter(cacheDir, TIME)
     }
 
     @Before
@@ -51,17 +51,17 @@ class LogWriterTest {
 
     @Test
     fun writeLog() {
-        writer.write("Test")
-        writer.write("Hello")
+        writer.write("Test", TIME)
+        writer.write("Hello", TIME)
         writer.logFile.readText() shouldBeEqualTo "Test\nHello\n"
     }
 
     @Test
     fun appendLog() {
-        createLogWriter(TIME).use { w ->
+        createLogWriter().use { w ->
             w.write("line1", TIME)
         }
-        createLogWriter(TIME).use { w ->
+        createLogWriter().use { w ->
             w.write("line2", TIME)
             w.logFile.readText() shouldBeEqualTo "line1\nline2\n"
         }
@@ -69,7 +69,7 @@ class LogWriterTest {
 
     @Test
     fun writeLog_differentDay() {
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance().apply { timeInMillis = TIME }
         writer.write("Test", calendar.timeInMillis)
         val f1 = writer.logFile
 
