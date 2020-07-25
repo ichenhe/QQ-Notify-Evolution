@@ -116,14 +116,22 @@ private fun getCacheDir(context: Context): File {
     }
 }
 
+private fun getDataDir(context: Context): File {
+    return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+            || !Environment.isExternalStorageRemovable()) {
+        context.getExternalFilesDir(null)!!
+    } else {
+        context.filesDir
+    }
+}
+
 fun getAvatarDiskCacheDir(context: Context): File {
     return File(getCacheDir(context), "conversion_icon")
 }
 
 fun getLogDir(context: Context): File {
-    return File(getCacheDir(context), "log")
+    return File(getDataDir(context), "log")
 }
-
 
 fun describeFileSize(size: Long): String {
     return if (size < 1000) {
