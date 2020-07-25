@@ -37,6 +37,17 @@ class NotificationProcessorTest {
     }
 
     @Test
+    fun group_ticker_match_multiLines() {
+        val ticker = generateGroupTicker("Bob", "Family(1)", "Hello\nhere\nyep")
+        val matcher = NotificationProcessor.groupMsgPattern.matcher(ticker)
+        matcher.matches().shouldBeTrue()
+
+        matcher.group(1)!! shouldBeEqualTo "Bob"
+        matcher.group(2)!! shouldBeEqualTo "Family(1)"
+        matcher.group(3)!! shouldBeEqualTo "Hello\nhere\nyep"
+    }
+
+    @Test
     fun group_ticker_mismatch_friend() {
         val ticker = generateFriendTicker("Bob", "Hello~")
         val matcher = NotificationProcessor.groupMsgPattern.matcher(ticker)
@@ -51,6 +62,16 @@ class NotificationProcessorTest {
 
         matcher.group(1)!! shouldBeEqualTo "Alice"
         matcher.group(2)!! shouldBeEqualTo "hi"
+    }
+
+    @Test
+    fun friend_ticker_match_multiLines() {
+        val ticker = generateFriendTicker("Alice", "hi\nok\nthanks")
+        val matcher = NotificationProcessor.msgPattern.matcher(ticker)
+        matcher.matches().shouldBeTrue()
+
+        matcher.group(1)!! shouldBeEqualTo "Alice"
+        matcher.group(2)!! shouldBeEqualTo "hi\nok\nthanks"
     }
 
     @Test
