@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import cc.chenhe.qqnotifyevo.BuildConfig
@@ -51,6 +52,10 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
         findPreference<Preference>("permission")?.fragment = PermissionFr::class.java.name
         findPreference<Preference>("advanced")?.fragment = AdvancedFr::class.java.name
         findPreference<Preference>("version_code")?.summary = getString(R.string.pref_version_code, getVersion(ctx))
+    }
+
+    fun setMode(@Mode mode: Int) {
+        findPreference<ListPreference>("mode")?.value = mode.toString()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.IntDef
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.preference.PreferenceManager
@@ -34,6 +35,22 @@ const val ICON_TIM = 2
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(ICON_AUTO, ICON_QQ, ICON_TIM)
 annotation class Icon
+
+// ---------------------------------------------------------
+// Tips
+// ---------------------------------------------------------
+private const val PREF_NEVO_MULTI_MSG_TIP = "tip_nevo_multi_msg"
+
+
+fun nevoMultiMsgTip(context: Context, shouldShow: Boolean) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit {
+        putBoolean(PREF_NEVO_MULTI_MSG_TIP, shouldShow)
+    }
+}
+
+fun nevoMultiMsgTip(context: Context): Boolean = PreferenceManager
+        .getDefaultSharedPreferences(context).getBoolean(PREF_NEVO_MULTI_MSG_TIP, true)
+
 
 // ---------------------------------------------------------
 // Functions

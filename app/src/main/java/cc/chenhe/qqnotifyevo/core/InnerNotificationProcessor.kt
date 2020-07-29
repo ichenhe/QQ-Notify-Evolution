@@ -1,9 +1,9 @@
 package cc.chenhe.qqnotifyevo.core
 
 import android.app.Notification
-import android.app.NotificationManager
 import android.content.Context
 import android.service.notification.StatusBarNotification
+import androidx.core.app.NotificationManagerCompat
 import cc.chenhe.qqnotifyevo.utils.NotifyChannel
 import timber.log.Timber
 import java.util.*
@@ -51,7 +51,7 @@ class InnerNotificationProcessor(
             else -> null
         }
         Timber.tag(TAG).v("Clear all evolutionary notifications.")
-        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
+        NotificationManagerCompat.from(context).apply {
             ids?.forEach { id -> cancel(id) }
             ids?.clear()
         }
@@ -59,7 +59,7 @@ class InnerNotificationProcessor(
 
     private fun sendNotification(context: Context, @NotificationProcessor.Companion.SourceTag tag: Int, id: Int,
                                  notification: Notification) {
-        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(id, notification)
+        NotificationManagerCompat.from(context).notify(id, notification)
         addNotifyId(tag, id)
     }
 

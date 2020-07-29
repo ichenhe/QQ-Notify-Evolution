@@ -118,7 +118,7 @@ abstract class NotificationProcessor(context: Context) {
 
     }
 
-    private val ctx: Context = context.applicationContext
+    protected val ctx: Context = context.applicationContext
 
     private val qzoneSpecialTitle = context.getString(R.string.notify_qzone_special_title)
 
@@ -153,6 +153,13 @@ abstract class NotificationProcessor(context: Context) {
             it.name == qzoneSpecialTitle
         }
     }
+
+    /**
+     * 检测到合并消息的回调。
+     *
+     * 合并消息：有 x 个联系人给你发过来y条新消息
+     */
+    protected open fun onMultiMessageDetected() {}
 
     /**
      * 创建优化后的QQ空间通知。
@@ -210,7 +217,7 @@ abstract class NotificationProcessor(context: Context) {
         val content = original.extras.getString(Notification.EXTRA_TEXT)
         val ticker = original.tickerText?.toString()
 
-        // 多个消息
+        // 合并消息
         // title: QQ
         // ticker: 昵称:内容
         // text: 有 x 个联系人给你发过来y条新消息
@@ -222,6 +229,10 @@ abstract class NotificationProcessor(context: Context) {
         val isQzone = title?.let { qzonePattern.matcher(it).matches() } ?: false
 
         Timber.tag(TAG).v("Title: $title; Ticker: $ticker; QZone: $isQzone; Multi: $isMulti; Content: $content")
+
+        if (isMulti) {
+            onMultiMessageDetected()
+        }
 
         // 隐藏消息详情
         if (ticker != null && ticker == content && hideMsgPattern.matcher(ticker).matches()) {
@@ -447,18 +458,18 @@ abstract class NotificationProcessor(context: Context) {
 
     private fun setIcon(context: Context, builder: NotificationCompat.Builder, tag: Int, isQzone: Boolean) {
         if (isQzone) {
-            builder.setSmallIcon(R.drawable.ic_qzone)
+            builder.setSmallIcon(R.drawable.ic_notify_qzone)
             return
         }
         when (getIconMode(context)) {
             ICON_AUTO -> when (tag) {
-                TAG_QQ, TAG_QQ_LITE -> R.drawable.ic_qq
-                TAG_TIM -> R.drawable.ic_tim
-                else -> R.drawable.ic_qq
+                TAG_QQ, TAG_QQ_LITE -> R.drawable.ic_notify_qq
+                TAG_TIM -> R.drawable.ic_notify_tim
+                else -> R.drawable.ic_notify_qq
             }
-            ICON_QQ -> R.drawable.ic_qq
-            ICON_TIM -> R.drawable.ic_tim
-            else -> R.drawable.ic_qq
+            ICON_QQ -> R.drawable.ic_notify_qq
+            ICON_TIM -> R.drawable.ic_notify_tim
+            else -> R.drawable.ic_notify_qq
         }.let { iconRes -> builder.setSmallIcon(iconRes) }
     }
 

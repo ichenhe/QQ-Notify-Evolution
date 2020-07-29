@@ -4,6 +4,8 @@
     <string name="requested">已发送请求</string>
     <string name="done">操作完成</string>
     <string name="tip">提示</string>
+    <string name="dont_show">不再提示</string>
+    <string name="learn_more">了解详情</string>
 
     <string name="day">天</string>
     <string name="hour">小时</string>
@@ -19,6 +21,13 @@
     <string name="nevo_name">QQ 通知进化</string>
     <string name="nevo_desc">适配原生分渠道通知；使用原生铃声与振动适配可穿戴设备；支持多组会话与历史消息。</string>
 
+    <!-- Nevo 模式下检测到合并消息的提醒 -->
+    <string name="notify_multi_msg_title">检测到合并的消息</string>
+    <string name="notify_multi_msg_content">对于旧版 QQ 或 TIM 等会自动合并会话的版本，建议使用传统模式。</string>
+    <string name="multi_msg_dialog">对于旧版 QQ 或 TIM 等部分版本，若有多个未读会话将合并为「有x个联系人给你发过来y条新消息」一个通知。\n由于 Nevo 限制此情况只能显示最近的一个会话，建议改用传统模式或更新 QQ 版本。</string>
+    <string name="multi_msg_dialog_positive">使用传统模式</string>
+    <string name="multi_msg_dialog_neutral">下次再说</string>
+
     <!--通知-->
     <string name="notify_group_base">仅传统模式有效，Nevo 模式请前往 Nevo 应用设置</string>
     <string name="notify_nevo_prefix">Q进化-</string>
@@ -30,6 +39,8 @@
     <string name="notify_group_channel_des">QQ 群消息通知</string>
     <string name="notify_qzone_channel_name">空间动态</string>
     <string name="notify_qzone_channel_des">QQ 空间动态通知</string>
+    <!-- 自身通知的渠道 -->
+    <string name="notify_self_tips_channel_name">使用提示</string>
 
     <string name="notify_qzone_title">空间动态</string>
     <string name="notify_qzone_special_title">特别关心动态</string>
@@ -97,6 +108,8 @@
         <item>86400000</item>
         <item>604800000</item>
     </string-array>
+    <string name="pref_reset_tips">重置使用提示</string>
+    <string name="pref_reset_tips_notify_dialog">使用提示通知已被关闭，是否打开？</string>
     <string name="pref_delete_avatar_cache">删除头像缓存</string>
     <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
     <string name="pref_show_in_recent">在「最近使用的应用」中显示</string>

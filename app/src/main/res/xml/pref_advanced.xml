@@ -16,6 +16,10 @@
         app:key="delete_nevo_channel"
         app:title="@string/pref_delete_nevo_channel" />
 
+    <Preference
+        app:key="reset_tips"
+        app:title="@string/pref_reset_tips" />
+
     <SwitchPreferenceCompat
         app:defaultValue="true"
         app:key="show_in_recent"

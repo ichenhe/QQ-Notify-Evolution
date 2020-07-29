@@ -2,8 +2,12 @@ package cc.chenhe.qqnotifyevo.preference
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
+import android.provider.Settings.EXTRA_APP_PACKAGE
+import android.provider.Settings.EXTRA_CHANNEL_ID
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationManagerCompat
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -12,6 +16,7 @@ import cc.chenhe.qqnotifyevo.MyApplication
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.core.AvatarManager
 import cc.chenhe.qqnotifyevo.utils.*
+
 
 class AdvancedFr : PreferenceFragmentCompat() {
 
@@ -44,6 +49,22 @@ class AdvancedFr : PreferenceFragmentCompat() {
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         when (preference?.key) {
+            "reset_tips" -> {
+                nevoMultiMsgTip(requireContext(), true)
+                Toast.makeText(requireContext(), R.string.done, Toast.LENGTH_SHORT).show()
+                if (NotificationManagerCompat.from(requireContext())
+                                .getNotificationChannel(NOTIFY_SELF_TIPS_CHANNEL_ID)?.importance ==
+                        NotificationManagerCompat.IMPORTANCE_NONE) {
+                    AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.tip)
+                            .setMessage(R.string.pref_reset_tips_notify_dialog)
+                            .setPositiveButton(R.string.confirm) { _, _ ->
+                                openTipsNotificationSetting()
+                            }
+                            .setNegativeButton(R.string.cancel, null)
+                            .show()
+                }
+            }
             "delete_avatar_cache" -> {
                 AvatarManager.get(getAvatarDiskCacheDir(requireContext()), getAvatarCachePeriod(requireContext()))
                         .clearCache()
@@ -68,6 +89,23 @@ class AdvancedFr : PreferenceFragmentCompat() {
             }
         }
         return super.onPreferenceTreeClick(preference)
+    }
+
+    private fun openTipsNotificationSetting() {
+        val intent = Intent().apply {
+            action = Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS
+            putExtra(EXTRA_APP_PACKAGE, requireContext().packageName)
+            putExtra(EXTRA_CHANNEL_ID, NOTIFY_SELF_TIPS_CHANNEL_ID)
+        }
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            val b = Intent().apply {
+                action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                putExtra(EXTRA_APP_PACKAGE, requireContext().packageName)
+            }
+            startActivity(b)
+        }
     }
 
     private fun refreshLogSize() {

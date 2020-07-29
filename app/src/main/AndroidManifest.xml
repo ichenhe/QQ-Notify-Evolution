@@ -61,17 +61,18 @@
                 android:value="cc.chenhe.qqnotifyevo.preference.PreferenceAty" />
         </service>
 
-        <!-- 开机自启 -->
-        <receiver android:name="cc.chenhe.qqnotifyevo.BootCompletedReceiver">
+        <receiver android:name="cc.chenhe.qqnotifyevo.StaticReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="dnotShowNevoMultiMsgTips" />
             </intent-filter>
         </receiver>
 
         <activity
             android:name=".preference.PreferenceAty"
             android:excludeFromRecents="false"
-            android:label="@string/activity_splash">
+            android:label="@string/activity_splash"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
