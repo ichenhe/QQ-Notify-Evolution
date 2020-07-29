@@ -37,6 +37,7 @@ class AdvancedFr : PreferenceFragmentCompat() {
                 true
             }
         }
+        findPreference<SwitchPreferenceCompat>("show_in_recent")!!.summaryProvider = ShowInRecentSummaryProvider()
         deleteLog = findPreference("delete_log")!!
         refreshLogSize()
     }
@@ -103,5 +104,15 @@ class AdvancedFr : PreferenceFragmentCompat() {
             }
             return builder.toString()
         }
+    }
+
+    private inner class ShowInRecentSummaryProvider : Preference.SummaryProvider<SwitchPreferenceCompat> {
+
+        private val summaries = requireContext().resources.getStringArray(R.array.pref_show_in_recent_summaries)
+
+        override fun provideSummary(preference: SwitchPreferenceCompat): CharSequence {
+            return if (preference.isChecked) summaries[0] else summaries[1]
+        }
+
     }
 }

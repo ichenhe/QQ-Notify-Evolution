@@ -99,6 +99,11 @@
     </string-array>
     <string name="pref_delete_avatar_cache">删除头像缓存</string>
     <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
+    <string name="pref_show_in_recent">在「最近使用的应用」中显示</string>
+    <string-array name="pref_show_in_recent_summaries">
+        <item>便于锁定最近任务以免被杀</item> <!-- checked -->
+        <item>按返回键退出后将从最近任务界面隐藏</item> <!-- non-checked -->
+    </string-array>
     <string name="pref_cat_debug">调试</string>
     <string name="pref_log">记录日志</string>
     <string name="pref_log_dialog_message">开启后将记录应用日志并明文保存在本地，其中包含您的通知详情，请注意隐私安全。\n请不要从应用外部删除日志文件以免影响完整性。</string>

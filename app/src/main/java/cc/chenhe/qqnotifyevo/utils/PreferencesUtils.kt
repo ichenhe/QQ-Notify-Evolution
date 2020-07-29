@@ -79,6 +79,10 @@ fun fetchAvatarCachePeriod(context: Context): LiveData<Long> {
     }
 }
 
+fun getShowInRecent(context: Context): Boolean {
+    return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("show_in_recent", true)
+}
+
 fun fetchLog(context: Context): SpBooleanLiveData = SpBooleanLiveData(PreferenceManager
         .getDefaultSharedPreferences(context), "log", false, init = true)
 

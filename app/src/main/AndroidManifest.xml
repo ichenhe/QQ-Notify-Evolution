@@ -70,8 +70,7 @@
 
         <activity
             android:name=".preference.PreferenceAty"
-            android:autoRemoveFromRecents="true"
-            android:excludeFromRecents="true"
+            android:excludeFromRecents="false"
             android:label="@string/activity_splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
