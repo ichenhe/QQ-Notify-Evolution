@@ -93,6 +93,11 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
         processor.resolveNotification(ctx, sbn.packageName, sbn)
     }
 
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
+        if (sbn == null || getMode(this) != MODE_LEGACY) return
+        processor.onNotificationRemoved(sbn, reason)
+        super.onNotificationRemoved(sbn, rankingMap, reason)
+    }
 
 }
 

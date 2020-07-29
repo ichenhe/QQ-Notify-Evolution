@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
 import android.os.Process
+import android.service.notification.StatusBarNotification
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -164,5 +165,11 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
         mutable.smallIcon = newNotification.smallIcon
         mutable.color = newNotification.color
         return true
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, reason: Int): Boolean {
+        if (sbn == null || getMode(this) != MODE_NEVO) return false
+        processor.onNotificationRemoved(sbn, reason)
+        return false
     }
 }

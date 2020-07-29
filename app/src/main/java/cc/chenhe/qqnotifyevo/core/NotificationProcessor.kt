@@ -24,7 +24,15 @@ abstract class NotificationProcessor(context: Context) {
     companion object {
         private const val TAG = "NotificationProcessor"
 
+        /**
+         * 用于在优化后的通知中保留原始来源标记。通过 [Notification.extras] 提取。
+         *
+         * 值为 [Int] 类型，TAG_* 常量。
+         */
+        const val NOTIFICATION_EXTRA_TAG = "qqevo.tag"
+
         private const val CONVERSATION_NAME_QZONE = "QZone"
+        private const val CONVERSATION_NAME_QZONE_SPECIAL = "QZoneSpecial" // 特别关心空间动态推送
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(TAG_UNKNOWN, TAG_QQ, TAG_QQ_LITE, TAG_TIM)
@@ -82,17 +90,18 @@ abstract class NotificationProcessor(context: Context) {
         val msgTitlePattern: Pattern = Pattern.compile("^(\\[特别关心])?.*?(?: \\((\\d+)条新消息\\))?$")
 
         // Q空间动态
-        // title: QQ空间动态(共x条未读)
-        // ticker: 详情（例如xxx评论了你）
+        // title(与我相关): QQ空间动态(共x条未读); (特别关心): QQ空间动态
+        // ticker(与我相关): 详情（例如xxx评论了你）; (特别关心): 【特别关心】昵称：内容
         // text: 与 ticker 相同
+        // 注意：与我相关动态、特别关心动态是两个独立的通知，不会互相覆盖。
 
         /**
-         * 匹配 QQ 空间 Ticker.
+         * 匹配 QQ 空间 Title.
          *
          * Group: 1新消息数目
          */
         @VisibleForTesting
-        val qzonePattern: Pattern = Pattern.compile("^QQ空间动态\\(共(\\d+)条未读\\)$")
+        val qzonePattern: Pattern = Pattern.compile("^QQ空间动态(?:\\(共(\\d+)条未读\\))?$")
 
         // 隐藏消息详情
         // title: QQ
@@ -111,6 +120,8 @@ abstract class NotificationProcessor(context: Context) {
 
     private val ctx: Context = context.applicationContext
 
+    private val qzoneSpecialTitle = context.getString(R.string.notify_qzone_special_title)
+
     private val qqHistory = ArrayList<Conversation>()
     private val qqLiteHistory = ArrayList<Conversation>()
     private val timHistory = ArrayList<Conversation>()
@@ -122,22 +133,24 @@ abstract class NotificationProcessor(context: Context) {
     }
 
     /**
-     * 清除此来源所有通知，并清空历史记录。
+     * 清空此来源所有会话（包括 QQ 空间）历史记录。
      *
      * @param tag 来源标记。
      */
     fun clearHistory(@SourceTag tag: Int) {
         Timber.tag(TAG).v("Clear history. tag=$tag")
-        when (tag) {
-            TAG_QQ -> {
-                qqHistory.clear()
-            }
-            TAG_QQ_LITE -> {
-                qqLiteHistory.clear()
-            }
-            TAG_TIM -> {
-                timHistory.clear()
-            }
+        getHistoryMessage(tag).clear()
+    }
+
+    /**
+     * 清空此来源特别关心 QQ 空间动态推送历史记录。不清除与我相关的动态或其他聊天消息。
+     *
+     * @param tag 来源标记。
+     */
+    private fun clearQzoneSpecialHistory(@SourceTag tag: Int) {
+        Timber.tag(TAG).d("Clear QZone history. tag=$tag")
+        getHistoryMessage(tag).removeIf {
+            it.name == qzoneSpecialTitle
         }
     }
 
@@ -218,13 +231,27 @@ abstract class NotificationProcessor(context: Context) {
 
         // QQ空间
         if (isQzone && !content.isNullOrEmpty()) {
-            avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), getNotifyLargeIcon(context, original))
-
-            val conversation = addMessage(tag, context.getString(R.string.notify_qzone_channel_name), content, null,
-                    avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original.contentIntent,
-                    original.deleteIntent)
-            deleteOldMessage(conversation, matchQzoneNum(title))
-            Timber.tag(TAG).d("[QZone] Ticker: $ticker")
+            val num = matchQzoneNum(title)
+            val conversation: Conversation
+            if (num == -1) {
+                // 特别关心动态推送
+                avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(),
+                        getNotifyLargeIcon(context, original))
+                conversation = addMessage(tag, qzoneSpecialTitle, content, null,
+                        avatarManager.getAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode()), original.contentIntent,
+                        original.deleteIntent)
+                // 由于特别关心动态推送的通知没有显示未读消息个数，所以这里无法提取并删除多余的历史消息。
+                // Workaround: 在通知删除回调下来匹配并清空特别关心动态历史记录。
+                Timber.tag(TAG).d("[QZoneSpecial] Ticker: $ticker")
+            } else {
+                // 与我相关的动态
+                avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), getNotifyLargeIcon(context, original))
+                conversation = addMessage(tag, qzoneSpecialTitle, content, null,
+                        avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original.contentIntent,
+                        original.deleteIntent)
+                deleteOldMessage(conversation, num)
+                Timber.tag(TAG).d("[QZone] Ticker: $ticker")
+            }
             return renewQzoneNotification(context, tag, conversation, sbn, original)
         }
 
@@ -274,6 +301,17 @@ abstract class NotificationProcessor(context: Context) {
         return null
     }
 
+    fun onNotificationRemoved(sbn: StatusBarNotification, reason: Int) {
+        val tag = sbn.notification.extras.getInt(NOTIFICATION_EXTRA_TAG, TAG_UNKNOWN)
+        if (tag == TAG_UNKNOWN) return
+        val title = sbn.notification.extras.getString(Notification.EXTRA_TITLE)
+        Timber.tag(TAG).v("onNotificationRemoved: Tag=$tag, Reason=$reason, Title=$title")
+        if (title == qzoneSpecialTitle) {
+            // 清除 QQ 空间特别关心动态推送历史记录
+            clearQzoneSpecialHistory(tag)
+        }
+    }
+
     /**
      * 提取新消息个数。
      */
@@ -294,15 +332,17 @@ abstract class NotificationProcessor(context: Context) {
 
     /**
      * 提取空间未读消息个数。
+     *
+     * @return 动态未读消息个数。若是特别关心推送则返回 `-1`。[title] 为空或不匹配则返回 `0`。
      */
     private fun matchQzoneNum(title: String?): Int {
         if (title.isNullOrEmpty()) return 0
         qzonePattern.matcher(title).also { matcher ->
             if (matcher.matches()) {
-                return matcher.group(1)!!.toInt()
+                return matcher.group(1)?.toInt() ?: -1
             }
         }
-        return 1
+        return 0
     }
 
     /**
@@ -361,13 +401,15 @@ abstract class NotificationProcessor(context: Context) {
 
         setIcon(context, builder, tag, channel == NotifyChannel.QZONE)
 
-        return builder.build()
+        return builder.build().apply {
+            extras.putInt(NOTIFICATION_EXTRA_TAG, tag)
+        }
     }
 
     protected fun createQZoneNotification(context: Context, @SourceTag tag: Int, conversation: Conversation,
                                           original: Notification): Notification {
         val style = NotificationCompat.MessagingStyle(Person.Builder()
-                .setName(context.getString(R.string.notify_qzone_channel_name)).build())
+                .setName(context.getString(R.string.notify_qzone_title)).build())
         conversation.messages.forEach { msg ->
             style.addMessage(msg.content, msg.time, msg.person)
         }
@@ -429,7 +471,7 @@ abstract class NotificationProcessor(context: Context) {
             TAG_TIM -> timHistory
             TAG_QQ_LITE -> qqLiteHistory
             TAG_QQ -> qqHistory
-            else -> qqHistory
+            else -> throw RuntimeException("Unknown tag: $tag.")
         }
     }
 
