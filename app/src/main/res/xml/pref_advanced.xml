@@ -8,6 +8,14 @@
             app:key="show_special_prefix"
             app:summary="@string/pref_advanced_show_special_prefix_summary"
             app:title="@string/pref_advanced_show_special_prefix" />
+
+        <ListPreference
+            app:defaultValue="group"
+            app:entries="@array/pref_advanced_special_group_channel_entries"
+            app:entryValues="@array/pref_advanced_special_group_channel_values"
+            app:key="special_group_channel"
+            app:title="@string/pref_advanced_special_group_channel"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/pref_cate_advanced_other">

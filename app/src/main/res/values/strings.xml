@@ -140,6 +140,15 @@
     <string name="pref_cate_advanced_notify">通知</string>
     <string name="pref_advanced_show_special_prefix">显示特别关心前缀</string>
     <string name="pref_advanced_show_special_prefix_summary">添加[特别关心]或群聊中[特别关注]前缀</string>
+    <string name="pref_advanced_special_group_channel">特别关注群消息的通知渠道</string>
+    <string-array name="pref_advanced_special_group_channel_entries">
+        <item>群消息</item>
+        <item>特别关心消息</item>
+    </string-array>
+    <string-array name="pref_advanced_special_group_channel_values">
+        <item>group</item>
+        <item>special</item>
+    </string-array>
     <!-- 其他 -->
     <string name="pref_cate_advanced_other">其他</string>
     <string name="pref_avatar_cache_period">头像缓存刷新间隔</string>

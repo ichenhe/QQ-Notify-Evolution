@@ -295,7 +295,11 @@ abstract class NotificationProcessor(context: Context) {
                         original.contentIntent, original.deleteIntent, special)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(title))
                 Timber.tag(TAG).d("[${if (special) "GroupS" else "Group"}] Name: $name; Group: $groupName; Text: $text")
-                return renewConversionNotification(context, tag, NotifyChannel.GROUP, conversation, sbn, original)
+                val channel = if (special && specialGroupMsgChannel(ctx))
+                    NotifyChannel.FRIEND_SPECIAL
+                else
+                    NotifyChannel.GROUP
+                return renewConversionNotification(context, tag, channel, conversation, sbn, original)
             }
         }
 
