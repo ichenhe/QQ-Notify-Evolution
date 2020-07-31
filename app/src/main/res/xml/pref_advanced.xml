@@ -16,6 +16,19 @@
             app:key="special_group_channel"
             app:title="@string/pref_advanced_special_group_channel"
             app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="wrap_nickname"
+            app:title="@string/pref_advanced_wrap_nickname" />
+
+        <EditTextPreference
+            app:defaultValue="[$n]"
+            app:dependency="wrap_nickname"
+            app:dialogMessage="@string/pref_advanced_nickname_wrapper_message"
+            app:key="nickname_wrapper"
+            app:title="@string/pref_advanced_nickname_wrapper"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/pref_cate_advanced_other">

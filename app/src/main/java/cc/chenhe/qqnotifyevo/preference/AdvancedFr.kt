@@ -8,10 +8,7 @@ import android.provider.Settings.EXTRA_CHANNEL_ID
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
+import androidx.preference.*
 import cc.chenhe.qqnotifyevo.MyApplication
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.core.AvatarManager
@@ -25,6 +22,22 @@ class AdvancedFr : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_advanced, rootKey)
 
+        findPreference<EditTextPreference>("nickname_wrapper")!!.apply {
+            setOnBindEditTextListener { et -> et.isSingleLine = true }
+            setOnPreferenceChangeListener { _, new ->
+                val newWrapper: String = new as? String ?: ""
+                if (newWrapper.indexOf("\$n") == -1) {
+                    AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.tip)
+                            .setMessage(R.string.pref_advanced_nickname_wrapper_invalid_message)
+                            .setPositiveButton(R.string.confirm, null)
+                            .show()
+                    false
+                } else {
+                    true
+                }
+            }
+        }
         findPreference<ListPreference>("avatar_cache_period")!!.summaryProvider = AvatarCachePeriodSummaryProvider()
         findPreference<SwitchPreferenceCompat>("log")!!.setOnPreferenceChangeListener { pref, new ->
             if (new as Boolean) {

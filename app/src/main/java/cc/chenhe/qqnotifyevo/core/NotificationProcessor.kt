@@ -472,7 +472,10 @@ abstract class NotificationProcessor(context: Context) {
     }
 
     private fun NotificationCompat.MessagingStyle.addMessage(message: Message) {
-        var name = message.person.name
+        var name = message.person.name!!
+
+        name = formatNicknameIfNeeded(name)
+
         if (message.special && showSpecialPrefix(ctx)) {
             // 添加特别关心或关注前缀
             name = if (isGroupConversation)
@@ -487,6 +490,25 @@ abstract class NotificationProcessor(context: Context) {
             message.person.clone(name)
         }
         addMessage(message.content, message.time, person)
+    }
+
+    private fun formatNicknameIfNeeded(name: CharSequence): CharSequence {
+        if (!wrapNickname(ctx)) {
+            return name
+        }
+        var newName = name
+        val wrapper = nicknameWrapper(ctx)
+        if (wrapper != null) {
+            newName = wrapper.replace("\$n", name.toString())
+            if (newName == wrapper) {
+                Timber.tag(TAG).e("Nickname wrapper is invalid, reset preference. wrapper=$wrapper")
+                resetNicknameWrapper(ctx)
+            }
+        } else {
+            Timber.tag(TAG).e("Nickname wrapper is null, reset preference.")
+            resetNicknameWrapper(ctx)
+        }
+        return newName
     }
 
     private fun Person.clone(newName: CharSequence? = null): Person {

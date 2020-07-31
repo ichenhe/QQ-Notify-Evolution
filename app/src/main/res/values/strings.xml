@@ -149,6 +149,10 @@
         <item>group</item>
         <item>special</item>
     </string-array>
+    <string name="pref_advanced_wrap_nickname">格式化昵称</string>
+    <string name="pref_advanced_nickname_wrapper">自定义格式</string>
+    <string name="pref_advanced_nickname_wrapper_message">使用 $n 指代原始昵称，其他字符将原样保留。如果你喜欢输入 Emoji 也行。</string>
+    <string name="pref_advanced_nickname_wrapper_invalid_message">自定义格式必须包含 $n 变量。</string>
     <!-- 其他 -->
     <string name="pref_cate_advanced_other">其他</string>
     <string name="pref_avatar_cache_period">头像缓存刷新间隔</string>

@@ -96,6 +96,20 @@ fun showSpecialPrefix(context: Context): Boolean = sp(context).getBoolean("show_
  */
 fun specialGroupMsgChannel(context: Context): Boolean = sp(context).getString("special_group_channel", "group") == "special"
 
+fun wrapNickname(context: Context): Boolean = sp(context).getBoolean("wrap_nickname", false)
+
+fun nicknameWrapper(context: Context): String? = sp(context).getString("nickname_wrapper", null)
+
+/**
+ * 禁用格式化昵称，且将格式重置为默认值。
+ */
+fun resetNicknameWrapper(context: Context) {
+    sp(context).edit {
+        putBoolean("wrap_nickname", false)
+        putString("nickname_wrapper", "[\$n]")
+    }
+}
+
 fun getAvatarCachePeriod(context: Context): Long {
     val s = sp(context).getString("avatar_cache_period", "0") ?: "0"
     return s.toLong()
