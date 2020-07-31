@@ -56,7 +56,7 @@ abstract class NotificationProcessor(context: Context) {
         // 群聊消息
         // title: 群名 | 群名 (x条新消息)
         // ticker: 昵称(群名):消息内容
-        // text: 昵称: 消息内容
+        // text: 昵称: 消息内容 //特别关注前缀：[有关注的内容]
 
         /**
          * 匹配群聊消息 Ticker.
@@ -67,6 +67,14 @@ abstract class NotificationProcessor(context: Context) {
          */
         @VisibleForTesting
         val groupMsgPattern: Pattern = Pattern.compile("^(.+?)\\((.+)\\):([\\s\\S]+)$")
+
+        /**
+         * 匹配群聊消息 Content.
+         *
+         * Group: 1[有关注的内容
+         */
+        @VisibleForTesting
+        val groupMsgContentPattern: Pattern = Pattern.compile("^(\\[有关注的内容])?[\\s\\S]+")
 
         // 私聊消息
         // title: 昵称 | 昵称 (x条新消息) //特别关心前缀：[特别关心]
@@ -250,7 +258,7 @@ abstract class NotificationProcessor(context: Context) {
                         getNotifyLargeIcon(context, original))
                 conversation = addMessage(tag, qzoneSpecialTitle, content, null,
                         avatarManager.getAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode()), original.contentIntent,
-                        original.deleteIntent)
+                        original.deleteIntent, false)
                 // 由于特别关心动态推送的通知没有显示未读消息个数，所以这里无法提取并删除多余的历史消息。
                 // Workaround: 在通知删除回调下来匹配并清空特别关心动态历史记录。
                 Timber.tag(TAG).d("[QZoneSpecial] Ticker: $ticker")
@@ -259,7 +267,7 @@ abstract class NotificationProcessor(context: Context) {
                 avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), getNotifyLargeIcon(context, original))
                 conversation = addMessage(tag, qzoneSpecialTitle, content, null,
                         avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original.contentIntent,
-                        original.deleteIntent)
+                        original.deleteIntent, false)
                 deleteOldMessage(conversation, num)
                 Timber.tag(TAG).d("[QZone] Ticker: $ticker")
             }
@@ -277,12 +285,16 @@ abstract class NotificationProcessor(context: Context) {
                 val name = matcher.group(1) ?: return null
                 val groupName = matcher.group(2) ?: return null
                 val text = matcher.group(3) ?: return null
+
+                val contentMatcher = groupMsgContentPattern.matcher(content!!)
+                val special = contentMatcher.matches() && contentMatcher.group(1) != null
+
                 if (!isMulti)
                     avatarManager.saveAvatar(groupName.hashCode(), getNotifyLargeIcon(context, original))
-                val conversation = addMessage(tag, name, text, groupName,
-                        avatarManager.getAvatar(name.hashCode()), original.contentIntent, original.deleteIntent)
+                val conversation = addMessage(tag, name, text, groupName, avatarManager.getAvatar(name.hashCode()),
+                        original.contentIntent, original.deleteIntent, special)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(title))
-                Timber.tag(TAG).d("[Group] Name: $name; Group: $groupName; Text: $text")
+                Timber.tag(TAG).d("[${if (special) "GroupS" else "Group"}] Name: $name; Group: $groupName; Text: $text")
                 return renewConversionNotification(context, tag, NotifyChannel.GROUP, conversation, sbn, original)
             }
         }
@@ -297,10 +309,10 @@ abstract class NotificationProcessor(context: Context) {
                 if (!isMulti)
                     avatarManager.saveAvatar(name.hashCode(), getNotifyLargeIcon(context, original))
                 val conversation = addMessage(tag, name, text, null, avatarManager.getAvatar(name.hashCode()),
-                        original.contentIntent, original.deleteIntent)
+                        original.contentIntent, original.deleteIntent, special)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
                 return if (special) {
-                    Timber.tag(TAG).d("[Special] Name: $name; Text: $text")
+                    Timber.tag(TAG).d("[FriendS] Name: $name; Text: $text")
                     renewConversionNotification(context, tag, NotifyChannel.FRIEND_SPECIAL, conversation, sbn, original)
                 } else {
                     Timber.tag(TAG).d("[Friend] Name: $name; Text: $text")
@@ -422,7 +434,7 @@ abstract class NotificationProcessor(context: Context) {
         val style = NotificationCompat.MessagingStyle(Person.Builder()
                 .setName(context.getString(R.string.notify_qzone_title)).build())
         conversation.messages.forEach { msg ->
-            style.addMessage(msg.content, msg.time, msg.person)
+            style.addMessage(msg)
         }
         val num = conversation.messages.size
         val subtext = if (num > 1) context.getString(R.string.notify_subtext_qzone_num, num) else null
@@ -446,7 +458,7 @@ abstract class NotificationProcessor(context: Context) {
             style.isGroupConversation = true
         }
         conversation.messages.forEach { msg ->
-            style.addMessage(msg.content, msg.time, msg.person)
+            style.addMessage(msg)
         }
         val num = conversation.messages.size
         val subtext = if (num > 1) context.getString(R.string.notify_subtext_message_num, num) else null
@@ -455,6 +467,34 @@ abstract class NotificationProcessor(context: Context) {
                 avatarManager.getAvatar(conversation.name.hashCode()), original, subtext)
     }
 
+    private fun NotificationCompat.MessagingStyle.addMessage(message: Message) {
+        var name = message.person.name
+        if (message.special && showSpecialPrefix(ctx)) {
+            // 添加特别关心或关注前缀
+            name = if (isGroupConversation)
+                ctx.getString(R.string.special_group_prefix) + name
+            else
+                ctx.getString(R.string.special_prefix) + name
+        }
+
+        val person = if (name == message.person.name) {
+            message.person
+        } else {
+            message.person.clone(name)
+        }
+        addMessage(message.content, message.time, person)
+    }
+
+    private fun Person.clone(newName: CharSequence? = null): Person {
+        return Person.Builder()
+                .setBot(this.isBot)
+                .setIcon(this.icon)
+                .setImportant(this.isImportant)
+                .setKey(this.key)
+                .setName(newName ?: this.name)
+                .setUri(this.uri)
+                .build()
+    }
 
     private fun setIcon(context: Context, builder: NotificationCompat.Builder, tag: Int, isQzone: Boolean) {
         if (isQzone) {
@@ -488,9 +528,14 @@ abstract class NotificationProcessor(context: Context) {
 
     /**
      * 加入历史消息记录。
+     *
+     * @param name 发送者昵称。
+     * @param content 消息内容。
+     * @param group 群组名。`null` 表示非群组消息。
+     * @param special 是否来自特别关心或特别关注。
      */
     private fun addMessage(@SourceTag tag: Int, name: String, content: String, group: String?, icon: Bitmap?,
-                           contentIntent: PendingIntent, deleteIntent: PendingIntent): Conversation {
+                           contentIntent: PendingIntent, deleteIntent: PendingIntent, special: Boolean): Conversation {
         var conversation: Conversation? = null
         // 以会话名为标准寻找已存在的会话
         for (item in getHistoryMessage(tag)) {
@@ -511,7 +556,7 @@ abstract class NotificationProcessor(context: Context) {
             conversation = Conversation(group != null, group ?: name, contentIntent, deleteIntent)
             getHistoryMessage(tag).add(conversation)
         }
-        conversation.messages.add(Message(name, icon, content))
+        conversation.messages.add(Message(name, icon, content, special))
         return conversation
     }
 
@@ -544,8 +589,9 @@ abstract class NotificationProcessor(context: Context) {
      * @param name 发送者昵称。
      * @param icon 头像。
      * @param content 消息内容。
+     * @param special 是否来自特别关心或特别关注。仅在聊天消息中有效。
      */
-    protected data class Message(val name: String, val icon: Bitmap?, val content: String) {
+    protected data class Message(val name: String, val icon: Bitmap?, val content: String, val special: Boolean) {
         val person: Person = Person.Builder()
                 .setIcon(icon?.let { IconCompat.createWithBitmap(it) })
                 .setName(name)

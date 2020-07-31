@@ -84,6 +84,9 @@ fun getIconMode(context: Context): Int {
     }
 }
 
+fun showSpecialPrefix(context: Context): Boolean = PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean("show_special_prefix", false)
+
 fun getAvatarCachePeriod(context: Context): Long {
     val s = PreferenceManager.getDefaultSharedPreferences(context).getString("avatar_cache_period", "0") ?: "0"
     return s.toLong()

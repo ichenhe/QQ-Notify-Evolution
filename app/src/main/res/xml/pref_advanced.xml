@@ -1,29 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ListPreference
-        app:defaultValue="86400000"
-        app:entries="@array/pref_avatar_cache_period_entries"
-        app:entryValues="@array/pref_avatar_cache_period_values"
-        app:key="avatar_cache_period"
-        app:title="@string/pref_avatar_cache_period" />
+    <PreferenceCategory app:title="@string/pref_cate_advanced_notify">
 
-    <Preference
-        app:key="delete_avatar_cache"
-        app:title="@string/pref_delete_avatar_cache" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="show_special_prefix"
+            app:summary="@string/pref_advanced_show_special_prefix_summary"
+            app:title="@string/pref_advanced_show_special_prefix" />
+    </PreferenceCategory>
 
-    <Preference
-        app:key="delete_nevo_channel"
-        app:title="@string/pref_delete_nevo_channel" />
+    <PreferenceCategory app:title="@string/pref_cate_advanced_other">
 
-    <Preference
-        app:key="reset_tips"
-        app:title="@string/pref_reset_tips" />
+        <ListPreference
+            app:defaultValue="86400000"
+            app:entries="@array/pref_avatar_cache_period_entries"
+            app:entryValues="@array/pref_avatar_cache_period_values"
+            app:key="avatar_cache_period"
+            app:title="@string/pref_avatar_cache_period" />
 
-    <SwitchPreferenceCompat
-        app:defaultValue="true"
-        app:key="show_in_recent"
-        app:title="@string/pref_show_in_recent" />
+        <Preference
+            app:key="delete_avatar_cache"
+            app:title="@string/pref_delete_avatar_cache" />
+
+        <Preference
+            app:key="delete_nevo_channel"
+            app:title="@string/pref_delete_nevo_channel" />
+
+        <Preference
+            app:key="reset_tips"
+            app:title="@string/pref_reset_tips" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="show_in_recent"
+            app:title="@string/pref_show_in_recent" />
+    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/pref_cat_debug">
 

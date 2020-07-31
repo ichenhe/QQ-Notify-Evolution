@@ -9,6 +9,11 @@ class NotificationProcessorTest {
         return "$nickName($groupName):$message"
     }
 
+    private fun generateGroupContent(nickName: String, message: String, special: Boolean): String {
+        val prefix = if (special) "[有关注的内容]" else ""
+        return "$prefix$nickName: $message"
+    }
+
     private fun generateFriendTicker(nickName: String, message: String): String {
         return "$nickName: $message"
     }
@@ -52,6 +57,24 @@ class NotificationProcessorTest {
         val ticker = generateFriendTicker("Bob", "Hello~")
         val matcher = NotificationProcessor.groupMsgPattern.matcher(ticker)
         matcher.matches().shouldBeFalse()
+    }
+
+    @Test
+    fun group_special_content_match() {
+        val content = generateGroupContent("(id1)", "Yea", true)
+        val matcher = NotificationProcessor.groupMsgContentPattern.matcher(content)
+
+        matcher.matches().shouldBeTrue()
+        matcher.group(1).shouldNotBeNullOrEmpty()
+    }
+
+    @Test
+    fun group_nonSpecial_content_match() {
+        val content = generateGroupContent("(id1)", "Yea", false)
+        val matcher = NotificationProcessor.groupMsgContentPattern.matcher(content)
+
+        matcher.matches().shouldBeTrue()
+        matcher.group(1).shouldBeNull()
     }
 
     @Test
