@@ -403,7 +403,7 @@ abstract class NotificationProcessor(context: Context) {
         val channelId = getChannelId(channel)
 
         val color = ContextCompat.getColor(context,
-                if (channel == NotifyChannel.QZONE) R.color.colorQzone else R.color.colorPrimary)
+                if (channel == NotifyChannel.QZONE) R.color.colorQzoneIcon else R.color.colorConversationIcon)
 
         @Suppress("DEPRECATION")
         val builder = NotificationCompat.Builder(context, channelId)
