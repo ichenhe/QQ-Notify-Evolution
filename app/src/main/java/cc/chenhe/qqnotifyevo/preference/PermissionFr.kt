@@ -32,6 +32,7 @@ class PermissionFr : PreferenceFragmentCompat() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        preferenceManager.setStorageDeviceProtected()
         setPreferencesFromResource(R.xml.pref_permission, rootKey)
         notification = findPreference("notf_permit")!!
         accessibility = findPreference("aces_permit")!!

@@ -20,6 +20,7 @@ class AdvancedFr : PreferenceFragmentCompat() {
     private lateinit var deleteLog: Preference
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        preferenceManager.setStorageDeviceProtected()
         setPreferencesFromResource(R.xml.pref_advanced, rootKey)
 
         findPreference<EditTextPreference>("nickname_wrapper")!!.apply {

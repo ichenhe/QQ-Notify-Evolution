@@ -37,7 +37,8 @@ const val ICON_TIM = 2
 @IntDef(ICON_AUTO, ICON_QQ, ICON_TIM)
 annotation class Icon
 
-private fun sp(context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+private fun sp(context: Context): SharedPreferences = PreferenceManager
+        .getDefaultSharedPreferences(context.createDeviceProtectedStorageContext())
 
 // ---------------------------------------------------------
 // Tips
@@ -51,8 +52,7 @@ fun nevoMultiMsgTip(context: Context, shouldShow: Boolean) {
     }
 }
 
-fun nevoMultiMsgTip(context: Context): Boolean = PreferenceManager
-        .getDefaultSharedPreferences(context).getBoolean(PREF_NEVO_MULTI_MSG_TIP, true)
+fun nevoMultiMsgTip(context: Context): Boolean = sp(context).getBoolean(PREF_NEVO_MULTI_MSG_TIP, true)
 
 
 // ---------------------------------------------------------

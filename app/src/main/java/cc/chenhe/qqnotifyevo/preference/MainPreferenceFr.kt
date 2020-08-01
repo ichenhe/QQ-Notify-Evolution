@@ -43,6 +43,7 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        preferenceManager.setStorageDeviceProtected()
         setPreferencesFromResource(R.xml.pref_main, rootKey)
         findPreference<Preference>("donate")?.isVisible = !BuildConfig.PLAY
 

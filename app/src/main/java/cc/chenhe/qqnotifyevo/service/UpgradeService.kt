@@ -172,8 +172,11 @@ class UpgradeService : Service() {
 
     private suspend fun migrate_1_to_2_0_2() = withContext(Dispatchers.Main) {
         if (UserManagerCompat.isUserUnlocked(ctx)) {
+            Timber.tag(TAG).d("Move default preferences to device protected area.")
+            val deviceCtx = ctx.createDeviceProtectedStorageContext()
+            deviceCtx.moveSharedPreferencesFrom(ctx, ctx.packageName + "_preferences")
             Timber.tag(TAG).d("Remove deprecated preferences.")
-            PreferenceManager.getDefaultSharedPreferences(ctx).edit {
+            PreferenceManager.getDefaultSharedPreferences(deviceCtx).edit {
                 remove("friend_vibrate")
                 remove("friend_ringtone")
                 remove("group_notify")
