@@ -1,10 +1,12 @@
 package cc.chenhe.qqnotifyevo.utils
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.IntDef
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.preference.PreferenceManager
@@ -35,13 +37,31 @@ const val ICON_TIM = 2
 @IntDef(ICON_AUTO, ICON_QQ, ICON_TIM)
 annotation class Icon
 
+private fun sp(context: Context): SharedPreferences = PreferenceManager
+        .getDefaultSharedPreferences(context.createDeviceProtectedStorageContext())
+
+// ---------------------------------------------------------
+// Tips
+// ---------------------------------------------------------
+private const val PREF_NEVO_MULTI_MSG_TIP = "tip_nevo_multi_msg"
+
+
+fun nevoMultiMsgTip(context: Context, shouldShow: Boolean) {
+    sp(context).edit {
+        putBoolean(PREF_NEVO_MULTI_MSG_TIP, shouldShow)
+    }
+}
+
+fun nevoMultiMsgTip(context: Context): Boolean = sp(context).getBoolean(PREF_NEVO_MULTI_MSG_TIP, true)
+
+
 // ---------------------------------------------------------
 // Functions
 // ---------------------------------------------------------
 
 @Mode
 fun getMode(context: Context): Int {
-    val mode = PreferenceManager.getDefaultSharedPreferences(context).getString("mode", "0") ?: "0"
+    val mode = sp(context).getString("mode", "0") ?: "0"
     return when (mode.toInt()) {
         1 -> MODE_NEVO
         2 -> MODE_LEGACY
@@ -50,7 +70,7 @@ fun getMode(context: Context): Int {
 }
 
 fun fetchMode(context: Context): LiveData<Int> {
-    val source = SpStringLiveData(PreferenceManager.getDefaultSharedPreferences(context), "mode", "0", true)
+    val source = SpStringLiveData(sp(context), "mode", "0", true)
     return Transformations.map(source) { src ->
         src!!.toInt()
     }
@@ -58,7 +78,7 @@ fun fetchMode(context: Context): LiveData<Int> {
 
 @Icon
 fun getIconMode(context: Context): Int {
-    val icon = PreferenceManager.getDefaultSharedPreferences(context).getString("icon_mode", "0") ?: "0"
+    val icon = sp(context).getString("icon_mode", "0") ?: "0"
     return when (icon.toInt()) {
         0 -> ICON_AUTO
         1 -> ICON_QQ
@@ -67,20 +87,46 @@ fun getIconMode(context: Context): Int {
     }
 }
 
+fun showSpecialPrefix(context: Context): Boolean = sp(context).getBoolean("show_special_prefix", false)
+
+/**
+ * 特别关注的群消息通知渠道。
+ *
+ * @return `true` 为特别关心渠道，`false` 为群消息渠道。
+ */
+fun specialGroupMsgChannel(context: Context): Boolean = sp(context).getString("special_group_channel", "group") == "special"
+
+fun wrapNickname(context: Context): Boolean = sp(context).getBoolean("wrap_nickname", false)
+
+fun nicknameWrapper(context: Context): String? = sp(context).getString("nickname_wrapper", null)
+
+/**
+ * 禁用格式化昵称，且将格式重置为默认值。
+ */
+fun resetNicknameWrapper(context: Context) {
+    sp(context).edit {
+        putBoolean("wrap_nickname", false)
+        putString("nickname_wrapper", "[\$n]")
+    }
+}
+
 fun getAvatarCachePeriod(context: Context): Long {
-    val s = PreferenceManager.getDefaultSharedPreferences(context).getString("avatar_cache_period", "0") ?: "0"
+    val s = sp(context).getString("avatar_cache_period", "0") ?: "0"
     return s.toLong()
 }
 
 fun fetchAvatarCachePeriod(context: Context): LiveData<Long> {
-    val source = SpStringLiveData(PreferenceManager.getDefaultSharedPreferences(context), "avatar_cache_period", "0", true)
+    val source = SpStringLiveData(sp(context), "avatar_cache_period", "0", true)
     return Transformations.map(source) { src ->
         src?.toLong() ?: 0L
     }
 }
 
-fun fetchLog(context: Context): SpBooleanLiveData = SpBooleanLiveData(PreferenceManager
-        .getDefaultSharedPreferences(context), "log", false, init = true)
+fun getShowInRecent(context: Context): Boolean {
+    return sp(context).getBoolean("show_in_recent", true)
+}
+
+fun fetchLog(context: Context): SpBooleanLiveData = SpBooleanLiveData(sp(context), "log", false, init = true)
 
 fun getVersion(context: Context): String {
     var versionName = ""

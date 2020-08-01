@@ -1,20 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ListPreference
-        app:defaultValue="86400000"
-        app:entries="@array/pref_avatar_cache_period_entries"
-        app:entryValues="@array/pref_avatar_cache_period_values"
-        app:key="avatar_cache_period"
-        app:title="@string/pref_avatar_cache_period" />
+    <PreferenceCategory app:title="@string/pref_cate_advanced_notify">
 
-    <Preference
-        app:key="delete_avatar_cache"
-        app:title="@string/pref_delete_avatar_cache" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="show_special_prefix"
+            app:summary="@string/pref_advanced_show_special_prefix_summary"
+            app:title="@string/pref_advanced_show_special_prefix" />
 
-    <Preference
-        app:key="delete_nevo_channel"
-        app:title="@string/pref_delete_nevo_channel" />
+        <ListPreference
+            app:defaultValue="group"
+            app:entries="@array/pref_advanced_special_group_channel_entries"
+            app:entryValues="@array/pref_advanced_special_group_channel_values"
+            app:key="special_group_channel"
+            app:title="@string/pref_advanced_special_group_channel"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="wrap_nickname"
+            app:title="@string/pref_advanced_wrap_nickname" />
+
+        <EditTextPreference
+            app:defaultValue="[$n]"
+            app:dependency="wrap_nickname"
+            app:dialogMessage="@string/pref_advanced_nickname_wrapper_message"
+            app:key="nickname_wrapper"
+            app:title="@string/pref_advanced_nickname_wrapper"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/pref_cate_advanced_other">
+
+        <ListPreference
+            app:defaultValue="86400000"
+            app:entries="@array/pref_avatar_cache_period_entries"
+            app:entryValues="@array/pref_avatar_cache_period_values"
+            app:key="avatar_cache_period"
+            app:title="@string/pref_avatar_cache_period" />
+
+        <Preference
+            app:key="delete_avatar_cache"
+            app:title="@string/pref_delete_avatar_cache" />
+
+        <Preference
+            app:key="delete_nevo_channel"
+            app:title="@string/pref_delete_nevo_channel" />
+
+        <Preference
+            app:key="reset_tips"
+            app:title="@string/pref_reset_tips" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="show_in_recent"
+            app:title="@string/pref_show_in_recent" />
+    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/pref_cat_debug">
 
