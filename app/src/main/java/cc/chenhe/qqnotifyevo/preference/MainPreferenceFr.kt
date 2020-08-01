@@ -1,6 +1,5 @@
 package cc.chenhe.qqnotifyevo.preference
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,6 +7,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
@@ -78,9 +78,14 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
                 if (model.mode.value == MODE_NEVO) {
                     serviceWarning.setTitle(R.string.warning_nevo_service)
                     serviceWarning.setSummary(R.string.warning_nevo_service_summary)
+                    serviceWarning.setOnPreferenceClickListener {
+                        startNevoApp()
+                        true
+                    }
                 } else if (model.mode.value == MODE_LEGACY) {
                     serviceWarning.setTitle(R.string.warning_monitor_service)
                     serviceWarning.setSummary(R.string.warning_monitor_service_summary)
+                    serviceWarning.onPreferenceChangeListener = null
                 }
                 serviceWarning.isVisible = true
             }
@@ -112,6 +117,23 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
         return super.onPreferenceTreeClick(preference)
     }
 
+    private fun startNevoApp() {
+        try {
+            Intent().let {
+                it.action = Intent.ACTION_MAIN
+                it.addCategory(Intent.CATEGORY_LAUNCHER)
+                it.setPackage("com.oasisfeng.nevo")
+                startActivity(it)
+            }
+        } catch (e: Exception) {
+            AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.tip)
+                    .setMessage(R.string.main_nevo_not_install)
+                    .setPositiveButton(R.string.confirm, null)
+                    .show()
+        }
+    }
+
     private suspend fun checkServiceRunning() {
         withContext(Dispatchers.Default) {
             if (model.mode.value == MODE_NEVO)
@@ -124,7 +146,7 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
     }
 
     private fun donate() {
-        AlertDialog.Builder(context)
+        AlertDialog.Builder(requireContext())
                 .setTitle(R.string.pref_donate_message)
                 .setSingleChoiceItems(R.array.pref_donate_options, -1) { _, i ->
                     startAliPay()
@@ -133,7 +155,7 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
     }
 
     private fun showInfo() {
-        AlertDialog.Builder(context)
+        AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.about_dialog_title))
                 .setMessage(getString(R.string.about_dialog_message))
                 .setNeutralButton(R.string.about_dialog_github) { _, _ ->
