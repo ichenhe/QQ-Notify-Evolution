@@ -18,15 +18,22 @@ const val ACTION_DELETE_NEVO_CHANNEL = "deleteNevoChannel"
 /** 不再显示关于 Nevo模式下遇到合并消息的使用提示。此 ACTION 用于注册静态接收器。 */
 const val ACTION_MULTI_MSG_DONT_SHOW = "dnotShowNevoMultiMsgTips"
 
+/** 应用更新迁移数据完成的广播。 */
+const val ACTION_APPLICATION_UPGRADE_COMPLETE = "applicationUpgradeComplete"
+
 // Android O+ 通知渠道 id
 const val NOTIFY_FRIEND_CHANNEL_ID = "QQ_Friend"
 const val NOTIFY_FRIEND_SPECIAL_CHANNEL_ID = "QQ_Friend_Special"
 const val NOTIFY_GROUP_CHANNEL_ID = "QQ_Group"
 const val NOTIFY_QZONE_CHANNEL_ID = "QQ_Zone"
 const val NOTIFY_SELF_TIPS_CHANNEL_ID = "Tips"
+const val NOTIFY_SELF_FOREGROUND_SERVICE_CHANNEL_ID = "ForegroundService"
 
 /** Nevo 模式下检测到合并消息的提示。 */
 const val NOTIFY_ID_MULTI_MSG = 100
+
+/** 升级前台服务的通知 */
+const val NOTIFY_ID_UPGRADE = 101
 
 // 自身转发QQ消息的通知渠道组
 const val NOTIFY_QQ_GROUP_ID = "base"

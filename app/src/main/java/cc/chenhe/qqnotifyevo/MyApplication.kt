@@ -9,6 +9,7 @@ import android.media.RingtoneManager
 import androidx.core.app.NotificationManagerCompat
 import cc.chenhe.qqnotifyevo.log.CrashHandler
 import cc.chenhe.qqnotifyevo.log.ReleaseTree
+import cc.chenhe.qqnotifyevo.service.UpgradeService
 import cc.chenhe.qqnotifyevo.utils.*
 import timber.log.Timber
 
@@ -38,6 +39,8 @@ class MyApplication : Application() {
         Timber.tag(TAG).i("= App Create")
         Timber.tag(TAG).i("==================================================\n")
         registerNotificationChannel()
+
+        UpgradeService.startIfNecessary(this)
     }
 
     private fun setupTimber(enableLog: Boolean) {

@@ -47,6 +47,8 @@
     <string name="notify_qzone_channel_des">QQ 空间动态通知</string>
     <!-- 自身通知 -->
     <string name="notify_self_tips_channel_name">使用提示</string>
+    <string name="notify_self_foreground_service_channel_name">前台服务</string>
+    <string name="notify_self_foreground_service_channel_name_des">一些重要的正在执行的操作</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 通知内容
@@ -57,6 +59,10 @@
     <string name="notify_qzone_special_title">特别关心动态</string>
     <string name="notify_subtext_message_num">%1$d条新消息</string>
     <string name="notify_subtext_qzone_num">%1$d条新动态</string>
+
+    <!-- 自身通知 -->
+    <string name="notify_upgrade">升级中</string>
+    <string name="notify_upgrade_text">正在迁移数据，请勿强行停止。</string>
 
     <string name="warning_nevo_service">Nevo 插件服务未运行</string>
     <string name="warning_nevo_service_summary">请尝试在 Nevo 中重新启用本插件，并确认已允许 Nevo 和本应用自启动/后台运行。</string>
@@ -182,4 +188,11 @@
     <string name="pref_delete_log">删除日志</string>
     <string name="pref_delete_log_summary">%1$d个日志 总大小%2$s</string>
     <string name="pref_delete_log_dialog_message">删除所有日志？</string>
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~ 升级提示界面
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+    <string name="upgrade_message">升级中\n正在迁移数据，请勿强行停止。</string>
+
 </resources>
