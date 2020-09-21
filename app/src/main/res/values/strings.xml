@@ -59,6 +59,7 @@
     <string name="notify_qzone_special_title">特别关心动态</string>
     <string name="notify_subtext_message_num">%1$d条新消息</string>
     <string name="notify_subtext_qzone_num">%1$d条新动态</string>
+    <string name="notify_binding_msg_title">关联账号-%1$s</string>
 
     <!-- 自身通知 -->
     <string name="notify_upgrade">升级中</string>

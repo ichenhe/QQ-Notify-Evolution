@@ -91,6 +91,40 @@ abstract class NotificationProcessor(context: Context) {
         @VisibleForTesting
         val msgTitlePattern: Pattern = Pattern.compile("^(\\[特别关心])?.*?(?: \\((\\d+)条新消息\\))?$")
 
+        // 关联QQ消息
+        // title:
+        //      - 只有一条消息: 关联QQ号
+        //      - 一人发来多条消息: 关联QQ号 ({x}条新消息)
+        //      - 多人发来消息: QQ
+        // ticker:  关联QQ号-{关联昵称} {发送者昵称}:{消息内容}
+        // content:
+        //      - 一人发来消息: {消息内容}
+        //      - 多人发来消息: 有 {x} 个联系人给你发过来{y}条新消息
+
+        /**
+         * 匹配关联 QQ 消息 ticker.
+         *
+         * Group: 1关联账号昵称, 2消息内容
+         */
+        @VisibleForTesting
+        val bindingQQMsgTickerPattern: Pattern = Pattern.compile("^关联QQ号-(.+?):([\\s\\S]+)$")
+
+        /**
+         * 匹配关联 QQ 消息 content. 用于提取未读消息个数。
+         *
+         * Group: 1未读消息个数
+         */
+        @VisibleForTesting
+        val bindingQQMsgContextPattern: Pattern = Pattern.compile("^有 (?:\\d+) 个联系人给你发过来(\\d+)条新消息$")
+
+        /**
+         * 匹配关联 QQ 消息 title. 用于提取未读消息个数。
+         *
+         * Group: 1未读消息个数
+         */
+        @VisibleForTesting
+        val bindingQQMsgTitlePattern: Pattern = Pattern.compile("^关联QQ号 \\((\\d+)条新消息\\)$")
+
         // Q空间动态
         // title(与我相关): QQ空间动态(共x条未读); (特别关心): QQ空间动态
         // ticker(与我相关): 详情（例如xxx评论了你）; (特别关心): 【特别关心】昵称：内容
@@ -161,8 +195,10 @@ abstract class NotificationProcessor(context: Context) {
      * 检测到合并消息的回调。
      *
      * 合并消息：有 x 个联系人给你发过来y条新消息
+     *
+     * @param isBindingMsg 是否来自关联 QQ 的消息。
      */
-    protected open fun onMultiMessageDetected() {}
+    protected open fun onMultiMessageDetected(isBindingMsg: Boolean) {}
 
     /**
      * 创建优化后的QQ空间通知。
@@ -234,7 +270,7 @@ abstract class NotificationProcessor(context: Context) {
         Timber.tag(TAG).v("Title: $title; Ticker: $ticker; QZone: $isQzone; Multi: $isMulti; Content: $content")
 
         if (isMulti) {
-            onMultiMessageDetected()
+            onMultiMessageDetected(ticker?.contains("关联QQ号-") ?: false)
         }
 
         // 隐藏消息详情
@@ -319,6 +355,21 @@ abstract class NotificationProcessor(context: Context) {
                 }
             }
         }
+
+        // 关联账号消息
+        bindingQQMsgTickerPattern.matcher(ticker).also { matcher ->
+            if (matcher.matches()) {
+                val account = matcher.group(1) ?: ""
+                val text = matcher.group(2) ?: return null
+                val conversation = addMessage(tag, context.getString(R.string.notify_binding_msg_title, account),
+                        text, null, getNotifyLargeIcon(context, original), original.contentIntent,
+                        original.deleteIntent, false)
+                deleteOldMessage(conversation, matchBindingMsgNum(title, content))
+                Timber.tag(TAG).d("[Binding] Account: $account; Text: $text")
+                return renewConversionNotification(context, tag, NotifyChannel.FRIEND, conversation, sbn, original)
+            }
+        }
+
         Timber.tag(TAG).w("[None] Not match any pattern.")
         return null
     }
@@ -365,6 +416,28 @@ abstract class NotificationProcessor(context: Context) {
             }
         }
         return 0
+    }
+
+    /**
+     * 提取关联账号的未读消息个数。
+     */
+    private fun matchBindingMsgNum(title: String?, content: String?): Int {
+        if (title == null || content == null) return 1
+        if (title == "QQ") {
+            bindingQQMsgContextPattern.matcher(content).also { matcher ->
+                if (matcher.matches()) {
+                    return matcher.group(1)?.toInt() ?: 1
+                }
+            }
+        } else {
+            bindingQQMsgTitlePattern.matcher(title).also { matcher ->
+                if (matcher.matches()) {
+                    return matcher.group(1)?.toInt() ?: 1
+                }
+            }
+        }
+
+        return 1
     }
 
     /**

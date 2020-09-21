@@ -33,8 +33,12 @@ class NevoNotificationProcessor(context: Context) : NotificationProcessor(contex
         return createConversationNotification(context, tag, channel, conversation, original)
     }
 
-    override fun onMultiMessageDetected() {
-        super.onMultiMessageDetected()
+    override fun onMultiMessageDetected(isBindingMsg: Boolean) {
+        super.onMultiMessageDetected(isBindingMsg)
+        if (isBindingMsg) {
+            // 目前关联账号的消息都会合并
+            return
+        }
         if (nevoMultiMsgTip(ctx)) {
             val dontShow = PendingIntent.getBroadcast(ctx, REQ_MULTI_MSG_DONT_SHOW,
                     Intent(ctx, StaticReceiver::class.java).also {
