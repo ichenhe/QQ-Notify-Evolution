@@ -260,7 +260,7 @@ abstract class NotificationProcessor(context: Context) {
             } else {
                 // 与我相关的动态
                 avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), getNotifyLargeIcon(context, original))
-                conversation = addMessage(tag, qzoneSpecialTitle, content, null,
+                conversation = addMessage(tag, context.getString(R.string.notify_qzone_title), content, null,
                         avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()), original.contentIntent,
                         original.deleteIntent, false)
                 deleteOldMessage(conversation, num)
