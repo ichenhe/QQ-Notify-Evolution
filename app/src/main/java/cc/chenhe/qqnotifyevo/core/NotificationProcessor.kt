@@ -256,16 +256,8 @@ abstract class NotificationProcessor(context: Context) {
         val content = original.extras.getString(Notification.EXTRA_TEXT)
         val ticker = original.tickerText?.toString()
 
-        // 合并消息
-        // title: QQ
-        // ticker: 昵称:内容
-        // text: 有 x 个联系人给你发过来y条新消息
-        val isMulti = content?.let {
-            !it.contains(":") && !(ticker?.endsWith(it) ?: false)
-        } ?: false
-
-        // 单独处理QQ空间
-        val isQzone = title?.let { qzonePattern.matcher(it).matches() } ?: false
+        val isMulti = isMulti(ticker, content)
+        val isQzone = isQzone(title)
 
         Timber.tag(TAG).v("Title: $title; Ticker: $ticker; QZone: $isQzone; Multi: $isMulti; Content: $content")
 
@@ -274,12 +266,60 @@ abstract class NotificationProcessor(context: Context) {
         }
 
         // 隐藏消息详情
-        if (ticker != null && ticker == content && hideMsgPattern.matcher(ticker).matches()) {
+        if (isHidden(ticker, content)) {
             Timber.tag(TAG).v("Hidden message content, skip.")
             return null
         }
 
         // QQ空间
+        tryResolveQzone(context, tag, original, isQzone, title, ticker, content)?.also { conversation ->
+            return renewQzoneNotification(context, tag, conversation, sbn, original)
+        }
+
+        if (ticker == null) {
+            Timber.tag(TAG).i("Ticker is null, skip.")
+            return null
+        }
+
+        // 群消息
+        tryResolveGroupMsg(context, tag, original, isMulti, title, ticker, content)?.also { (channel, conversation) ->
+            return renewConversionNotification(context, tag, channel, conversation, sbn, original)
+        }
+
+        // 私聊消息
+        tryResolvePrivateMsg(context, tag, original, isMulti, title, ticker)?.also { (channel, conversation) ->
+            return renewConversionNotification(context, tag, channel, conversation, sbn, original)
+        }
+
+        // 关联账号消息
+        tryResolveBindingMsg(context, tag, original, title, ticker, content)?.also { (channel, conversation) ->
+            return renewConversionNotification(context, tag, channel, conversation, sbn, original)
+        }
+
+        Timber.tag(TAG).w("[None] Not match any pattern.")
+        return null
+    }
+
+    private fun isMulti(ticker: String?, content: String?): Boolean {
+        // 合并消息
+        // title: QQ
+        // ticker: 昵称:内容
+        // text: 有 x 个联系人给你发过来y条新消息
+        return content?.let {
+            !it.contains(":") && !(ticker?.endsWith(it) ?: false)
+        } ?: false
+    }
+
+    private fun isQzone(title: String?): Boolean {
+        return title?.let { qzonePattern.matcher(it).matches() } ?: false
+    }
+
+    private fun isHidden(ticker: String?, content: String?): Boolean {
+        return ticker != null && ticker == content && hideMsgPattern.matcher(ticker).matches()
+    }
+
+    private fun tryResolveQzone(context: Context, tag: Tag, original: Notification, isQzone: Boolean, title: String?,
+                                ticker: String?, content: String?): Conversation? {
         if (isQzone && !content.isNullOrEmpty()) {
             val num = matchQzoneNum(title)
             val conversation: Conversation
@@ -302,15 +342,13 @@ abstract class NotificationProcessor(context: Context) {
                 deleteOldMessage(conversation, num)
                 Timber.tag(TAG).d("[QZone] Ticker: $ticker")
             }
-            return renewQzoneNotification(context, tag, conversation, sbn, original)
+            return conversation
         }
+        return null
+    }
 
-        if (ticker == null) {
-            Timber.tag(TAG).i("Ticker is null, skip.")
-            return null
-        }
-
-        // 群消息
+    private fun tryResolveGroupMsg(context: Context, tag: Tag, original: Notification, isMulti: Boolean, title: String?,
+                                   ticker: String, content: String?): Pair<NotifyChannel, Conversation>? {
         groupMsgPattern.matcher(ticker).also { matcher ->
             if (matcher.matches()) {
                 val name = matcher.group(1) ?: return null
@@ -330,11 +368,14 @@ abstract class NotificationProcessor(context: Context) {
                     NotifyChannel.FRIEND_SPECIAL
                 else
                     NotifyChannel.GROUP
-                return renewConversionNotification(context, tag, channel, conversation, sbn, original)
+                return Pair(channel, conversation)
             }
         }
+        return null
+    }
 
-        // 私聊消息
+    private fun tryResolvePrivateMsg(context: Context, tag: Tag, original: Notification, isMulti: Boolean,
+                                     title: String?, ticker: String): Pair<NotifyChannel, Conversation>? {
         msgPattern.matcher(ticker).also { matcher ->
             if (matcher.matches()) {
                 val titleMatcher = msgTitlePattern.matcher(title ?: "")
@@ -346,17 +387,20 @@ abstract class NotificationProcessor(context: Context) {
                 val conversation = addMessage(tag, name, text, null, avatarManager.getAvatar(name.hashCode()),
                         original.contentIntent, original.deleteIntent, special)
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
-                return if (special) {
+                if (special) {
                     Timber.tag(TAG).d("[FriendS] Name: $name; Text: $text")
-                    renewConversionNotification(context, tag, NotifyChannel.FRIEND_SPECIAL, conversation, sbn, original)
+                    return Pair(NotifyChannel.FRIEND_SPECIAL, conversation)
                 } else {
                     Timber.tag(TAG).d("[Friend] Name: $name; Text: $text")
-                    renewConversionNotification(context, tag, NotifyChannel.FRIEND, conversation, sbn, original)
+                    return Pair(NotifyChannel.FRIEND, conversation)
                 }
             }
         }
+        return null
+    }
 
-        // 关联账号消息
+    private fun tryResolveBindingMsg(context: Context, tag: Tag, original: Notification, title: String?,
+                                     ticker: String, content: String?): Pair<NotifyChannel, Conversation>? {
         bindingQQMsgTickerPattern.matcher(ticker).also { matcher ->
             if (matcher.matches()) {
                 val account = matcher.group(1) ?: ""
@@ -366,11 +410,9 @@ abstract class NotificationProcessor(context: Context) {
                         original.deleteIntent, false)
                 deleteOldMessage(conversation, matchBindingMsgNum(title, content))
                 Timber.tag(TAG).d("[Binding] Account: $account; Text: $text")
-                return renewConversionNotification(context, tag, NotifyChannel.FRIEND, conversation, sbn, original)
+                return Pair(NotifyChannel.FRIEND, conversation)
             }
         }
-
-        Timber.tag(TAG).w("[None] Not match any pattern.")
         return null
     }
 
