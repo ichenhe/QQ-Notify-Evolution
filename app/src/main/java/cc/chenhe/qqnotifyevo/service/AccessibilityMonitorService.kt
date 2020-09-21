@@ -30,9 +30,9 @@ class AccessibilityMonitorService : AccessibilityService() {
         val className = event.className.toString()
         if ("com.tencent.mobileqq.activity.SplashActivity" == event.className ||
                 "com.dataline.activities.LiteActivity" == event.className) {
-            startService(Intent(this, NotificationMonitorService::class.java).putExtra("tag", tag))
+            startService(Intent(this, NotificationMonitorService::class.java).putExtra("tag", tag.name))
         } else if (className.startsWith("cooperation.qzone.")) {
-            startService(Intent(this, NotificationMonitorService::class.java).putExtra("tag", tag))
+            startService(Intent(this, NotificationMonitorService::class.java).putExtra("tag", tag.name))
         }
     }
 

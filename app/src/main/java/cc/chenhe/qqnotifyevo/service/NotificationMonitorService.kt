@@ -9,9 +9,9 @@ import android.service.notification.StatusBarNotification
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.observe
 import cc.chenhe.qqnotifyevo.core.InnerNotificationProcessor
 import cc.chenhe.qqnotifyevo.utils.MODE_LEGACY
+import cc.chenhe.qqnotifyevo.utils.Tag
 import cc.chenhe.qqnotifyevo.utils.fetchAvatarCachePeriod
 import cc.chenhe.qqnotifyevo.utils.getMode
 import timber.log.Timber
@@ -69,7 +69,7 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
         if (getMode(this) != MODE_LEGACY)
             return Service.START_STICKY
         if (intent?.hasExtra("tag") == true) {
-            processor.clearHistory(ctx, intent.getIntExtra("tag", 0))
+            processor.clearHistory(ctx, Tag.valueOf(intent.getStringExtra("tag") ?: Tag.UNKNOWN.name))
         }
         return Service.START_STICKY
     }

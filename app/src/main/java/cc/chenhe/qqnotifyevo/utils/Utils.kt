@@ -51,7 +51,8 @@ val packageNameList: List<String>
     get() = listOf(
             "com.tencent.mobileqq",
             "com.tencent.tim",
-            "com.tencent.qqlite"
+            "com.tencent.qqlite",
+            "com.tencent.minihd.qq"
     )
 
 /**
