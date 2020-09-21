@@ -22,12 +22,12 @@ class NevoNotificationProcessor(context: Context) : NotificationProcessor(contex
         private const val REQ_MULTI_MSG_DONT_SHOW = 2
     }
 
-    override fun renewQzoneNotification(context: Context, tag: Int, conversation: Conversation,
+    override fun renewQzoneNotification(context: Context, tag: Tag, conversation: Conversation,
                                         sbn: StatusBarNotification, original: Notification): Notification {
         return createQZoneNotification(context, tag, conversation, original)
     }
 
-    override fun renewConversionNotification(context: Context, tag: Int, channel: NotifyChannel,
+    override fun renewConversionNotification(context: Context, tag: Tag, channel: NotifyChannel,
                                              conversation: Conversation, sbn: StatusBarNotification,
                                              original: Notification): Notification {
         return createConversationNotification(context, tag, channel, conversation, original)

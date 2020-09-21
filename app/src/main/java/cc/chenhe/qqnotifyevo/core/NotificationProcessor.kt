@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.service.notification.StatusBarNotification
-import androidx.annotation.IntDef
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
@@ -27,29 +26,21 @@ abstract class NotificationProcessor(context: Context) {
         /**
          * 用于在优化后的通知中保留原始来源标记。通过 [Notification.extras] 提取。
          *
-         * 值为 [Int] 类型，TAG_* 常量。
+         * 值为 [String] 类型，关联于 [Tag].
          */
         const val NOTIFICATION_EXTRA_TAG = "qqevo.tag"
 
         private const val CONVERSATION_NAME_QZONE = "QZone"
         private const val CONVERSATION_NAME_QZONE_SPECIAL = "QZoneSpecial" // 特别关心空间动态推送
 
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(TAG_UNKNOWN, TAG_QQ, TAG_QQ_LITE, TAG_TIM)
-        annotation class SourceTag
 
-        const val TAG_UNKNOWN = 0
-        const val TAG_QQ = 1
-        const val TAG_QQ_LITE = 2
-        const val TAG_TIM = 3
-
-        @SourceTag
-        fun getTagFromPackageName(packageName: String): Int {
+        fun getTagFromPackageName(packageName: String): Tag {
             return when (packageName) {
-                "com.tencent.mobileqq" -> TAG_QQ
-                "com.tencent.tim" -> TAG_TIM
-                "com.tencent.qqlite" -> TAG_QQ_LITE
-                else -> TAG_UNKNOWN
+                "com.tencent.mobileqq" -> Tag.QQ
+                "com.tencent.tim" -> Tag.TIM
+                "com.tencent.qqlite" -> Tag.QQ_LITE
+                "com.tencent.minihd.qq" -> Tag.QQ_HD
+                else -> Tag.UNKNOWN
             }
         }
 
@@ -57,6 +48,7 @@ abstract class NotificationProcessor(context: Context) {
         // title: 群名 | 群名 (x条新消息)
         // ticker: 昵称(群名):消息内容
         // text: 昵称: 消息内容 //特别关注前缀：[有关注的内容]
+        // QQHD v5.8.8.3445 中群里特别关心前缀为 特别关注。
 
         /**
          * 匹配群聊消息 Ticker.
@@ -72,9 +64,11 @@ abstract class NotificationProcessor(context: Context) {
          * 匹配群聊消息 Content.
          *
          * Group: 1[有关注的内容
+         *
+         * QQHD v5.8.8.3445 中群里特别关心前缀为 特别关注。
          */
         @VisibleForTesting
-        val groupMsgContentPattern: Pattern = Pattern.compile("^(\\[有关注的内容])?[\\s\\S]+")
+        val groupMsgContentPattern: Pattern = Pattern.compile("^(\\[(?:有关注的内容|特别关注)])?[\\s\\S]+")
 
         // 私聊消息
         // title: 昵称 | 昵称 (x条新消息) //特别关心前缀：[特别关心]
@@ -132,6 +126,7 @@ abstract class NotificationProcessor(context: Context) {
 
     private val qqHistory = ArrayList<Conversation>()
     private val qqLiteHistory = ArrayList<Conversation>()
+    private val qqHdHistory = ArrayList<Conversation>()
     private val timHistory = ArrayList<Conversation>()
 
     private val avatarManager = AvatarManager.get(getAvatarDiskCacheDir(ctx), getAvatarCachePeriod(context))
@@ -145,7 +140,7 @@ abstract class NotificationProcessor(context: Context) {
      *
      * @param tag 来源标记。
      */
-    fun clearHistory(@SourceTag tag: Int) {
+    fun clearHistory(tag: Tag) {
         Timber.tag(TAG).v("Clear history. tag=$tag")
         getHistoryMessage(tag).clear()
     }
@@ -155,7 +150,7 @@ abstract class NotificationProcessor(context: Context) {
      *
      * @param tag 来源标记。
      */
-    private fun clearQzoneSpecialHistory(@SourceTag tag: Int) {
+    private fun clearQzoneSpecialHistory(tag: Tag) {
         Timber.tag(TAG).d("Clear QZone history. tag=$tag")
         getHistoryMessage(tag).removeIf {
             it.name == qzoneSpecialTitle
@@ -180,7 +175,7 @@ abstract class NotificationProcessor(context: Context) {
      */
     protected abstract fun renewQzoneNotification(
             context: Context,
-            @SourceTag tag: Int,
+            tag: Tag,
             conversation: Conversation,
             sbn: StatusBarNotification,
             original: Notification
@@ -198,7 +193,7 @@ abstract class NotificationProcessor(context: Context) {
      */
     protected abstract fun renewConversionNotification(
             context: Context,
-            @SourceTag tag: Int,
+            tag: Tag,
             channel: NotifyChannel,
             conversation: Conversation,
             sbn: StatusBarNotification,
@@ -216,7 +211,7 @@ abstract class NotificationProcessor(context: Context) {
     fun resolveNotification(context: Context, packageName: String, sbn: StatusBarNotification): Notification? {
         val original = sbn.notification ?: return null
         val tag = getTagFromPackageName(packageName)
-        if (tag == TAG_UNKNOWN) {
+        if (tag == Tag.UNKNOWN) {
             Timber.tag(TAG).d("Unknown tag, skip. pkgName=$packageName")
             return null
         }
@@ -329,8 +324,8 @@ abstract class NotificationProcessor(context: Context) {
     }
 
     fun onNotificationRemoved(sbn: StatusBarNotification, reason: Int) {
-        val tag = sbn.notification.extras.getInt(NOTIFICATION_EXTRA_TAG, TAG_UNKNOWN)
-        if (tag == TAG_UNKNOWN) return
+        val tag = Tag.valueOf(sbn.notification.extras.getString(NOTIFICATION_EXTRA_TAG, Tag.UNKNOWN.name))
+        if (tag == Tag.UNKNOWN) return
         val title = sbn.notification.extras.getString(Notification.EXTRA_TITLE)
         Timber.tag(TAG).v("onNotificationRemoved: Tag=$tag, Reason=$reason, Title=$title")
         if (title == qzoneSpecialTitle) {
@@ -393,7 +388,7 @@ abstract class NotificationProcessor(context: Context) {
      */
     private fun createNotification(
             context: Context,
-            @SourceTag tag: Int,
+            tag: Tag,
             channel: NotifyChannel,
             style: NotificationCompat.Style?,
             largeIcon: Bitmap?,
@@ -429,11 +424,11 @@ abstract class NotificationProcessor(context: Context) {
         setIcon(context, builder, tag, channel == NotifyChannel.QZONE)
 
         return builder.build().apply {
-            extras.putInt(NOTIFICATION_EXTRA_TAG, tag)
+            extras.putString(NOTIFICATION_EXTRA_TAG, tag.name)
         }
     }
 
-    protected fun createQZoneNotification(context: Context, @SourceTag tag: Int, conversation: Conversation,
+    protected fun createQZoneNotification(context: Context, tag: Tag, conversation: Conversation,
                                           original: Notification): Notification {
         val style = NotificationCompat.MessagingStyle(Person.Builder()
                 .setName(context.getString(R.string.notify_qzone_title)).build())
@@ -454,7 +449,7 @@ abstract class NotificationProcessor(context: Context) {
      * @param tag      来源标记。
      * @param original 原始通知。
      */
-    protected fun createConversationNotification(context: Context, @SourceTag tag: Int, channel: NotifyChannel,
+    protected fun createConversationNotification(context: Context, tag: Tag, channel: NotifyChannel,
                                                  conversation: Conversation, original: Notification): Notification {
         val style = NotificationCompat.MessagingStyle(Person.Builder().setName(conversation.name).build())
         if (conversation.isGroup) {
@@ -522,15 +517,15 @@ abstract class NotificationProcessor(context: Context) {
                 .build()
     }
 
-    private fun setIcon(context: Context, builder: NotificationCompat.Builder, tag: Int, isQzone: Boolean) {
+    private fun setIcon(context: Context, builder: NotificationCompat.Builder, tag: Tag, isQzone: Boolean) {
         if (isQzone) {
             builder.setSmallIcon(R.drawable.ic_notify_qzone)
             return
         }
         when (getIconMode(context)) {
             ICON_AUTO -> when (tag) {
-                TAG_QQ, TAG_QQ_LITE -> R.drawable.ic_notify_qq
-                TAG_TIM -> R.drawable.ic_notify_tim
+                Tag.QQ, Tag.QQ_HD, Tag.QQ_LITE -> R.drawable.ic_notify_qq
+                Tag.TIM -> R.drawable.ic_notify_tim
                 else -> R.drawable.ic_notify_qq
             }
             ICON_QQ -> R.drawable.ic_notify_qq
@@ -543,11 +538,12 @@ abstract class NotificationProcessor(context: Context) {
     /**
      * 获取历史消息。
      */
-    protected fun getHistoryMessage(@SourceTag tag: Int): ArrayList<Conversation> {
+    protected fun getHistoryMessage(tag: Tag): ArrayList<Conversation> {
         return when (tag) {
-            TAG_TIM -> timHistory
-            TAG_QQ_LITE -> qqLiteHistory
-            TAG_QQ -> qqHistory
+            Tag.TIM -> timHistory
+            Tag.QQ_LITE -> qqLiteHistory
+            Tag.QQ -> qqHistory
+            Tag.QQ_HD -> qqHdHistory
             else -> throw RuntimeException("Unknown tag: $tag.")
         }
     }
@@ -560,7 +556,7 @@ abstract class NotificationProcessor(context: Context) {
      * @param group 群组名。`null` 表示非群组消息。
      * @param special 是否来自特别关心或特别关注。
      */
-    private fun addMessage(@SourceTag tag: Int, name: String, content: String, group: String?, icon: Bitmap?,
+    private fun addMessage(tag: Tag, name: String, content: String, group: String?, icon: Bitmap?,
                            contentIntent: PendingIntent, deleteIntent: PendingIntent, special: Boolean): Conversation {
         var conversation: Conversation? = null
         // 以会话名为标准寻找已存在的会话

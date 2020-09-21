@@ -55,7 +55,7 @@
 
             <meta-data
                 android:name="packages"
-                android:value="com.tencent.mobileqq|com.tencent.tim|com.tencent.qqlite" />
+                android:value="com.tencent.mobileqq|com.tencent.tim|com.tencent.qqlite|com.tencent.minihd.qq" />
             <meta-data
                 android:name="settings.activity"
                 android:value="cc.chenhe.qqnotifyevo.preference.PreferenceAty" />

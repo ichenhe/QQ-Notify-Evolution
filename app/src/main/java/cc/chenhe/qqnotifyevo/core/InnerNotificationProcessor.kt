@@ -5,6 +5,7 @@ import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
 import cc.chenhe.qqnotifyevo.utils.NotifyChannel
+import cc.chenhe.qqnotifyevo.utils.Tag
 import timber.log.Timber
 import java.util.*
 
@@ -31,24 +32,20 @@ class InnerNotificationProcessor(
     // 储存所有通知的 id 以便清除
     private val qqNotifyIds: MutableSet<Int> = HashSet()
     private val qqLiteNotifyIds: MutableSet<Int> = HashSet()
+    private val qqHdNotifyIds: MutableSet<Int> = HashSet()
     private val timNotifyIds: MutableSet<Int> = HashSet()
 
     /**
      * 清空对应来源的通知与历史记录，内部调用了单参 [clearHistory].
      */
-    fun clearHistory(context: Context, tag: Int) {
+    fun clearHistory(context: Context, tag: Tag) {
         clearHistory(tag)
         val ids = when (tag) {
-            TAG_QQ -> {
-                qqNotifyIds
-            }
-            TAG_QQ_LITE -> {
-                qqLiteNotifyIds
-            }
-            TAG_TIM -> {
-                timNotifyIds
-            }
-            else -> null
+            Tag.QQ -> qqNotifyIds
+            Tag.QQ_LITE -> qqLiteNotifyIds
+            Tag.TIM -> timNotifyIds
+            Tag.QQ_HD -> qqHdNotifyIds
+            Tag.UNKNOWN -> null
         }
         Timber.tag(TAG).v("Clear all evolutionary notifications.")
         NotificationManagerCompat.from(context).apply {
@@ -57,13 +54,13 @@ class InnerNotificationProcessor(
         }
     }
 
-    private fun sendNotification(context: Context, @NotificationProcessor.Companion.SourceTag tag: Int, id: Int,
+    private fun sendNotification(context: Context, tag: Tag, id: Int,
                                  notification: Notification) {
         NotificationManagerCompat.from(context).notify(id, notification)
         addNotifyId(tag, id)
     }
 
-    override fun renewQzoneNotification(context: Context, tag: Int, conversation: Conversation,
+    override fun renewQzoneNotification(context: Context, tag: Tag, conversation: Conversation,
                                         sbn: StatusBarNotification, original: Notification): Notification {
 
         val notification = createQZoneNotification(context, tag, conversation, original).apply {
@@ -76,7 +73,7 @@ class InnerNotificationProcessor(
         return notification
     }
 
-    override fun renewConversionNotification(context: Context, tag: Int, channel: NotifyChannel,
+    override fun renewConversionNotification(context: Context, tag: Tag, channel: NotifyChannel,
                                              conversation: Conversation, sbn: StatusBarNotification,
                                              original: Notification): Notification {
         val history = getHistoryMessage(tag)
@@ -97,11 +94,14 @@ class InnerNotificationProcessor(
         return notification ?: Notification() // 此处返回值没有实际意义
     }
 
-    private fun addNotifyId(@NotificationProcessor.Companion.SourceTag tag: Int, ids: Int) {
+    private fun addNotifyId(tag: Tag, ids: Int) {
         when (tag) {
-            TAG_QQ -> qqNotifyIds.add(ids)
-            TAG_TIM -> timNotifyIds.add(ids)
-            TAG_QQ_LITE -> qqLiteNotifyIds.add(ids)
+            Tag.QQ -> qqNotifyIds.add(ids)
+            Tag.QQ_HD -> qqHdNotifyIds.add(ids)
+            Tag.QQ_LITE -> qqLiteNotifyIds.add(ids)
+            Tag.TIM -> timNotifyIds.add(ids)
+            Tag.UNKNOWN -> {
+            }
         }
     }
 }
