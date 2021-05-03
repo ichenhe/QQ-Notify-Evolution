@@ -11,7 +11,6 @@ import android.service.notification.StatusBarNotification
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.observe
 import cc.chenhe.qqnotifyevo.core.NevoNotificationProcessor
 import cc.chenhe.qqnotifyevo.utils.*
 import com.oasisfeng.nevo.sdk.MutableStatusBarNotification
