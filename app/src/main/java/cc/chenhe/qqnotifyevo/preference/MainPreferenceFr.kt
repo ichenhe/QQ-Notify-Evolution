@@ -51,7 +51,8 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
 
         findPreference<Preference>("permission")?.fragment = PermissionFr::class.java.name
         findPreference<Preference>("advanced")?.fragment = AdvancedFr::class.java.name
-        findPreference<Preference>("version_code")?.summary = getString(R.string.pref_version_code, getVersion(ctx))
+        findPreference<Preference>("version_code")?.summary =
+            getString(R.string.pref_version_code, getVersion(ctx))
     }
 
     fun setMode(@Mode mode: Int) {
@@ -64,10 +65,14 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
         lifecycleScope.launch { checkServiceRunning() }
 
         model.mode.observe(viewLifecycleOwner) { mode ->
-            notification.setTitle(if (mode == MODE_NEVO)
-                R.string.pref_notify_nevo else R.string.pref_notify_system)
-            notification.setSummary(if (mode == MODE_NEVO)
-                R.string.pref_notify_nevo_summary else R.string.pref_notify_system_summary)
+            notification.setTitle(
+                if (mode == MODE_NEVO)
+                    R.string.pref_notify_nevo else R.string.pref_notify_system
+            )
+            notification.setSummary(
+                if (mode == MODE_NEVO)
+                    R.string.pref_notify_nevo_summary else R.string.pref_notify_system_summary
+            )
         }
 
         model.serviceRunning.observe(viewLifecycleOwner) { serviceRunning ->
@@ -94,7 +99,8 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         when (preference.key) {
             "system_notify_setting" -> {
-                val pkgName = if (model.mode.value == MODE_NEVO) "com.oasisfeng.nevo" else requireContext().packageName
+                val pkgName =
+                    if (model.mode.value == MODE_NEVO) "com.oasisfeng.nevo" else requireContext().packageName
                 Intent().let {
                     it.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
                     it.putExtra(Settings.EXTRA_APP_PACKAGE, pkgName)
@@ -126,10 +132,10 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
             }
         } catch (e: Exception) {
             AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.tip)
-                    .setMessage(R.string.main_nevo_not_install)
-                    .setPositiveButton(R.string.confirm, null)
-                    .show()
+                .setTitle(R.string.tip)
+                .setMessage(R.string.main_nevo_not_install)
+                .setPositiveButton(R.string.confirm, null)
+                .show()
         }
     }
 
@@ -146,22 +152,22 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
 
     private fun donate() {
         AlertDialog.Builder(requireContext())
-                .setTitle(R.string.pref_donate_message)
-                .setSingleChoiceItems(R.array.pref_donate_options, -1) { _, i ->
-                    startAliPay()
-                }
-                .show()
+            .setTitle(R.string.pref_donate_message)
+            .setSingleChoiceItems(R.array.pref_donate_options, -1) { _, _ ->
+                startAliPay()
+            }
+            .show()
     }
 
     private fun showInfo() {
         AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.about_dialog_title))
-                .setMessage(getString(R.string.about_dialog_message))
-                .setNeutralButton(R.string.about_dialog_github) { _, _ ->
-                    openUrl(GITHUB_URL)
-                }
-                .setPositiveButton(R.string.confirm, null)
-                .show()
+            .setTitle(getString(R.string.about_dialog_title))
+            .setMessage(getString(R.string.about_dialog_message))
+            .setNeutralButton(R.string.about_dialog_github) { _, _ ->
+                openUrl(GITHUB_URL)
+            }
+            .setPositiveButton(R.string.confirm, null)
+            .show()
     }
 
     private fun startAliPay() {
@@ -170,7 +176,8 @@ class MainPreferenceFr : PreferenceFragmentCompat() {
             val intent = Intent(Intent.ACTION_VIEW, uri)
             startActivity(intent)
         } catch (e: java.lang.Exception) {
-            Toast.makeText(requireContext(), R.string.pref_donate_alipay_error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.pref_donate_alipay_error, Toast.LENGTH_SHORT)
+                .show()
         }
     }
 

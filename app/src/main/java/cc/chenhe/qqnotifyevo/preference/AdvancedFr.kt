@@ -29,34 +29,36 @@ class AdvancedFr : PreferenceFragmentCompat() {
                 val newWrapper: String = new as? String ?: ""
                 if (newWrapper.indexOf("\$n") == -1) {
                     AlertDialog.Builder(requireContext())
-                            .setTitle(R.string.tip)
-                            .setMessage(R.string.pref_advanced_nickname_wrapper_invalid_message)
-                            .setPositiveButton(R.string.confirm, null)
-                            .show()
+                        .setTitle(R.string.tip)
+                        .setMessage(R.string.pref_advanced_nickname_wrapper_invalid_message)
+                        .setPositiveButton(R.string.confirm, null)
+                        .show()
                     false
                 } else {
                     true
                 }
             }
         }
-        findPreference<ListPreference>("avatar_cache_period")!!.summaryProvider = AvatarCachePeriodSummaryProvider()
+        findPreference<ListPreference>("avatar_cache_period")!!.summaryProvider =
+            AvatarCachePeriodSummaryProvider()
         findPreference<SwitchPreferenceCompat>("log")!!.setOnPreferenceChangeListener { pref, new ->
             if (new as Boolean) {
                 AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.tip)
-                        .setMessage(R.string.pref_log_dialog_message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.confirm) { _, _ ->
-                            (pref as SwitchPreferenceCompat).isChecked = true
-                        }
-                        .setNegativeButton(R.string.cancel, null)
-                        .show()
+                    .setTitle(R.string.tip)
+                    .setMessage(R.string.pref_log_dialog_message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.confirm) { _, _ ->
+                        (pref as SwitchPreferenceCompat).isChecked = true
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
                 false
             } else {
                 true
             }
         }
-        findPreference<SwitchPreferenceCompat>("show_in_recent")!!.summaryProvider = ShowInRecentSummaryProvider()
+        findPreference<SwitchPreferenceCompat>("show_in_recent")!!.summaryProvider =
+            ShowInRecentSummaryProvider()
         deleteLog = findPreference("delete_log")!!
         refreshLogSize()
     }
@@ -67,21 +69,25 @@ class AdvancedFr : PreferenceFragmentCompat() {
                 nevoMultiMsgTip(requireContext(), true)
                 Toast.makeText(requireContext(), R.string.done, Toast.LENGTH_SHORT).show()
                 if (NotificationManagerCompat.from(requireContext())
-                                .getNotificationChannel(NOTIFY_SELF_TIPS_CHANNEL_ID)?.importance ==
-                        NotificationManagerCompat.IMPORTANCE_NONE) {
+                        .getNotificationChannel(NOTIFY_SELF_TIPS_CHANNEL_ID)?.importance ==
+                    NotificationManagerCompat.IMPORTANCE_NONE
+                ) {
                     AlertDialog.Builder(requireContext())
-                            .setTitle(R.string.tip)
-                            .setMessage(R.string.pref_reset_tips_notify_dialog)
-                            .setPositiveButton(R.string.confirm) { _, _ ->
-                                openTipsNotificationSetting()
-                            }
-                            .setNegativeButton(R.string.cancel, null)
-                            .show()
+                        .setTitle(R.string.tip)
+                        .setMessage(R.string.pref_reset_tips_notify_dialog)
+                        .setPositiveButton(R.string.confirm) { _, _ ->
+                            openTipsNotificationSetting()
+                        }
+                        .setNegativeButton(R.string.cancel, null)
+                        .show()
                 }
             }
             "delete_avatar_cache" -> {
-                AvatarManager.get(getAvatarDiskCacheDir(requireContext()), getAvatarCachePeriod(requireContext()))
-                        .clearCache()
+                AvatarManager.get(
+                    getAvatarDiskCacheDir(requireContext()),
+                    getAvatarCachePeriod(requireContext())
+                )
+                    .clearCache()
                 Toast.makeText(requireContext(), R.string.done, Toast.LENGTH_SHORT).show()
             }
             "delete_nevo_channel" -> {
@@ -91,15 +97,15 @@ class AdvancedFr : PreferenceFragmentCompat() {
             }
             "delete_log" -> {
                 AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.tip)
-                        .setMessage(R.string.pref_delete_log_dialog_message)
-                        .setPositiveButton(R.string.confirm) { _, _ ->
-                            (requireContext().applicationContext as MyApplication).deleteLog()
-                            Toast.makeText(requireContext(), R.string.done, Toast.LENGTH_SHORT).show()
-                            refreshLogSize()
-                        }
-                        .setNegativeButton(R.string.cancel, null)
-                        .show()
+                    .setTitle(R.string.tip)
+                    .setMessage(R.string.pref_delete_log_dialog_message)
+                    .setPositiveButton(R.string.confirm) { _, _ ->
+                        (requireContext().applicationContext as MyApplication).deleteLog()
+                        Toast.makeText(requireContext(), R.string.done, Toast.LENGTH_SHORT).show()
+                        refreshLogSize()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
             }
         }
         return super.onPreferenceTreeClick(preference)
@@ -124,12 +130,16 @@ class AdvancedFr : PreferenceFragmentCompat() {
 
     private fun refreshLogSize() {
         val files = getLogDir(requireContext()).listFiles { f -> f.isFile }
-        val size = files?.sumByDouble { f -> f.length().toDouble() } ?: 0.0
-        deleteLog.summary = getString(R.string.pref_delete_log_summary,
-                files?.size ?: 0, describeFileSize(size.toLong()))
+        val size = files?.sumOf { f -> f.length() } ?: 0
+        deleteLog.summary = getString(
+            R.string.pref_delete_log_summary,
+            files?.size ?: 0,
+            describeFileSize(size)
+        )
     }
 
-    private inner class AvatarCachePeriodSummaryProvider : Preference.SummaryProvider<ListPreference> {
+    private inner class AvatarCachePeriodSummaryProvider :
+        Preference.SummaryProvider<ListPreference> {
         override fun provideSummary(preference: ListPreference): CharSequence {
             val period: Long = preference.value.toLong() / 1000
             val day = (period / (24 * 3600)).toInt()
@@ -158,9 +168,11 @@ class AdvancedFr : PreferenceFragmentCompat() {
         }
     }
 
-    private inner class ShowInRecentSummaryProvider : Preference.SummaryProvider<SwitchPreferenceCompat> {
+    private inner class ShowInRecentSummaryProvider :
+        Preference.SummaryProvider<SwitchPreferenceCompat> {
 
-        private val summaries = requireContext().resources.getStringArray(R.array.pref_show_in_recent_summaries)
+        private val summaries =
+            requireContext().resources.getStringArray(R.array.pref_show_in_recent_summaries)
 
         override fun provideSummary(preference: SwitchPreferenceCompat): CharSequence {
             return if (preference.isChecked) summaries[0] else summaries[1]
