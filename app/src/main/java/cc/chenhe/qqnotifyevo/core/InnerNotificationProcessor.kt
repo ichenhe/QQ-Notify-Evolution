@@ -3,7 +3,10 @@ package cc.chenhe.qqnotifyevo.core
 import android.app.Notification
 import android.content.Context
 import android.service.notification.StatusBarNotification
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import cc.chenhe.qqnotifyevo.utils.NotifyChannel
 import cc.chenhe.qqnotifyevo.utils.Tag
 import timber.log.Timber
@@ -84,14 +87,26 @@ class InnerNotificationProcessor(
                 // 确保只刷新新增的通知
                 continue
             }
-            notification = createConversationNotification(context, tag, channel, c, original).apply {
-                contentIntent = original.contentIntent
-                deleteIntent = original.deleteIntent
-            }
+            notification =
+                createConversationNotification(context, tag, channel, c, original).apply {
+                    contentIntent = original.contentIntent
+                    deleteIntent = original.deleteIntent
+                }
             sendNotification(context, tag, c.name.hashCode(), notification)
             commander.cancelNotification(sbn.key)
         }
         return notification ?: Notification() // 此处返回值没有实际意义
+    }
+
+    override fun buildNotification(
+        builder: NotificationCompat.Builder,
+        shortcutInfo: ShortcutInfoCompat?
+    ): Notification {
+        if (shortcutInfo != null) {
+            ShortcutManagerCompat.pushDynamicShortcut(ctx, shortcutInfo)
+            builder.setShortcutId(shortcutInfo.id)
+        }
+        return builder.build()
     }
 
     private fun addNotifyId(tag: Tag, ids: Int) {

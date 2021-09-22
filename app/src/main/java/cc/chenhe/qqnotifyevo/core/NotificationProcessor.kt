@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import cc.chenhe.qqnotifyevo.R
@@ -503,6 +504,14 @@ abstract class NotificationProcessor(context: Context) {
             // 清除 QQ 空间特别关心动态推送历史记录
             clearQzoneSpecialHistory(tag)
         }
+        // 清除关联的 long live shortcut
+        // 因为 QQ 的限制，shortcut 并不能直接跳转对话框，仅用于满足 Android 11 「会话」通知的要求
+        // 所以保留它没有任何意义
+        sbn.notification.shortcutId?.also { shortcutId ->
+            if (shortcutId.isNotEmpty()) {
+                ShortcutManagerCompat.removeLongLivedShortcuts(ctx, listOf(shortcutId))
+            }
+        }
     }
 
     /**
@@ -617,13 +626,19 @@ abstract class NotificationProcessor(context: Context) {
             builder.setContentText(text)
         if (ticker != null)
             builder.setTicker(ticker)
-        shortcutInfo?.also { builder.setShortcutInfo(it) }
 
         setIcon(context, builder, tag, channel == NotifyChannel.QZONE)
 
-        return builder.build().apply {
+        return buildNotification(builder, shortcutInfo).apply {
             extras.putString(NOTIFICATION_EXTRA_TAG, tag.name)
         }
+    }
+
+    protected open fun buildNotification(
+        builder: NotificationCompat.Builder,
+        shortcutInfo: ShortcutInfoCompat?
+    ): Notification {
+        return builder.build()
     }
 
     protected fun createQZoneNotification(
