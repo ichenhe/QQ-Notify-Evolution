@@ -20,8 +20,8 @@ import java.util.*
  * 将会遍历所有历史会话并分别发送通知。
  */
 class InnerNotificationProcessor(
-        private val commander: Commander,
-        context: Context
+    private val commander: Commander,
+    context: Context,
 ) : NotificationProcessor(context) {
 
     companion object {
@@ -57,14 +57,15 @@ class InnerNotificationProcessor(
         }
     }
 
-    private fun sendNotification(context: Context, tag: Tag, id: Int,
-                                 notification: Notification) {
+    private fun sendNotification(context: Context, tag: Tag, id: Int, notification: Notification) {
         NotificationManagerCompat.from(context).notify(id, notification)
         addNotifyId(tag, id)
     }
 
-    override fun renewQzoneNotification(context: Context, tag: Tag, conversation: Conversation,
-                                        sbn: StatusBarNotification, original: Notification): Notification {
+    override fun renewQzoneNotification(
+        context: Context, tag: Tag, conversation: Conversation,
+        sbn: StatusBarNotification, original: Notification
+    ): Notification {
 
         val notification = createQZoneNotification(context, tag, conversation, original).apply {
             contentIntent = original.contentIntent
@@ -76,14 +77,20 @@ class InnerNotificationProcessor(
         return notification
     }
 
-    override fun renewConversionNotification(context: Context, tag: Tag, channel: NotifyChannel,
-                                             conversation: Conversation, sbn: StatusBarNotification,
-                                             original: Notification): Notification {
+    override fun renewConversionNotification(
+        context: Context,
+        tag: Tag,
+        channel: NotifyChannel,
+        conversation: Conversation,
+        sbn: StatusBarNotification,
+        original: Notification
+    ): Notification {
         val history = getHistoryMessage(tag)
         var notification: Notification? = null
         for (c in history) {
             if (c.name != conversation.name || c.isGroup && channel != NotifyChannel.GROUP ||
-                    !c.isGroup && channel == NotifyChannel.GROUP) {
+                !c.isGroup && channel == NotifyChannel.GROUP
+            ) {
                 // 确保只刷新新增的通知
                 continue
             }

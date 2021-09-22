@@ -1,5 +1,6 @@
 package cc.chenhe.qqnotifyevo.service
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -35,6 +36,7 @@ class UpgradeService : Service() {
 
         private const val VERSION_2_0_2 = 20023
 
+        @SuppressLint("StaticFieldLeak")
         private var instance: UpgradeService? = null
         private var preparedToRunning = false
 
@@ -62,7 +64,8 @@ class UpgradeService : Service() {
                 return false
             } else if (old > new) {
                 // should never happen
-                Timber.tag(TAG).e("Current version is lower than old version! current=$new, old=$old")
+                Timber.tag(TAG)
+                    .e("Current version is lower than old version! current=$new, old=$old")
                 return false
             }
 
@@ -76,7 +79,8 @@ class UpgradeService : Service() {
                 context.startService(i)
                 true
             } else {
-                Timber.tag(TAG).i("No need to perform data migration, update version code directly $old → $new.")
+                Timber.tag(TAG)
+                    .i("No need to perform data migration, update version code directly $old → $new.")
                 UpgradeUtils.setOldVersion(context, new)
                 false
             }
@@ -106,9 +110,11 @@ class UpgradeService : Service() {
     }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(NOTIFY_SELF_FOREGROUND_SERVICE_CHANNEL_ID,
-                getString(R.string.notify_self_foreground_service_channel_name),
-                NotificationManager.IMPORTANCE_LOW).apply {
+        val channel = NotificationChannel(
+            NOTIFY_SELF_FOREGROUND_SERVICE_CHANNEL_ID,
+            getString(R.string.notify_self_foreground_service_channel_name),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
             description = getString(R.string.notify_self_foreground_service_channel_name_des)
         }
         NotificationManagerCompat.from(this).createNotificationChannel(channel)
@@ -120,13 +126,13 @@ class UpgradeService : Service() {
             preparedToRunning = false
 
             val notify = NotificationCompat.Builder(this, NOTIFY_SELF_FOREGROUND_SERVICE_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_notify_upgrade)
-                    .setContentTitle(getString(R.string.notify_upgrade))
-                    .setContentText(getString(R.string.notify_upgrade_text))
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setOngoing(true)
-                    .setOnlyAlertOnce(true)
-                    .build()
+                .setSmallIcon(R.drawable.ic_notify_upgrade)
+                .setContentTitle(getString(R.string.notify_upgrade))
+                .setContentText(getString(R.string.notify_upgrade_text))
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .build()
             startForeground(NOTIFY_ID_UPGRADE, notify)
 
             GlobalScope.launch {
@@ -155,20 +161,22 @@ class UpgradeService : Service() {
         } else {
             Timber.tag(TAG).e("Upgrade error!")
         }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_APPLICATION_UPGRADE_COMPLETE))
+        LocalBroadcastManager.getInstance(this)
+            .sendBroadcast(Intent(ACTION_APPLICATION_UPGRADE_COMPLETE))
         stopForeground(true)
         stopSelf()
     }
 
-    private suspend fun startUpgrade(oldVersion: Long, currentVersion: Long) = withContext(Dispatchers.Main) {
-        Timber.tag(TAG).d("Start upgrade process. $oldVersion → $currentVersion")
+    private suspend fun startUpgrade(oldVersion: Long, currentVersion: Long) =
+        withContext(Dispatchers.Main) {
+            Timber.tag(TAG).d("Start upgrade process. $oldVersion → $currentVersion")
 
-        if (oldVersion in 1..VERSION_2_0_2) {
-            migrate_1_to_2_0_2()
+            if (oldVersion in 1..VERSION_2_0_2) {
+                migrate_1_to_2_0_2()
+            }
+
+            complete(true, currentVersion)
         }
-
-        complete(true, currentVersion)
-    }
 
     private suspend fun migrate_1_to_2_0_2() = withContext(Dispatchers.Main) {
         if (UserManagerCompat.isUserUnlocked(ctx)) {

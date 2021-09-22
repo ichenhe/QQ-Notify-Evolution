@@ -20,8 +20,8 @@ import kotlin.math.min
  * @param period 缓存有效期（毫秒）。
  */
 class AvatarManager private constructor(
-        private val cacheDir: File,
-        var period: Long
+    private val cacheDir: File,
+    var period: Long
 ) {
 
     companion object {
@@ -41,8 +41,9 @@ class AvatarManager private constructor(
         }
     }
 
-    private class AvatarLruCache : LruCache<Int, Bitmap>(min((Runtime.getRuntime().freeMemory() / 4),
-            MAX_MEMORY_CACHE_SIZE).toInt()) {
+    private class AvatarLruCache : LruCache<Int, Bitmap>(
+        min((Runtime.getRuntime().freeMemory() / 4), MAX_MEMORY_CACHE_SIZE).toInt()
+    ) {
         override fun sizeOf(key: Int, value: Bitmap): Int {
             return value.allocationByteCount
         }
@@ -81,7 +82,8 @@ class AvatarManager private constructor(
                     lru.put(conversionId, it)
                 }
             } catch (e: Exception) {
-                Timber.tag(TAG).e("Decode avatar file error, delete the cache. conversionId=$conversionId")
+                Timber.tag(TAG)
+                    .e("Decode avatar file error, delete the cache. conversionId=$conversionId")
                 e.printStackTrace()
                 file.delete()
                 lru.remove(conversionId)

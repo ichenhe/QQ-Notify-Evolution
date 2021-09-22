@@ -120,18 +120,27 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
     }
 
     private fun createChannels(packageName: String?) {
-        if (!notificationChannelCreated.contains(packageName)) {
-            Timber.tag(TAG).d("Register nevo notification channel for ${packageName ?: "All"}")
-            if (packageName != null) {
-                notificationChannelCreated.add(packageName)
-                createNotificationChannels(packageName, Process.myUserHandle(), getNotificationChannels(this, true))
-            } else {
-                packageNameList.forEach { pkg ->
-                    try {
-                        createNotificationChannels(pkg, Process.myUserHandle(), getNotificationChannels(this, true))
-                    } catch (e: SecurityException) {
-                        Timber.tag(TAG).w(e, "Register nevo notification channel error.")
-                    }
+        if (notificationChannelCreated.contains(packageName)) {
+            return
+        }
+        Timber.tag(TAG).d("Register nevo notification channel for ${packageName ?: "All"}")
+        if (packageName != null) {
+            notificationChannelCreated.add(packageName)
+            createNotificationChannels(
+                packageName,
+                Process.myUserHandle(),
+                getNotificationChannels(this, true)
+            )
+        } else {
+            packageNameList.forEach { pkg ->
+                try {
+                    createNotificationChannels(
+                        pkg,
+                        Process.myUserHandle(),
+                        getNotificationChannels(this, true)
+                    )
+                } catch (e: SecurityException) {
+                    Timber.tag(TAG).w(e, "Register nevo notification channel error.")
                 }
             }
         }

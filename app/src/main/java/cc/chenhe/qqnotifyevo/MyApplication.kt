@@ -36,7 +36,7 @@ class MyApplication : Application() {
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
         Timber.tag(TAG).i("\n\n")
         Timber.tag(TAG).i("==================================================")
-        Timber.tag(TAG).i("= App Create")
+        Timber.tag(TAG).i("= App Create  ver: ${getVersion(this)}")
         Timber.tag(TAG).i("==================================================\n")
         registerNotificationChannel()
 
@@ -76,16 +76,19 @@ class MyApplication : Application() {
 
     private fun registerNotificationChannel() {
         Timber.tag(TAG).d("Register system notification channels")
-        val group = NotificationChannelGroup(NOTIFY_QQ_GROUP_ID, getString(R.string.notify_group_base))
+        val group =
+            NotificationChannelGroup(NOTIFY_QQ_GROUP_ID, getString(R.string.notify_group_base))
 
 
         val att = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-        val tipChannel = NotificationChannel(NOTIFY_SELF_TIPS_CHANNEL_ID,
-                getString(R.string.notify_self_tips_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT).apply {
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        val tipChannel = NotificationChannel(
+            NOTIFY_SELF_TIPS_CHANNEL_ID,
+            getString(R.string.notify_self_tips_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
             setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
         }
 

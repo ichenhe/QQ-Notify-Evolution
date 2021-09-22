@@ -38,7 +38,7 @@ const val ICON_TIM = 2
 annotation class Icon
 
 private fun sp(context: Context): SharedPreferences = PreferenceManager
-        .getDefaultSharedPreferences(context.createDeviceProtectedStorageContext())
+    .getDefaultSharedPreferences(context.createDeviceProtectedStorageContext())
 
 // ---------------------------------------------------------
 // Tips
@@ -52,7 +52,8 @@ fun nevoMultiMsgTip(context: Context, shouldShow: Boolean) {
     }
 }
 
-fun nevoMultiMsgTip(context: Context): Boolean = sp(context).getBoolean(PREF_NEVO_MULTI_MSG_TIP, true)
+fun nevoMultiMsgTip(context: Context): Boolean =
+    sp(context).getBoolean(PREF_NEVO_MULTI_MSG_TIP, true)
 
 
 // ---------------------------------------------------------
@@ -87,14 +88,16 @@ fun getIconMode(context: Context): Int {
     }
 }
 
-fun showSpecialPrefix(context: Context): Boolean = sp(context).getBoolean("show_special_prefix", false)
+fun showSpecialPrefix(context: Context): Boolean =
+    sp(context).getBoolean("show_special_prefix", false)
 
 /**
  * 特别关注的群消息通知渠道。
  *
  * @return `true` 为特别关心渠道，`false` 为群消息渠道。
  */
-fun specialGroupMsgChannel(context: Context): Boolean = sp(context).getString("special_group_channel", "group") == "special"
+fun specialGroupMsgChannel(context: Context): Boolean =
+    sp(context).getString("special_group_channel", "group") == "special"
 
 fun wrapNickname(context: Context): Boolean = sp(context).getBoolean("wrap_nickname", false)
 
@@ -126,7 +129,8 @@ fun getShowInRecent(context: Context): Boolean {
     return sp(context).getBoolean("show_in_recent", true)
 }
 
-fun fetchLog(context: Context): SpBooleanLiveData = SpBooleanLiveData(sp(context), "log", false, init = true)
+fun fetchLog(context: Context): SpBooleanLiveData =
+    SpBooleanLiveData(sp(context), "log", false, init = true)
 
 fun getVersion(context: Context): String {
     var versionName = ""

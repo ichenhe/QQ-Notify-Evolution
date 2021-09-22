@@ -7,8 +7,8 @@ import java.util.*
 import kotlin.math.abs
 
 class LogWriter(
-        private val logDir: File,
-        time: Long = System.currentTimeMillis()
+    private val logDir: File,
+    time: Long = System.currentTimeMillis()
 ) : AutoCloseable {
 
     companion object {

@@ -37,19 +37,22 @@ class PreferenceAty : AppCompatActivity() {
             initPreferenceFragment()
         } else {
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.frameLayout, UpgradingFr())
-                    .commit()
+                .replace(R.id.frameLayout, UpgradingFr())
+                .commit()
             upgradeReceiver = object : BroadcastReceiver() {
                 override fun onReceive(ctx: Context, i: Intent?) {
                     if (i?.action == ACTION_APPLICATION_UPGRADE_COMPLETE) {
-                        LocalBroadcastManager.getInstance(this@PreferenceAty).unregisterReceiver(this)
+                        LocalBroadcastManager.getInstance(this@PreferenceAty)
+                            .unregisterReceiver(this)
                         upgradeReceiver = null
                         initPreferenceFragment()
                     }
                 }
             }
-            LocalBroadcastManager.getInstance(this).registerReceiver(upgradeReceiver!!,
-                    IntentFilter(ACTION_APPLICATION_UPGRADE_COMPLETE))
+            LocalBroadcastManager.getInstance(this).registerReceiver(
+                upgradeReceiver!!,
+                IntentFilter(ACTION_APPLICATION_UPGRADE_COMPLETE)
+            )
             if (!UpgradeService.isRunningOrPrepared()) {
                 // 避免极端情况下在注册监听器之前更新完成
                 initPreferenceFragment()
@@ -72,8 +75,8 @@ class PreferenceAty : AppCompatActivity() {
         }
         mainPreferenceFr = MainPreferenceFr().also { fr ->
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.frameLayout, fr)
-                    .commit()
+                .replace(R.id.frameLayout, fr)
+                .commit()
         }
     }
 
@@ -87,18 +90,18 @@ class PreferenceAty : AppCompatActivity() {
         if (intent?.extras?.getBoolean(EXTRA_NEVO_MULTI_MSG, false) == true) {
             NotificationManagerCompat.from(this).cancel(NOTIFY_ID_MULTI_MSG)
             AlertDialog.Builder(this)
-                    .setTitle(R.string.tip)
-                    .setMessage(R.string.multi_msg_dialog)
-                    .setNeutralButton(R.string.multi_msg_dialog_neutral, null)
-                    .setPositiveButton(R.string.multi_msg_dialog_positive) { _, _ ->
-                        mainPreferenceFr?.setMode(MODE_LEGACY)
-                    }
-                    .setNegativeButton(R.string.dont_show) { _, _ ->
-                        sendBroadcast(Intent(this, StaticReceiver::class.java).also {
-                            it.action = ACTION_MULTI_MSG_DONT_SHOW
-                        })
-                    }
-                    .show()
+                .setTitle(R.string.tip)
+                .setMessage(R.string.multi_msg_dialog)
+                .setNeutralButton(R.string.multi_msg_dialog_neutral, null)
+                .setPositiveButton(R.string.multi_msg_dialog_positive) { _, _ ->
+                    mainPreferenceFr?.setMode(MODE_LEGACY)
+                }
+                .setNegativeButton(R.string.dont_show) { _, _ ->
+                    sendBroadcast(Intent(this, StaticReceiver::class.java).also {
+                        it.action = ACTION_MULTI_MSG_DONT_SHOW
+                    })
+                }
+                .show()
         }
     }
 

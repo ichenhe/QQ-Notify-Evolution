@@ -18,7 +18,11 @@ class NotificationProcessorTest {
         return "$nickName: $message"
     }
 
-    private fun generateFriendTitle(nickName: String, messageNum: Int, special: Boolean = false): String {
+    private fun generateFriendTitle(
+        nickName: String,
+        messageNum: Int,
+        special: Boolean = false
+    ): String {
         return (if (special) "[特别关心]" else "") + nickName + if (messageNum > 1) " (${messageNum}条新消息)" else ""
     }
 

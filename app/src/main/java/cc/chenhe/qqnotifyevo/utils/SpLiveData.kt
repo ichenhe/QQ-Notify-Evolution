@@ -7,16 +7,17 @@ import androidx.lifecycle.LiveData
  * An common wrapper that trans [SharedPreferences] to [LiveData].
  */
 sealed class SpLiveData<T>(
-        private val sp: SharedPreferences,
-        private val key: String,
-        private val default: T
+    private val sp: SharedPreferences,
+    private val key: String,
+    private val default: T
 ) : LiveData<T>() {
 
-    private val preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (key == this.key) {
-            setNewValue(getValueFromSp(sp, key, default))
+    private val preferenceChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == this.key) {
+                setNewValue(getValueFromSp(sp, key, default))
+            }
         }
-    }
 
     override fun onActive() {
         super.onActive()
@@ -38,8 +39,8 @@ sealed class SpLiveData<T>(
     abstract fun getValueFromSp(sp: SharedPreferences, key: String, default: T): T
 }
 
-class SpIntLiveData(sp: SharedPreferences, key: String, default: Int, init: Boolean = false)
-    : SpLiveData<Int>(sp, key, default) {
+class SpIntLiveData(sp: SharedPreferences, key: String, default: Int, init: Boolean = false) :
+    SpLiveData<Int>(sp, key, default) {
 
     init {
         if (init) {
@@ -52,8 +53,8 @@ class SpIntLiveData(sp: SharedPreferences, key: String, default: Int, init: Bool
     }
 }
 
-class SpFloatLiveData(sp: SharedPreferences, key: String, default: Float, init: Boolean = false)
-    : SpLiveData<Float>(sp, key, default) {
+class SpFloatLiveData(sp: SharedPreferences, key: String, default: Float, init: Boolean = false) :
+    SpLiveData<Float>(sp, key, default) {
 
     init {
         if (init) {
@@ -66,8 +67,12 @@ class SpFloatLiveData(sp: SharedPreferences, key: String, default: Float, init: 
     }
 }
 
-class SpBooleanLiveData(sp: SharedPreferences, key: String, default: Boolean, init: Boolean = false)
-    : SpLiveData<Boolean>(sp, key, default) {
+class SpBooleanLiveData(
+    sp: SharedPreferences,
+    key: String,
+    default: Boolean,
+    init: Boolean = false
+) : SpLiveData<Boolean>(sp, key, default) {
 
     init {
         if (init) {
@@ -80,8 +85,12 @@ class SpBooleanLiveData(sp: SharedPreferences, key: String, default: Boolean, in
     }
 }
 
-class SpStringLiveData(sp: SharedPreferences, key: String, default: String?, init: Boolean = false)
-    : SpLiveData<String?>(sp, key, default) {
+class SpStringLiveData(
+    sp: SharedPreferences,
+    key: String,
+    default: String?,
+    init: Boolean = false
+) : SpLiveData<String?>(sp, key, default) {
 
     init {
         if (init) {

@@ -66,10 +66,10 @@ class PermissionFr : PreferenceFragmentCompat() {
             }
             "auto_start" -> {
                 AlertDialog.Builder(context)
-                        .setTitle(R.string.pref_auto_start)
-                        .setMessage(R.string.pref_auto_start_message)
-                        .setPositiveButton(R.string.confirm, null)
-                        .show()
+                    .setTitle(R.string.pref_auto_start)
+                    .setMessage(R.string.pref_auto_start_message)
+                    .setPositiveButton(R.string.confirm, null)
+                    .show()
                 return true
             }
         }
@@ -77,14 +77,20 @@ class PermissionFr : PreferenceFragmentCompat() {
     }
 
     private fun refreshSummary() {
-        notification.summary = getString(if (isNotificationListenerEnabled(ctx))
-            R.string.pref_enable_permit else R.string.pref_disable_permit)
+        notification.summary = getString(
+            if (isNotificationListenerEnabled(ctx))
+                R.string.pref_enable_permit else R.string.pref_disable_permit
+        )
 
-        accessibility.summary = getString(if (isAccessibilitySettingsOn(ctx))
-            R.string.pref_enable_permit else R.string.pref_disable_permit)
+        accessibility.summary = getString(
+            if (isAccessibilitySettingsOn(ctx))
+                R.string.pref_enable_permit else R.string.pref_disable_permit
+        )
 
-        battery.summary = getString(if (isIgnoreBatteryOptimization(ctx))
-            R.string.pref_battery_optimize_disable else R.string.pref_battery_optimize_enable)
+        battery.summary = getString(
+            if (isIgnoreBatteryOptimization(ctx))
+                R.string.pref_battery_optimize_disable else R.string.pref_battery_optimize_enable
+        )
     }
 
     private fun isNotificationListenerEnabled(context: Context): Boolean {
@@ -94,10 +100,13 @@ class PermissionFr : PreferenceFragmentCompat() {
 
     private fun isAccessibilitySettingsOn(context: Context): Boolean {
         var accessibilityEnabled = 0
-        val service = context.packageName + "/" + AccessibilityMonitorService::class.java.canonicalName
+        val service =
+            context.packageName + "/" + AccessibilityMonitorService::class.java.canonicalName
         try {
-            accessibilityEnabled = Settings.Secure.getInt(context.applicationContext.contentResolver,
-                    Settings.Secure.ACCESSIBILITY_ENABLED)
+            accessibilityEnabled = Settings.Secure.getInt(
+                context.applicationContext.contentResolver,
+                Settings.Secure.ACCESSIBILITY_ENABLED
+            )
         } catch (e: Settings.SettingNotFoundException) {
             e.printStackTrace()
         }
@@ -105,8 +114,10 @@ class PermissionFr : PreferenceFragmentCompat() {
         val mStringColonSplitter = TextUtils.SimpleStringSplitter(':')
 
         if (accessibilityEnabled == 1) {
-            val settingValue = Settings.Secure.getString(context.applicationContext.contentResolver,
-                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+            val settingValue = Settings.Secure.getString(
+                context.applicationContext.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            )
             if (settingValue != null) {
                 mStringColonSplitter.setString(settingValue)
                 while (mStringColonSplitter.hasNext()) {
@@ -140,11 +151,12 @@ class PermissionFr : PreferenceFragmentCompat() {
     @SuppressLint("BatteryLife")
     private fun ignoreBatteryOptimization(activity: Activity) {
         val powerManager = activity.getSystemService(POWER_SERVICE) as PowerManager
-        val hasIgnored: Boolean
-        hasIgnored = powerManager.isIgnoringBatteryOptimizations(activity.packageName)
+        val hasIgnored: Boolean = powerManager.isIgnoringBatteryOptimizations(activity.packageName)
         if (!hasIgnored) {
-            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                    Uri.parse("package:" + activity.packageName)).let {
+            Intent(
+                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:" + activity.packageName)
+            ).let {
                 activity.startActivity(it)
             }
         }

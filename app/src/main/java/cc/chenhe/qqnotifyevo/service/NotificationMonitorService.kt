@@ -1,5 +1,6 @@
 package cc.chenhe.qqnotifyevo.service
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -16,12 +17,14 @@ import cc.chenhe.qqnotifyevo.utils.fetchAvatarCachePeriod
 import cc.chenhe.qqnotifyevo.utils.getMode
 import timber.log.Timber
 
-class NotificationMonitorService : NotificationListenerService(), InnerNotificationProcessor.Commander,
-        LifecycleOwner {
+class NotificationMonitorService : NotificationListenerService(),
+    InnerNotificationProcessor.Commander,
+    LifecycleOwner {
 
     companion object {
         private const val TAG = "NotifyMonitor"
 
+        @SuppressLint("StaticFieldLeak")
         private var instance: NotificationMonitorService? = null
 
         fun isRunning(): Boolean {
@@ -69,7 +72,9 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
         if (getMode(this) != MODE_LEGACY)
             return Service.START_STICKY
         if (intent?.hasExtra("tag") == true) {
-            processor.clearHistory(ctx, Tag.valueOf(intent.getStringExtra("tag") ?: Tag.UNKNOWN.name))
+            (intent.getStringExtra("tag") ?: Tag.UNKNOWN.name)
+                .let { Tag.valueOf(it) }
+                .also { processor.clearHistory(it) }
         }
         return Service.START_STICKY
     }
@@ -93,7 +98,11 @@ class NotificationMonitorService : NotificationListenerService(), InnerNotificat
         processor.resolveNotification(ctx, sbn.packageName, sbn)
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
+    override fun onNotificationRemoved(
+        sbn: StatusBarNotification?,
+        rankingMap: RankingMap?,
+        reason: Int
+    ) {
         if (sbn == null || getMode(this) != MODE_LEGACY) return
         processor.onNotificationRemoved(sbn, reason)
         super.onNotificationRemoved(sbn, rankingMap, reason)
