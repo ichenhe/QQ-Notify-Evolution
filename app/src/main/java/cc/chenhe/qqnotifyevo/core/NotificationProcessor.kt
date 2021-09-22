@@ -1,5 +1,6 @@
 package cc.chenhe.qqnotifyevo.core
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
@@ -386,7 +387,7 @@ abstract class NotificationProcessor(context: Context) {
             } else {
                 // 与我相关的动态
                 getNotifyLargeIcon(context, original)?.also {
-                    avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
+                    avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), it)
                 }
                 conversation = addMessage(
                     tag,
@@ -421,7 +422,7 @@ abstract class NotificationProcessor(context: Context) {
 
                 if (!isMulti)
                     getNotifyLargeIcon(context, original)?.also {
-                        avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
+                        avatarManager.saveAvatar(groupName.hashCode(), it)
                     }
                 val conversation = addMessage(
                     tag, name, text, groupName, avatarManager.getAvatar(name.hashCode()),
@@ -452,7 +453,7 @@ abstract class NotificationProcessor(context: Context) {
                 val text = matcher.group(2) ?: return null
                 if (!isMulti)
                     getNotifyLargeIcon(context, original)?.also {
-                        avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
+                        avatarManager.saveAvatar(name.hashCode(), it)
                     }
                 val conversation = addMessage(
                     tag, name, text, null, avatarManager.getAvatar(name.hashCode()),
@@ -653,6 +654,7 @@ abstract class NotificationProcessor(context: Context) {
      * @param tag      来源标记。
      * @param original 原始通知。
      */
+    @SuppressLint("BinaryOperationInTimber")
     protected fun createConversationNotification(
         context: Context, tag: Tag, channel: NotifyChannel,
         conversation: Conversation, original: Notification
