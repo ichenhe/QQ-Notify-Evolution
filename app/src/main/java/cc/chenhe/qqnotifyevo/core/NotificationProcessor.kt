@@ -367,10 +367,9 @@ abstract class NotificationProcessor(context: Context) {
             val conversation: Conversation
             if (num == -1) {
                 // 特别关心动态推送
-                avatarManager.saveAvatar(
-                    CONVERSATION_NAME_QZONE_SPECIAL.hashCode(),
-                    getNotifyLargeIcon(context, original)
-                )
+                getNotifyLargeIcon(context, original)?.also {
+                    avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
+                }
                 conversation = addMessage(
                     tag,
                     qzoneSpecialTitle,
@@ -386,10 +385,9 @@ abstract class NotificationProcessor(context: Context) {
                 Timber.tag(TAG).d("[QZoneSpecial] Ticker: $ticker")
             } else {
                 // 与我相关的动态
-                avatarManager.saveAvatar(
-                    CONVERSATION_NAME_QZONE.hashCode(),
-                    getNotifyLargeIcon(context, original)
-                )
+                getNotifyLargeIcon(context, original)?.also {
+                    avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
+                }
                 conversation = addMessage(
                     tag,
                     context.getString(R.string.notify_qzone_title),
@@ -422,10 +420,9 @@ abstract class NotificationProcessor(context: Context) {
                 val special = contentMatcher.matches() && contentMatcher.group(1) != null
 
                 if (!isMulti)
-                    avatarManager.saveAvatar(
-                        groupName.hashCode(),
-                        getNotifyLargeIcon(context, original)
-                    )
+                    getNotifyLargeIcon(context, original)?.also {
+                        avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
+                    }
                 val conversation = addMessage(
                     tag, name, text, groupName, avatarManager.getAvatar(name.hashCode()),
                     original.contentIntent, original.deleteIntent, special
@@ -454,18 +451,20 @@ abstract class NotificationProcessor(context: Context) {
                 val name = matcher.group(1) ?: return null
                 val text = matcher.group(2) ?: return null
                 if (!isMulti)
-                    avatarManager.saveAvatar(name.hashCode(), getNotifyLargeIcon(context, original))
+                    getNotifyLargeIcon(context, original)?.also {
+                        avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
+                    }
                 val conversation = addMessage(
                     tag, name, text, null, avatarManager.getAvatar(name.hashCode()),
                     original.contentIntent, original.deleteIntent, special
                 )
                 deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
-                if (special) {
+                return if (special) {
                     Timber.tag(TAG).d("[FriendS] Name: $name; Text: $text")
-                    return Pair(NotifyChannel.FRIEND_SPECIAL, conversation)
+                    Pair(NotifyChannel.FRIEND_SPECIAL, conversation)
                 } else {
                     Timber.tag(TAG).d("[Friend] Name: $name; Text: $text")
-                    return Pair(NotifyChannel.FRIEND, conversation)
+                    Pair(NotifyChannel.FRIEND, conversation)
                 }
             }
         }
@@ -566,8 +565,8 @@ abstract class NotificationProcessor(context: Context) {
      * @param notification 原有通知。
      * @return 通知的大图标。
      */
-    private fun getNotifyLargeIcon(context: Context, notification: Notification): Bitmap {
-        return notification.getLargeIcon().loadDrawable(context).toBitmap()
+    private fun getNotifyLargeIcon(context: Context, notification: Notification): Bitmap? {
+        return notification.getLargeIcon()?.loadDrawable(context)?.toBitmap()
     }
 
     /**
