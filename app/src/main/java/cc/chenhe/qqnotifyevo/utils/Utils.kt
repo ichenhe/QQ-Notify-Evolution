@@ -42,17 +42,17 @@ const val GITHUB_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/rel
 const val MANUAL_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/wiki"
 
 const val ALIPAY =
-        "alipayqr://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/tsx12672qtk37hufsxfkub7"
+    "alipayqr://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/tsx12672qtk37hufsxfkub7"
 
 /**
  * 适配的应用包名列表。
  */
 val packageNameList: List<String>
     get() = listOf(
-            "com.tencent.mobileqq",
-            "com.tencent.tim",
-            "com.tencent.qqlite",
-            "com.tencent.minihd.qq"
+        Tag.QQ.pkg,
+        Tag.TIM.pkg,
+        Tag.QQ_LITE.pkg,
+        Tag.QQ_HD.pkg,
     )
 
 /**
@@ -60,10 +60,10 @@ val packageNameList: List<String>
  */
 val notificationChannelIdList: List<String>
     get() = listOf(
-            NOTIFY_FRIEND_CHANNEL_ID,
-            NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
-            NOTIFY_GROUP_CHANNEL_ID,
-            NOTIFY_QZONE_CHANNEL_ID
+        NOTIFY_FRIEND_CHANNEL_ID,
+        NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
+        NOTIFY_GROUP_CHANNEL_ID,
+        NOTIFY_QZONE_CHANNEL_ID
     )
 
 fun getChannelId(channel: NotifyChannel): String = when (channel) {
@@ -80,40 +80,48 @@ fun getNotificationChannels(context: Context, nevo: Boolean): List<NotificationC
     val prefix = if (nevo) context.getString(R.string.notify_nevo_prefix) else ""
 
     val att = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
 
-    val friendChannel = NotificationChannel(NOTIFY_FRIEND_CHANNEL_ID,
-            prefix + context.getString(R.string.notify_friend_channel_name),
-            NotificationManager.IMPORTANCE_HIGH).apply {
+    val friendChannel = NotificationChannel(
+        NOTIFY_FRIEND_CHANNEL_ID,
+        prefix + context.getString(R.string.notify_friend_channel_name),
+        NotificationManager.IMPORTANCE_HIGH
+    ).apply {
         description = context.getString(R.string.notify_friend_channel_des)
         setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
         enableVibration(true)
         enableLights(true)
     }
 
-    val friendSpecialChannel = NotificationChannel(NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
-            prefix + context.getString(R.string.notify_friend_special_channel_name),
-            NotificationManager.IMPORTANCE_HIGH).apply {
+    val friendSpecialChannel = NotificationChannel(
+        NOTIFY_FRIEND_SPECIAL_CHANNEL_ID,
+        prefix + context.getString(R.string.notify_friend_special_channel_name),
+        NotificationManager.IMPORTANCE_HIGH
+    ).apply {
         description = context.getString(R.string.notify_friend_special_channel_des)
         setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
         enableVibration(true)
         enableLights(true)
     }
 
-    val groupChannel = NotificationChannel(NOTIFY_GROUP_CHANNEL_ID,
-            prefix + context.getString(R.string.notify_group_channel_name),
-            NotificationManager.IMPORTANCE_HIGH).apply {
+    val groupChannel = NotificationChannel(
+        NOTIFY_GROUP_CHANNEL_ID,
+        prefix + context.getString(R.string.notify_group_channel_name),
+        NotificationManager.IMPORTANCE_HIGH
+    ).apply {
         description = context.getString(R.string.notify_group_channel_des)
         setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
         enableVibration(true)
         enableLights(true)
     }
 
-    val qzoneChannel = NotificationChannel(NOTIFY_QZONE_CHANNEL_ID,
-            prefix + context.getString(R.string.notify_qzone_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT).apply {
+    val qzoneChannel = NotificationChannel(
+        NOTIFY_QZONE_CHANNEL_ID,
+        prefix + context.getString(R.string.notify_qzone_channel_name),
+        NotificationManager.IMPORTANCE_DEFAULT
+    ).apply {
         description = context.getString(R.string.notify_qzone_channel_des)
         setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), att)
         enableLights(true)
@@ -124,7 +132,8 @@ fun getNotificationChannels(context: Context, nevo: Boolean): List<NotificationC
 
 private fun getCacheDir(context: Context): File {
     return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
-            || !Environment.isExternalStorageRemovable()) {
+        || !Environment.isExternalStorageRemovable()
+    ) {
         context.externalCacheDir!!
     } else {
         context.cacheDir
@@ -133,7 +142,8 @@ private fun getCacheDir(context: Context): File {
 
 private fun getDataDir(context: Context): File {
     return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
-            || !Environment.isExternalStorageRemovable()) {
+        || !Environment.isExternalStorageRemovable()
+    ) {
         context.getExternalFilesDir(null)!!
     } else {
         context.filesDir

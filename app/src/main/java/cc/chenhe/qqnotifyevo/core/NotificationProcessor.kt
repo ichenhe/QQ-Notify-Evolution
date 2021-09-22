@@ -3,15 +3,18 @@ package cc.chenhe.qqnotifyevo.core
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.service.notification.StatusBarNotification
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.content.ContextCompat
+import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import cc.chenhe.qqnotifyevo.R
+import cc.chenhe.qqnotifyevo.preference.PreferenceAty
 import cc.chenhe.qqnotifyevo.utils.*
 import timber.log.Timber
 import java.util.*
@@ -584,7 +587,8 @@ abstract class NotificationProcessor(context: Context) {
         largeIcon: Bitmap?,
         original: Notification,
         subtext: String? = null,
-        title: String? = null, text: String? = null, ticker: String? = null
+        title: String? = null, text: String? = null, ticker: String? = null,
+        shortcutInfo: ShortcutInfoCompat? = null
     ): Notification {
         val channelId = getChannelId(channel)
 
@@ -613,6 +617,7 @@ abstract class NotificationProcessor(context: Context) {
             builder.setContentText(text)
         if (ticker != null)
             builder.setTicker(ticker)
+        shortcutInfo?.also { builder.setShortcutInfo(it) }
 
         setIcon(context, builder, tag, channel == NotifyChannel.QZONE)
 
@@ -666,9 +671,24 @@ abstract class NotificationProcessor(context: Context) {
         val subtext =
             if (num > 1) context.getString(R.string.notify_subtext_message_num, num) else null
         Timber.tag(TAG).v("Create conversation notification for $num messages.")
+
+        val shortcut = ShortcutInfoCompat.Builder(context, conversation.name)
+            .setIsConversation()
+            .setPersons(conversation.messages.map { it.person }.toSet().toTypedArray())
+            .setShortLabel(conversation.name)
+            .setLongLabel(conversation.name)
+            .setIcon(IconCompat.createWithBitmap(avatarManager.getAvatar(conversation.name.hashCode())))
+            .setIntent(
+                context.packageManager.getLaunchIntentForPackage(tag.pkg)
+                    ?: Intent(context, PreferenceAty::class.java).apply {
+                        action = Intent.ACTION_MAIN
+                    }
+            )
+            .build()
         return createNotification(
             context, tag, channel, style,
-            avatarManager.getAvatar(conversation.name.hashCode()), original, subtext
+            avatarManager.getAvatar(conversation.name.hashCode()), original, subtext,
+            shortcutInfo = shortcut
         )
     }
 
