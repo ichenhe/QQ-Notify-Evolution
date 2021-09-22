@@ -678,7 +678,10 @@ abstract class NotificationProcessor(context: Context) {
             .setPersons(conversation.messages.map { it.person }.toSet().toTypedArray())
             .setShortLabel(conversation.name)
             .setLongLabel(conversation.name)
-            .setIcon(IconCompat.createWithBitmap(avatarManager.getAvatar(conversation.name.hashCode())))
+            .setIcon(
+                avatarManager.getAvatar(conversation.name.hashCode())
+                    ?.let { IconCompat.createWithBitmap(it) }
+            )
             .setIntent(
                 context.packageManager.getLaunchIntentForPackage(tag.pkg)
                     ?: Intent(context, PreferenceAty::class.java).apply {
