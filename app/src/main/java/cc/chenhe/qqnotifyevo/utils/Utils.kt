@@ -38,8 +38,8 @@ const val NOTIFY_ID_UPGRADE = 101
 // 自身转发QQ消息的通知渠道组
 const val NOTIFY_QQ_GROUP_ID = "base"
 
-const val GITHUB_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/releases"
-const val MANUAL_URL = "https://github.com/liangchenhe55/QQ-Notify-Evolution/wiki"
+const val GITHUB_URL = "https://github.com/ichenhe/QQ-Notify-Evolution/releases"
+const val MANUAL_URL = "https://github.com/ichenhe/QQ-Notify-Evolution/wiki"
 
 const val ALIPAY =
     "alipayqr://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/tsx12672qtk37hufsxfkub7"

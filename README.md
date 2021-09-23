@@ -2,9 +2,9 @@
 
 免 ROOT 优化 QQ 通知：多会话/多消息/多渠道。支持 [Nevo](https://www.coolapk.com/apk/com.oasisfeng.nevo) 插件与独立运行双模式。
 
-**[📖使用手册](https://github.com/liangchenhe55/QQ-Notify-Evolution/wiki)**
+**[📖使用手册](https://github.com/ichenhe/QQ-Notify-Evolution/wiki)**
 
-<a href="https://github.com/liangchenhe55/QQ-Notify-Evolution/releases"><img src="https://img.shields.io/github/release-pre/liangchenhe55/QQ-Notify-Evolution.svg?style=flat-square"></a>  <a target="_blank" href="https://www.coolapk.com/apk/249693"><img src="https://img.shields.io/badge/download-酷安网-green.svg?style=flat-square"></a>   <a href="https://github.com/liangchenhe55/QQ-Notify-Evolution/blob/master/LICENSE"><img src="https://img.shields.io/github/license/liangchenhe55/QQ-Notify-Evolution.svg?style=flat-square"></a>
+<a href="https://github.com/ichenhe/QQ-Notify-Evolution/releases"><img src="https://img.shields.io/github/release-pre/ichenhe/QQ-Notify-Evolution.svg?style=flat-square"></a>  <a target="_blank" href="https://www.coolapk.com/apk/249693"><img src="https://img.shields.io/badge/download-酷安网-green.svg?style=flat-square"></a>   <a href="https://github.com/ichenhe/QQ-Notify-Evolution/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ichenhe/QQ-Notify-Evolution.svg?style=flat-square"></a>
 
 ## 主要功能
 
