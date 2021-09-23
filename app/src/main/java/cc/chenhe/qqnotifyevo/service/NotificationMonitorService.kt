@@ -74,7 +74,7 @@ class NotificationMonitorService : NotificationListenerService(),
         if (intent?.hasExtra("tag") == true) {
             (intent.getStringExtra("tag") ?: Tag.UNKNOWN.name)
                 .let { Tag.valueOf(it) }
-                .also { processor.clearHistory(it) }
+                .also { processor.clearHistory(ctx, it) }
         }
         return Service.START_STICKY
     }
