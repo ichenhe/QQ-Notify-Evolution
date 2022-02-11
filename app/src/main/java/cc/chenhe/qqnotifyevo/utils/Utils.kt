@@ -134,7 +134,7 @@ private fun getCacheDir(context: Context): File {
     return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
         || !Environment.isExternalStorageRemovable()
     ) {
-        context.externalCacheDir!!
+        context.externalCacheDir ?: context.cacheDir
     } else {
         context.cacheDir
     }
