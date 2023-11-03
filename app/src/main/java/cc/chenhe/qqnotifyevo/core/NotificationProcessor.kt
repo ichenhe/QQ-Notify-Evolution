@@ -20,7 +20,6 @@ import cc.chenhe.qqnotifyevo.preference.PreferenceAty
 import cc.chenhe.qqnotifyevo.utils.*
 import timber.log.Timber
 import java.util.*
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 abstract class NotificationProcessor(context: Context) {
@@ -50,43 +49,47 @@ abstract class NotificationProcessor(context: Context) {
         }
 
         // 群聊消息
-        // title: 群名 | 群名 (x条新消息)
-        // ticker: 昵称(群名):消息内容
-        // text: 昵称: 消息内容 //特别关注前缀：[有关注的内容]
+        // ------------- 单个消息
+        // title: 群名
+        // ticker: 群名: [特别关心]昵称: 消息内容
+        // text: [特别关心]昵称: 消息内容
+        // ------------- 多个消息
+        // title: 群名(x条新消息)
+        // ticker: 群名(x条新消息): [特别关心]昵称: 消息内容
+        // text: [特别关心]昵称: 消息内容
         // QQHD v5.8.8.3445 中群里特别关心前缀为 特别关注。
 
         /**
          * 匹配群聊消息 Ticker.
          *
-         * Group: 1昵称, 2群名, 3消息内容
-         *
          * 限制：昵称不能包含英文括号 `()`.
          */
         @VisibleForTesting
-        val groupMsgPattern: Pattern = Pattern.compile("^(.+?)\\((.+)\\):([\\s\\S]+)$")
+        val groupMsgPattern =
+            """^(?<name>.+?)(?:\((?<num>\d+)条新消息\))?: (?<sp>\[特别关心])?(?<nickname>.+?): (?<msg>[\s\S]+)$""".toRegex()
 
         /**
          * 匹配群聊消息 Content.
          *
-         * Group: 1[有关注的内容
-         *
          * QQHD v5.8.8.3445 中群里特别关心前缀为 特别关注。
          */
         @VisibleForTesting
-        val groupMsgContentPattern: Pattern = Pattern.compile("^(\\[(?:有关注的内容|特别关注)])?[\\s\\S]+")
+        val groupMsgContentPattern =
+            """^(?<sp>\[特别关心])?(?<name>.+?): (?<msg>[\s\S]+)""".toRegex()
 
         // 私聊消息
-        // title: 昵称 | 昵称 (x条新消息) //特别关心前缀：[特别关心]
-        // ticker: 昵称: 消息内容
+        // title: [特别关心]昵称 | [特别关心]昵称(x条新消息)
+        // ticker: [特别关心]昵称: 消息内容 | [特别关心]昵称(x条新消息): 消息内容
         // text: 消息内容
 
         /**
          * 匹配私聊消息 Ticker.
          *
-         * Group: 1昵称, 2消息内容
+         * Group: nickname-昵称, num-消息个数, msg-消息内容
          */
         @VisibleForTesting
-        val msgPattern: Pattern = Pattern.compile("^(.+?): ([\\s\\S]+)$")
+        val msgPattern =
+            """^(?<sp>\[特别关心])?(?<nickname>.+?)(\((?<num>\d+)条新消息\))?: (?<msg>[\s\S]+)$""".toRegex()
 
         /**
          * 匹配私聊消息 Title.
@@ -94,22 +97,23 @@ abstract class NotificationProcessor(context: Context) {
          * Group: 1\[特别关心\], 2新消息数目
          */
         @VisibleForTesting
-        val msgTitlePattern: Pattern = Pattern.compile("^(\\[特别关心])?.*?(?: \\((\\d+)条新消息\\))?$")
+        val msgTitlePattern: Pattern =
+            Pattern.compile("^(\\[特别关心])?.+?(?:\\((\\d+)条新消息\\))?$")
 
         // 关联QQ消息
         // title:
         //      - 只有一条消息: 关联QQ号
         //      - 一人发来多条消息: 关联QQ号 ({x}条新消息)
         //      - 多人发来消息: QQ
-        // ticker:  关联QQ号-{关联昵称} {发送者昵称}:{消息内容}
+        // ticker:  关联QQ号-{发送者昵称}:{消息内容}
         // content:
-        //      - 一人发来消息: {消息内容}
+        //      - 一人发来消息: {发送者昵称}:{消息内容}
         //      - 多人发来消息: 有 {x} 个联系人给你发过来{y}条新消息
 
         /**
          * 匹配关联 QQ 消息 ticker.
          *
-         * Group: 1关联账号昵称, 2消息内容
+         * Group: 1发送者昵称, 2消息内容
          */
         @VisibleForTesting
         val bindingQQMsgTickerPattern: Pattern = Pattern.compile("^关联QQ号-(.+?):([\\s\\S]+)$")
@@ -121,7 +125,7 @@ abstract class NotificationProcessor(context: Context) {
          */
         @VisibleForTesting
         val bindingQQMsgContextPattern: Pattern =
-            Pattern.compile("^有 (?:\\d+) 个联系人给你发过来(\\d+)条新消息$")
+            Pattern.compile("^有 \\d+ 个联系人给你发过来(\\d+)条新消息$")
 
         /**
          * 匹配关联 QQ 消息 title. 用于提取未读消息个数。
@@ -132,9 +136,16 @@ abstract class NotificationProcessor(context: Context) {
         val bindingQQMsgTitlePattern: Pattern = Pattern.compile("^关联QQ号 \\((\\d+)条新消息\\)$")
 
         // Q空间动态
-        // title(与我相关): QQ空间动态(共x条未读); (特别关心): QQ空间动态
-        // ticker(与我相关): 详情（例如xxx评论了你）; (特别关心): 【特别关心】昵称：内容
-        // text: 与 ticker 相同
+        // --------------- 说说评论/点赞
+        // title: QQ空间动态(共1条未读)
+        // ticker: XXX评论了你 | XXX赞了你的说说
+        // content: XXX评论了你 | XXX赞了你的说说
+
+        // --------------- 特别关心动态通知
+        // title: QQ空间动态
+        // ticker: 【特别关心】昵称：动态内容
+        // content: 【特别关心】昵称：动态内容
+
         // 注意：与我相关动态、特别关心动态是两个独立的通知，不会互相覆盖。
 
         /**
@@ -143,12 +154,12 @@ abstract class NotificationProcessor(context: Context) {
          * Group: 1新消息数目
          */
         @VisibleForTesting
-        val qzonePattern: Pattern = Pattern.compile("^QQ空间动态(?:\\(共(\\d+)条未读\\))?$")
+        val qzoneTitlePattern: Pattern = Pattern.compile("^QQ空间动态(?:\\(共(\\d+)条未读\\))?$")
 
         // 隐藏消息详情
         // title: QQ
-        // ticker: 你收到了x条新消息
-        // text: 与 ticker 相同
+        // ticker: QQ: 你收到了x条新消息
+        // text: 你收到了x条新消息
 
         /**
          * 匹配隐藏通知详情时的 Ticker.
@@ -156,7 +167,7 @@ abstract class NotificationProcessor(context: Context) {
          * Group: 1新消息数目
          */
         @VisibleForTesting
-        val hideMsgPattern: Pattern = Pattern.compile("^你收到了(\\d+)条新消息$")
+        val hideMsgPattern: Pattern = Pattern.compile("^QQ: 你收到了(\\d+)条新消息$")
 
     }
 
@@ -267,7 +278,7 @@ abstract class NotificationProcessor(context: Context) {
         val content = original.extras.getString(Notification.EXTRA_TEXT)
         val ticker = original.tickerText?.toString()
 
-        val isMulti = isMulti(ticker, content)
+        val isMulti = isMulti(ticker)
         val isQzone = isQzone(title)
 
         Timber.tag(TAG)
@@ -278,20 +289,20 @@ abstract class NotificationProcessor(context: Context) {
         }
 
         // 隐藏消息详情
-        if (isHidden(ticker, content)) {
+        if (isHidden(ticker)) {
             Timber.tag(TAG).v("Hidden message content, skip.")
             return null
         }
 
         // QQ空间
         tryResolveQzone(
-            context,
-            tag,
-            original,
-            isQzone,
-            title,
-            ticker,
-            content
+            context = context,
+            tag = tag,
+            original = original,
+            isQzone = isQzone,
+            title = title,
+            ticker = ticker,
+            content = content
         )?.also { conversation ->
             return renewQzoneNotification(context, tag, conversation, sbn, original)
         }
@@ -303,25 +314,22 @@ abstract class NotificationProcessor(context: Context) {
 
         // 群消息
         tryResolveGroupMsg(
-            context,
-            tag,
-            original,
-            isMulti,
-            title,
-            ticker,
-            content
+            context = context,
+            tag = tag,
+            original = original,
+            ticker = ticker,
+            content = content
         )?.also { (channel, conversation) ->
             return renewConversionNotification(context, tag, channel, conversation, sbn, original)
         }
 
         // 私聊消息
         tryResolvePrivateMsg(
-            context,
-            tag,
-            original,
-            isMulti,
-            title,
-            ticker
+            context = context,
+            tag = tag,
+            original = original,
+            ticker = ticker,
+            content = content,
         )?.also { (channel, conversation) ->
             return renewConversionNotification(context, tag, channel, conversation, sbn, original)
         }
@@ -342,156 +350,161 @@ abstract class NotificationProcessor(context: Context) {
         return null
     }
 
-    private fun isMulti(ticker: String?, content: String?): Boolean {
-        // 合并消息
-        // title: QQ
-        // ticker: 昵称:内容
-        // text: 有 x 个联系人给你发过来y条新消息
-        return content?.let {
-            !it.contains(":") && !(ticker?.endsWith(it) ?: false)
-        } ?: false
+    private fun isMulti(ticker: String?): Boolean {
+        if (ticker == null) return false
+        val g = msgPattern.matchEntire(ticker)?.groups ?: return false
+        return g["num"]?.value.isNullOrEmpty().not()
     }
 
     private fun isQzone(title: String?): Boolean {
-        return title?.let { qzonePattern.matcher(it).matches() } ?: false
+        return title?.let { qzoneTitlePattern.matcher(it).matches() } ?: false
     }
 
-    private fun isHidden(ticker: String?, content: String?): Boolean {
-        return ticker != null && ticker == content && hideMsgPattern.matcher(ticker).matches()
+    private fun isHidden(ticker: String?): Boolean {
+        return ticker != null && hideMsgPattern.matcher(ticker).matches()
     }
 
     private fun tryResolveQzone(
         context: Context, tag: Tag, original: Notification, isQzone: Boolean, title: String?,
         ticker: String?, content: String?
     ): Conversation? {
-        if (isQzone && !content.isNullOrEmpty()) {
-            val num = matchQzoneNum(title)
-            val conversation: Conversation
-            if (num == -1) {
-                // 特别关心动态推送
-                getNotifyLargeIcon(context, original)?.also {
-                    avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
-                }
-                conversation = addMessage(
-                    tag,
-                    qzoneSpecialTitle,
-                    content,
-                    null,
-                    avatarManager.getAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode()),
-                    original.contentIntent,
-                    original.deleteIntent,
-                    false
-                )
-                // 由于特别关心动态推送的通知没有显示未读消息个数，所以这里无法提取并删除多余的历史消息。
-                // Workaround: 在通知删除回调下来匹配并清空特别关心动态历史记录。
-                Timber.tag(TAG).d("[QZoneSpecial] Ticker: $ticker")
-            } else {
-                // 与我相关的动态
-                getNotifyLargeIcon(context, original)?.also {
-                    avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), it)
-                }
-                conversation = addMessage(
-                    tag,
-                    context.getString(R.string.notify_qzone_title),
-                    content,
-                    null,
-                    avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()),
-                    original.contentIntent,
-                    original.deleteIntent,
-                    false
-                )
-                deleteOldMessage(conversation, num)
-                Timber.tag(TAG).d("[QZone] Ticker: $ticker")
+        if (!isQzone || title.isNullOrEmpty() || ticker.isNullOrEmpty() || content.isNullOrEmpty()) {
+            return null
+        }
+
+        if (ticker.startsWith("【特别关心】")) {
+            // 特别关心动态推送
+            getNotifyLargeIcon(context, original)?.also {
+                avatarManager.saveAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode(), it)
             }
+            val conversation = addMessage(
+                tag = tag,
+                name = qzoneSpecialTitle,
+                content = content,
+                group = null,
+                icon = avatarManager.getAvatar(CONVERSATION_NAME_QZONE_SPECIAL.hashCode()),
+                contentIntent = original.contentIntent,
+                deleteIntent = original.deleteIntent,
+                special = false
+            )
+            // 由于特别关心动态推送的通知没有显示未读消息个数，所以这里无法提取并删除多余的历史消息。
+            // Workaround: 在通知删除回调下来匹配并清空特别关心动态历史记录。
+            Timber.tag(TAG).d("[QZoneSpecial] Ticker: $ticker")
+            return conversation
+        }
+        val num = matchQzoneNum(title)
+        if (num != null) {
+            // 普通空间通知
+            getNotifyLargeIcon(context, original)?.also {
+                avatarManager.saveAvatar(CONVERSATION_NAME_QZONE.hashCode(), it)
+            }
+            val conversation = addMessage(
+                tag = tag,
+                name = context.getString(R.string.notify_qzone_title),
+                content = content,
+                group = null,
+                icon = avatarManager.getAvatar(CONVERSATION_NAME_QZONE.hashCode()),
+                contentIntent = original.contentIntent,
+                deleteIntent = original.deleteIntent,
+                special = false
+            )
+            deleteOldMessage(conversation, num)
+            Timber.tag(TAG).d("[QZone] Ticker: $ticker")
             return conversation
         }
         return null
     }
 
     private fun tryResolveGroupMsg(
-        context: Context, tag: Tag, original: Notification, isMulti: Boolean, title: String?,
-        ticker: String, content: String?
+        context: Context, tag: Tag, original: Notification, ticker: String, content: String?
     ): Pair<NotifyChannel, Conversation>? {
-        groupMsgPattern.matcher(ticker).also { matcher ->
-            if (matcher.matches()) {
-                val name = matcher.group(1) ?: return null
-                val groupName = matcher.group(2) ?: return null
-                val text = matcher.group(3) ?: return null
+        if (content.isNullOrEmpty() || ticker.isEmpty()) {
+            return null
+        }
+        val tickerGroups = groupMsgPattern.matchEntire(ticker)?.groups ?: return null
+        val contentGroups = groupMsgContentPattern.matchEntire(content)?.groups ?: return null
+        val name = tickerGroups["nickname"]?.value ?: return null
+        val groupName = tickerGroups["name"]?.value ?: return null
+        val num = tickerGroups["num"]?.value?.toIntOrNull()
+        val text = contentGroups["msg"]?.value ?: return null
+        val special = contentGroups["sp"]?.value != null
 
-                val contentMatcher = groupMsgContentPattern.matcher(content!!)
-                val special = contentMatcher.matches() && contentMatcher.group(1) != null
-
-                if (!isMulti)
-                    getNotifyLargeIcon(context, original)?.also {
-                        avatarManager.saveAvatar(groupName.hashCode(), it)
-                    }
-                val conversation = addMessage(
-                    tag, name, text, groupName, avatarManager.getAvatar(name.hashCode()),
-                    original.contentIntent, original.deleteIntent, special
-                )
-                deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(title))
-                Timber.tag(TAG)
-                    .d("[${if (special) "GroupS" else "Group"}] Name: $name; Group: $groupName; Text: $text")
-                val channel = if (special && specialGroupMsgChannel(ctx))
-                    NotifyChannel.FRIEND_SPECIAL
-                else
-                    NotifyChannel.GROUP
-                return Pair(channel, conversation)
+        if (num == null || num == 1) {
+            // 单个消息
+            getNotifyLargeIcon(context, original)?.also {
+                avatarManager.saveAvatar(groupName.hashCode(), it)
             }
         }
-        return null
+        val conversation = addMessage(
+            tag, name, text, groupName, avatarManager.getAvatar(name.hashCode()),
+            original.contentIntent, original.deleteIntent, special
+        )
+        if (num != null && num > 1) {
+            deleteOldMessage(conversation, num)
+        }
+        Timber.tag(TAG)
+            .d("[${if (special) "GroupS" else "Group"}] Name: $name; Group: $groupName; Text: $text")
+        val channel = if (special && specialGroupMsgChannel(ctx))
+            NotifyChannel.FRIEND_SPECIAL
+        else
+            NotifyChannel.GROUP
+        return Pair(channel, conversation)
     }
 
     private fun tryResolvePrivateMsg(
-        context: Context, tag: Tag, original: Notification, isMulti: Boolean,
-        title: String?, ticker: String
+        context: Context, tag: Tag, original: Notification, ticker: String?,
+        content: String?
     ): Pair<NotifyChannel, Conversation>? {
-        msgPattern.matcher(ticker).also { matcher ->
-            if (matcher.matches()) {
-                val titleMatcher = msgTitlePattern.matcher(title ?: "")
-                val special = titleMatcher.matches() && titleMatcher.group(1) != null
-                val name = matcher.group(1) ?: return null
-                val text = matcher.group(2) ?: return null
-                if (!isMulti)
-                    getNotifyLargeIcon(context, original)?.also {
-                        avatarManager.saveAvatar(name.hashCode(), it)
-                    }
-                val conversation = addMessage(
-                    tag, name, text, null, avatarManager.getAvatar(name.hashCode()),
-                    original.contentIntent, original.deleteIntent, special
-                )
-                deleteOldMessage(conversation, if (isMulti) 0 else matchMessageNum(titleMatcher))
-                return if (special) {
-                    Timber.tag(TAG).d("[FriendS] Name: $name; Text: $text")
-                    Pair(NotifyChannel.FRIEND_SPECIAL, conversation)
-                } else {
-                    Timber.tag(TAG).d("[Friend] Name: $name; Text: $text")
-                    Pair(NotifyChannel.FRIEND, conversation)
-                }
+        if (ticker.isNullOrEmpty() || content.isNullOrEmpty()) {
+            return null
+        }
+        val tickerGroups = msgPattern.matchEntire(ticker)?.groups ?: return null
+        val special = tickerGroups["sp"] != null
+        val name = tickerGroups["nickname"]?.value ?: return null
+        val num = tickerGroups["num"]?.value?.toIntOrNull()
+
+        if (num == null || num == 1) {
+            // 单个消息
+            getNotifyLargeIcon(context, original)?.also {
+                avatarManager.saveAvatar(name.hashCode(), it)
             }
         }
-        return null
+        val conversation = addMessage(
+            tag, name, content, null, avatarManager.getAvatar(name.hashCode()),
+            original.contentIntent, original.deleteIntent, special
+        )
+        if (num != null && num > 1) {
+            deleteOldMessage(conversation, num)
+        }
+        return if (special) {
+            Timber.tag(TAG).d("[FriendS] Name: $name; Text: $content")
+            Pair(NotifyChannel.FRIEND_SPECIAL, conversation)
+        } else {
+            Timber.tag(TAG).d("[Friend] Name: $name; Text: $content")
+            Pair(NotifyChannel.FRIEND, conversation)
+        }
     }
 
     private fun tryResolveBindingMsg(
         context: Context, tag: Tag, original: Notification, title: String?,
         ticker: String, content: String?
     ): Pair<NotifyChannel, Conversation>? {
-        bindingQQMsgTickerPattern.matcher(ticker).also { matcher ->
-            if (matcher.matches()) {
-                val account = matcher.group(1) ?: ""
-                val text = matcher.group(2) ?: return null
-                val conversation = addMessage(
-                    tag, context.getString(R.string.notify_binding_msg_title, account),
-                    text, null, getNotifyLargeIcon(context, original), original.contentIntent,
-                    original.deleteIntent, false
-                )
-                deleteOldMessage(conversation, matchBindingMsgNum(title, content))
-                Timber.tag(TAG).d("[Binding] Account: $account; Text: $text")
-                return Pair(NotifyChannel.FRIEND, conversation)
-            }
+        val matcher = bindingQQMsgTickerPattern.matcher(ticker)
+        if (!matcher.matches()) {
+            return null
         }
-        return null
+
+        val sender = matcher.group(1) ?: return null
+        val text = matcher.group(2) ?: return null
+        val conversation = addMessage(
+            tag, context.getString(R.string.notify_binding_msg_title, sender),
+            text, null, getNotifyLargeIcon(context, original), original.contentIntent,
+            original.deleteIntent, false
+        )
+        deleteOldMessage(conversation, matchBindingMsgNum(title, content))
+        Timber.tag(TAG).d("[Binding] Sender: $sender; Text: $text")
+        return Pair(NotifyChannel.FRIEND, conversation)
+
     }
 
     fun onNotificationRemoved(sbn: StatusBarNotification, reason: Int) {
@@ -515,37 +528,18 @@ abstract class NotificationProcessor(context: Context) {
     }
 
     /**
-     * 提取新消息个数。
-     */
-    private fun matchMessageNum(text: String?): Int {
-        if (text.isNullOrEmpty()) return 0
-        return matchMessageNum(msgTitlePattern.matcher(text))
-    }
-
-    /**
-     * @param matcher [msgTitlePattern] 生成的匹配器。
-     */
-    private fun matchMessageNum(matcher: Matcher): Int {
-        if (matcher.matches()) {
-            return matcher.group(2)?.toInt() ?: 1
-        }
-        return 1
-    }
-
-    /**
      * 提取空间未读消息个数。
      *
-     * @return 动态未读消息个数。若是特别关心推送则返回 `-1`。[title] 为空或不匹配则返回 `0`。
+     * @return 动态未读消息个数。提取失败返回 `null`。
      */
-    private fun matchQzoneNum(title: String?): Int {
-        if (title.isNullOrEmpty()) return 0
-        qzonePattern.matcher(title).also { matcher ->
-            if (matcher.matches()) {
-                return matcher.group(1)?.toInt() ?: -1
-            }
+    private fun matchQzoneNum(title: String): Int? {
+        val matcher = qzoneTitlePattern.matcher(title)
+        if (matcher.matches()) {
+            return matcher.group(1)?.toIntOrNull()
         }
-        return 0
+        return null
     }
+
 
     /**
      * 提取关联账号的未读消息个数。
@@ -778,6 +772,7 @@ abstract class NotificationProcessor(context: Context) {
                 Tag.TIM -> R.drawable.ic_notify_tim
                 else -> R.drawable.ic_notify_qq
             }
+
             ICON_QQ -> R.drawable.ic_notify_qq
             ICON_TIM -> R.drawable.ic_notify_tim
             else -> R.drawable.ic_notify_qq
