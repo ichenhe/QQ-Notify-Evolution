@@ -1,0 +1,109 @@
+import org.jetbrains.kotlin.config.JvmTarget
+import java.io.ByteArrayOutputStream
+
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+// The last code is 20001, make sure the result is greater than it.
+val vCode = 20000 + getVersionCode()
+val vName = getVersionName()
+logger.lifecycle("App Version: $vName ($vCode)")
+
+android {
+    namespace = "cc.chenhe.qqnotifyevo"
+    compileSdk = 30
+    defaultConfig {
+        applicationId = "cc.chenhe.qqnotifyevo"
+        minSdk = 26
+        targetSdk = 30
+        versionCode = vCode
+        versionName = vName
+    }
+    buildFeatures {
+        viewBinding = true
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+        }
+    }
+    flavorDimensions += "channel"
+    productFlavors {
+        create("normal") {
+            dimension = "channel"
+            buildConfigField("Boolean", "PLAY", "false")
+        }
+        create("play") {
+            dimension = "channel"
+            buildConfigField("Boolean", "PLAY", "true")
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = JvmTarget.JVM_1_8.description
+    }
+}
+
+dependencies {
+    val lifecycleVersion = "2.3.1"
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
+
+    implementation("androidx.constraintlayout:constraintlayout:2.1.0")
+    implementation("androidx.preference:preference-ktx:1.1.1")
+    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("com.oasisfeng.nevo:sdk:2.0.0-rc01")
+    implementation("com.jakewharton.timber:timber:5.0.0")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.amshove.kluent:kluent-android:1.68")
+}
+
+fun String.runCommand(currentWorkingDir: File = file("./")): String {
+    val byteOut = ByteArrayOutputStream()
+    project.exec {
+        workingDir = currentWorkingDir
+        commandLine = this@runCommand.split(" ")
+        standardOutput = byteOut
+    }
+    return String(byteOut.toByteArray()).trim()
+}
+
+fun getVersionCode(): Int {
+    val cmd = "git rev-list HEAD --first-parent --count"
+    return try {
+        cmd.runCommand().toInt()
+    } catch (e: Exception) {
+        logger.error("Failed to get version code with git, return 1 by default.\n${e.message}")
+        1
+    }
+}
+
+
+fun getVersionName(): String {
+    val cmd = "git describe --tags --long --first-parent --abbrev=7 --dirty=_dev"
+    try {
+        val v = cmd.runCommand()
+        val pattern = """^v(?<v>[\d|.]+)-\d+-g[A-Za-z0-9]{7}(?<s>_dev)?$""".toRegex()
+        val g = pattern.matchEntire(v)?.groups
+        if (g == null || g["v"] == null) {
+            logger.error(
+                "Failed to get version name with git.\n" +
+                        "Cannot match git tag describe, return <UNKNOWN> by default. raw=$v"
+            )
+            return "UNKNOWN"
+        }
+        return g["v"]!!.value + (g["s"]?.value ?: "")
+    } catch (e: Exception) {
+        logger.error("Failed to get version name with git, return <UNKNOWN> by default.\n${e.message}")
+        return "UNKNOWN"
+    }
+}
