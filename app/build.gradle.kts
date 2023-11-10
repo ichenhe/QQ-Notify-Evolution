@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId = "cc.chenhe.qqnotifyevo"
         minSdk = 26
-        targetSdk = 30
+        targetSdk = 31
         versionCode = vCode
         versionName = vName
     }
