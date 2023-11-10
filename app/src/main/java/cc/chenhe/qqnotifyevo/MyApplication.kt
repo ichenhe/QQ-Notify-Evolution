@@ -9,8 +9,14 @@ import android.media.RingtoneManager
 import androidx.core.app.NotificationManagerCompat
 import cc.chenhe.qqnotifyevo.log.CrashHandler
 import cc.chenhe.qqnotifyevo.log.ReleaseTree
-import cc.chenhe.qqnotifyevo.service.UpgradeService
-import cc.chenhe.qqnotifyevo.utils.*
+import cc.chenhe.qqnotifyevo.utils.NOTIFY_QQ_GROUP_ID
+import cc.chenhe.qqnotifyevo.utils.NOTIFY_SELF_TIPS_CHANNEL_ID
+import cc.chenhe.qqnotifyevo.utils.PREFERENCE_ENABLE_LOG
+import cc.chenhe.qqnotifyevo.utils.PREFERENCE_ENABLE_LOG_DEFAULT
+import cc.chenhe.qqnotifyevo.utils.dataStore
+import cc.chenhe.qqnotifyevo.utils.getLogDir
+import cc.chenhe.qqnotifyevo.utils.getNotificationChannels
+import cc.chenhe.qqnotifyevo.utils.getVersion
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -57,8 +63,6 @@ class MyApplication : Application() {
         Timber.tag(TAG).i("= App Create  ver: ${getVersion(this)}")
         Timber.tag(TAG).i("==================================================\n")
         registerNotificationChannel()
-
-        UpgradeService.startIfNecessary(this)
     }
 
     private suspend fun setupTimber(enableLog: Boolean, deleteLog: Boolean) {

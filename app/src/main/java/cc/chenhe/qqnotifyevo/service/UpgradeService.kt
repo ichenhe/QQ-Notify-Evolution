@@ -97,7 +97,7 @@ class UpgradeService : LifecycleService() {
                     putExtra(EXTRA_OLD_VERSION, old)
                     putExtra(EXTRA_CURRENT_VERSION, new)
                 }
-                context.startService(i)
+                context.startForegroundService(i)
                 true
             } else {
                 Timber.tag(TAG)
