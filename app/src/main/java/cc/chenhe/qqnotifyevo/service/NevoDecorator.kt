@@ -11,10 +11,14 @@ import android.service.notification.StatusBarNotification
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.lifecycleScope
 import cc.chenhe.qqnotifyevo.core.NevoNotificationProcessor
 import cc.chenhe.qqnotifyevo.utils.*
 import com.oasisfeng.nevo.sdk.MutableStatusBarNotification
 import com.oasisfeng.nevo.sdk.NevoDecoratorService
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
@@ -33,6 +37,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
     }
 
     private lateinit var lifecycleRegistry: LifecycleRegistry
+    private lateinit var mode: Mode
 
     /**
      * 保存已创建过通知渠道的包名，尽力避免多次创建。
@@ -50,7 +55,8 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
         }
     }
 
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
 
     @SuppressLint("WrongThread") // wrong report
     override fun onCreate() {
@@ -58,14 +64,19 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
         instance = this
         Timber.tag(TAG).v("Service - onCreate")
         lifecycleRegistry = LifecycleRegistry(this).apply { currentState = Lifecycle.State.CREATED }
+        mode = runBlocking {
+            Mode.fromValue(this@NevoDecorator.dataStore.data.first()[PREFERENCE_MODE])
+        }
+        lifecycleScope.launch {
+            this@NevoDecorator.dataStore.data.collect { pref ->
+                mode = Mode.fromValue(pref[PREFERENCE_MODE])
+            }
+        }
 
         receiver = Receiver()
         registerReceiver(receiver, IntentFilter(ACTION_DELETE_NEVO_CHANNEL))
 
-        processor = NevoNotificationProcessor(this)
-        fetchAvatarCachePeriod(this).observe(this) { avatarCachePeriod ->
-            processor.setAvatarCachePeriod(avatarCachePeriod)
-        }
+        processor = NevoNotificationProcessor(this, lifecycleScope)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -73,6 +84,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
         return super.onBind(intent)
     }
 
+    @Deprecated("Deprecated in Android")
     override fun onStart(intent: Intent?, startId: Int) {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         @Suppress("DEPRECATION")
@@ -101,7 +113,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
         Timber.tag(TAG).d("Nevo connected")
         notificationChannelCreated = mutableSetOf()
 
-        if (getMode(this) == MODE_NEVO) {
+        if (mode == Mode.Nevo) {
             createChannels(null)
         }
     }
@@ -148,7 +160,7 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
 
     override fun apply(evolving: MutableStatusBarNotification?): Boolean {
         Timber.tag(TAG).v("Detect notification from ${evolving?.packageName}.")
-        if (getMode(this) != MODE_NEVO) {
+        if (mode != Mode.Nevo) {
             Timber.tag(TAG).d("Not in nevo mode, skip.")
             return false
         }
@@ -176,7 +188,9 @@ class NevoDecorator : NevoDecoratorService(), LifecycleOwner {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?, reason: Int): Boolean {
-        if (sbn == null || getMode(this) != MODE_NEVO) return false
+        if (sbn == null || mode != Mode.Nevo) {
+            return false
+        }
         processor.onNotificationRemoved(sbn, reason)
         return false
     }

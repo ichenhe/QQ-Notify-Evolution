@@ -15,14 +15,19 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.datastore.preferences.core.edit
 import cc.chenhe.qqnotifyevo.R
-import cc.chenhe.qqnotifyevo.preference.PreferenceAty
+import cc.chenhe.qqnotifyevo.ui.MainActivity
 import cc.chenhe.qqnotifyevo.utils.*
+import cc.chenhe.qqnotifyevo.utils.SpecialGroupChannel.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.util.*
 import java.util.regex.Pattern
 
-abstract class NotificationProcessor(context: Context) {
+abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
 
     companion object {
         private const val TAG = "NotificationProcessor"
@@ -172,6 +177,11 @@ abstract class NotificationProcessor(context: Context) {
     }
 
     protected val ctx: Context = context.applicationContext
+    private var iconStyle: IconStyle = IconStyle.Auto
+    private var nicknameFormat: String = PREFERENCE_NICKNAME_FORMAT_DEFAULT
+    private var formatNickname: Boolean = PREFERENCE_FORMAT_NICKNAME_DEFAULT
+    private var showSpecialPrefix: Boolean = PREFERENCE_SHOW_SPECIAL_PREFIX_DEFAULT
+    private var specialGroupChannel: SpecialGroupChannel = PREFERENCE_SPECIAL_GROUP_CHANNEL_DEFAULT
 
     private val qzoneSpecialTitle = context.getString(R.string.notify_qzone_special_title)
 
@@ -183,8 +193,21 @@ abstract class NotificationProcessor(context: Context) {
     private val avatarManager =
         AvatarManager.get(getAvatarDiskCacheDir(ctx), getAvatarCachePeriod(context))
 
-    fun setAvatarCachePeriod(period: Long) {
-        avatarManager.period = period
+    init {
+        scope.launch {
+            context.dataStore.data.collect { pref ->
+                iconStyle = IconStyle.fromValue(pref[PREFERENCE_ICON])
+                nicknameFormat =
+                    pref[PREFERENCE_NICKNAME_FORMAT] ?: PREFERENCE_NICKNAME_FORMAT_DEFAULT
+                formatNickname =
+                    pref[PREFERENCE_FORMAT_NICKNAME] ?: PREFERENCE_FORMAT_NICKNAME_DEFAULT
+                showSpecialPrefix =
+                    pref[PREFERENCE_SHOW_SPECIAL_PREFIX] ?: PREFERENCE_SHOW_SPECIAL_PREFIX_DEFAULT
+                specialGroupChannel =
+                    SpecialGroupChannel.fromValue(pref[PREFERENCE_SPECIAL_GROUP_CHANNEL])
+                avatarManager.period = AvatarCacheAge.fromValue(pref[PREFERENCE_AVATAR_CACHE_AGE]).v
+            }
+        }
     }
 
     /**
@@ -444,10 +467,15 @@ abstract class NotificationProcessor(context: Context) {
         }
         Timber.tag(TAG)
             .d("[${if (special) "GroupS" else "Group"}] Name: $name; Group: $groupName; Text: $text")
-        val channel = if (special && specialGroupMsgChannel(ctx))
-            NotifyChannel.FRIEND_SPECIAL
-        else
+
+        val channel = if (special) {
+            when (specialGroupChannel) {
+                Group -> NotifyChannel.GROUP
+                Special -> NotifyChannel.FRIEND_SPECIAL
+            }
+        } else {
             NotifyChannel.GROUP
+        }
         return Pair(channel, conversation)
     }
 
@@ -621,7 +649,7 @@ abstract class NotificationProcessor(context: Context) {
         if (ticker != null)
             builder.setTicker(ticker)
 
-        setIcon(context, builder, tag, channel == NotifyChannel.QZONE)
+        setIcon(builder, tag, channel == NotifyChannel.QZONE)
 
         return buildNotification(builder, shortcutInfo).apply {
             extras.putString(NOTIFICATION_EXTRA_TAG, tag.name)
@@ -693,7 +721,7 @@ abstract class NotificationProcessor(context: Context) {
             )
             .setIntent(
                 context.packageManager.getLaunchIntentForPackage(tag.pkg)
-                    ?: Intent(context, PreferenceAty::class.java).apply {
+                    ?: Intent(context, MainActivity::class.java).apply {
                         action = Intent.ACTION_MAIN
                     }
             )
@@ -710,7 +738,7 @@ abstract class NotificationProcessor(context: Context) {
 
         name = formatNicknameIfNeeded(name)
 
-        if (message.special && showSpecialPrefix(ctx)) {
+        if (message.special && showSpecialPrefix) {
             // 添加特别关心或关注前缀
             name = if (isGroupConversation)
                 ctx.getString(R.string.special_group_prefix) + name
@@ -727,20 +755,18 @@ abstract class NotificationProcessor(context: Context) {
     }
 
     private fun formatNicknameIfNeeded(name: CharSequence): CharSequence {
-        if (!wrapNickname(ctx)) {
+        if (!formatNickname) {
             return name
         }
-        var newName = name
-        val wrapper = nicknameWrapper(ctx)
-        if (wrapper != null) {
-            newName = wrapper.replace("\$n", name.toString())
-            if (newName == wrapper) {
-                Timber.tag(TAG).e("Nickname wrapper is invalid, reset preference. wrapper=$wrapper")
-                resetNicknameWrapper(ctx)
+        val newName = nicknameFormat.replace("\$n", name.toString())
+        if (newName == nicknameFormat) {
+            Timber.tag(TAG).e("Invalid nickname format, reset it. format=$nicknameFormat")
+            runBlocking {
+                ctx.dataStore.edit {
+                    it[PREFERENCE_NICKNAME_FORMAT] = PREFERENCE_NICKNAME_FORMAT_DEFAULT
+                }
             }
-        } else {
-            Timber.tag(TAG).e("Nickname wrapper is null, reset preference.")
-            resetNicknameWrapper(ctx)
+            return name
         }
         return newName
     }
@@ -757,7 +783,6 @@ abstract class NotificationProcessor(context: Context) {
     }
 
     private fun setIcon(
-        context: Context,
         builder: NotificationCompat.Builder,
         tag: Tag,
         isQzone: Boolean
@@ -766,16 +791,15 @@ abstract class NotificationProcessor(context: Context) {
             builder.setSmallIcon(R.drawable.ic_notify_qzone)
             return
         }
-        when (getIconMode(context)) {
-            ICON_AUTO -> when (tag) {
+        when (iconStyle) {
+            IconStyle.Auto -> when (tag) {
                 Tag.QQ, Tag.QQ_HD, Tag.QQ_LITE -> R.drawable.ic_notify_qq
                 Tag.TIM -> R.drawable.ic_notify_tim
                 else -> R.drawable.ic_notify_qq
             }
 
-            ICON_QQ -> R.drawable.ic_notify_qq
-            ICON_TIM -> R.drawable.ic_notify_tim
-            else -> R.drawable.ic_notify_qq
+            IconStyle.QQ -> R.drawable.ic_notify_qq
+            IconStyle.TIM -> R.drawable.ic_notify_tim
         }.let { iconRes -> builder.setSmallIcon(iconRes) }
     }
 

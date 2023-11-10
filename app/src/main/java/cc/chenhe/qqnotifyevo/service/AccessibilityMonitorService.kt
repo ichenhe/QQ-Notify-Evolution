@@ -28,8 +28,8 @@ class AccessibilityMonitorService : AccessibilityService() {
             return
         val tag = NotificationProcessor.getTagFromPackageName(event.packageName.toString())
         val className = event.className.toString()
-        if ("com.tencent.mobileqq.activity.SplashActivity" == event.className ||
-            "com.dataline.activities.LiteActivity" == event.className
+        if ("com.tencent.mobileqq.activity.SplashActivity" == className ||
+            "com.dataline.activities.LiteActivity" == className
         ) {
             Intent(this, NotificationMonitorService::class.java)
                 .putExtra("tag", tag.name)

@@ -9,6 +9,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import cc.chenhe.qqnotifyevo.utils.NotifyChannel
 import cc.chenhe.qqnotifyevo.utils.Tag
+import kotlinx.coroutines.CoroutineScope
 import timber.log.Timber
 import java.util.*
 
@@ -22,7 +23,8 @@ import java.util.*
 class InnerNotificationProcessor(
     private val commander: Commander,
     context: Context,
-) : NotificationProcessor(context) {
+    scope: CoroutineScope,
+) : NotificationProcessor(context, scope) {
 
     companion object {
         private const val TAG = "InnerNotifyProcessor"

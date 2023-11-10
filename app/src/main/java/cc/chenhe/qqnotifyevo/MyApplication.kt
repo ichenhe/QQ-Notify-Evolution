@@ -11,26 +11,44 @@ import cc.chenhe.qqnotifyevo.log.CrashHandler
 import cc.chenhe.qqnotifyevo.log.ReleaseTree
 import cc.chenhe.qqnotifyevo.service.UpgradeService
 import cc.chenhe.qqnotifyevo.utils.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 
 
 class MyApplication : Application() {
-
     companion object {
         private const val TAG = "Application"
     }
 
-    private lateinit var isLog: SpBooleanLiveData
+    private val logMutex = Mutex()
+    private var enableLog: Boolean = PREFERENCE_ENABLE_LOG_DEFAULT
 
     private var debugTree: Timber.DebugTree? = null
     private var releaseTree: ReleaseTree? = null
 
     override fun onCreate() {
         super.onCreate()
-        isLog = fetchLog(this)
-        setupTimber(isLog.value!!)
-        isLog.observeForever { log ->
-            setupTimber(log)
+
+        runBlocking {
+            enableLog =
+                dataStore.data.first()[PREFERENCE_ENABLE_LOG] ?: PREFERENCE_ENABLE_LOG_DEFAULT
+            setupTimber(enableLog, false)
+        }
+        MainScope().launch {
+            dataStore.data.map { it[PREFERENCE_ENABLE_LOG] ?: PREFERENCE_ENABLE_LOG_DEFAULT }
+                .collectLatest {
+                    if (enableLog != it) {
+                        enableLog = it
+                        setupTimber(it, false)
+                    }
+                }
         }
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
@@ -43,23 +61,32 @@ class MyApplication : Application() {
         UpgradeService.startIfNecessary(this)
     }
 
-    private fun setupTimber(enableLog: Boolean) {
-        if (BuildConfig.DEBUG) {
-            if (debugTree == null)
-                debugTree = Timber.DebugTree()
-            plantIfNotExist(debugTree!!)
-        }
-        if (enableLog) {
-            if (releaseTree == null)
-                releaseTree = ReleaseTree(getLogDir(this))
-            plantIfNotExist(releaseTree!!)
-        } else {
-            releaseTree?.also { r ->
-                Timber.uproot(r)
-                r.close()
+    private suspend fun setupTimber(enableLog: Boolean, deleteLog: Boolean) {
+        logMutex.withLock {
+            if (deleteLog) {
+                releaseTree?.close()
                 releaseTree = null
+                getLogDir(this).deleteRecursively()
+            }
+
+            if (BuildConfig.DEBUG) {
+                if (debugTree == null)
+                    debugTree = Timber.DebugTree()
+                plantIfNotExist(debugTree!!)
+            }
+            if (enableLog) {
+                if (releaseTree == null)
+                    releaseTree = ReleaseTree(getLogDir(this))
+                plantIfNotExist(releaseTree!!)
+            } else {
+                releaseTree?.also { r ->
+                    Timber.uproot(r)
+                    r.close()
+                    releaseTree = null
+                }
             }
         }
+
     }
 
     private fun plantIfNotExist(tree: Timber.Tree) {
@@ -67,11 +94,8 @@ class MyApplication : Application() {
             Timber.plant(tree)
     }
 
-    fun deleteLog() {
-        releaseTree?.close()
-        releaseTree = null
-        getLogDir(this).deleteRecursively()
-        setupTimber(isLog.value!!)
+    suspend fun deleteLog() {
+        setupTimber(enableLog, true)
     }
 
     private fun registerNotificationChannel() {
@@ -81,7 +105,7 @@ class MyApplication : Application() {
 
 
         val att = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
         val tipChannel = NotificationChannel(
