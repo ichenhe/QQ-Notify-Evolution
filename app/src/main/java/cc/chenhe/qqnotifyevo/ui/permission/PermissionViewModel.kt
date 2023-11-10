@@ -5,6 +5,9 @@ import android.content.Context
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.TextUtils
+import androidx.concurrent.futures.await
+import androidx.core.content.PackageManagerCompat
+import androidx.core.content.UnusedAppRestrictionsConstants
 import androidx.lifecycle.viewModelScope
 import cc.chenhe.qqnotifyevo.service.AccessibilityMonitorService
 import cc.chenhe.qqnotifyevo.ui.common.MviAndroidViewModel
@@ -19,6 +22,7 @@ import kotlinx.coroutines.launch
 data class PermissionUiState(
     val mode: Mode = Mode.Legacy,
     val ignoreBatteryOptimize: Boolean? = null,
+    val unusedAppRestrictionsEnabled: Boolean? = null,
     val notificationAccess: Boolean? = null,
     val accessibility: Boolean? = null,
 )
@@ -37,10 +41,24 @@ class PermissionViewModel(application: Application) :
     override suspend fun handleViewIntent(intent: Unit) {
     }
 
-    fun refreshPermissionState() {
+    suspend fun refreshPermissionState() {
         refreshNotificationAccessState()
         refreshAccessibilityState()
         refreshIgnoreBatteryOptimizationState()
+
+        val unusedAppRestrictionsStatus: Boolean? =
+            when (PackageManagerCompat.getUnusedAppRestrictionsStatus(getApplication()).await()) {
+                UnusedAppRestrictionsConstants.ERROR,
+                UnusedAppRestrictionsConstants.FEATURE_NOT_AVAILABLE -> null
+
+                UnusedAppRestrictionsConstants.DISABLED -> false
+                UnusedAppRestrictionsConstants.API_30_BACKPORT,
+                UnusedAppRestrictionsConstants.API_30,
+                UnusedAppRestrictionsConstants.API_31 -> true
+
+                else -> null
+            }
+        _uiState.getAndUpdate { it.copy(unusedAppRestrictionsEnabled = unusedAppRestrictionsStatus) }
     }
 
     private fun refreshNotificationAccessState() {

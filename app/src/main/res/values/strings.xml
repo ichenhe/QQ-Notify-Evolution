@@ -84,11 +84,17 @@
     <string name="pref_aces_permit_deny">已禁用，可能重复显式已读消息</string>
     <string name="pref_cate_background_running">持续运行</string>
     <string name="pref_cancel_battery_optimize">停用电池优化</string>
+    <string name="pref_battery_optimize_disable">已停用</string>
+    <string name="pref_battery_optimize_enable">未停用，可能丢失通知</string>
+    <string name="pref_disable_app_hibernation">停用应用休眠</string>
+    <string name="pref_app_hibernation_enabled">未停用，可能丢失通知</string>
+    <string name="pref_app_hibernation_disabled">已停用</string>
+    <string name="pref_disable_app_hibernation_dialog_title">关闭应用休眠</string>
+    <string name="pref_disable_app_hibernation_dialog_text">请在即将打开的窗口中关闭「在应用程序未使用时移除权限」或「休眠未使用的应用」等类似选项。</string>
+    <string name="pref_disable_app_hibernation_dialog_confirm">前往设置</string>
     <string name="pref_auto_start">自启动与后台运行</string>
     <string name="pref_auto_start_summary">需要手动检查</string>
     <string name="pref_auto_start_message">根据设备型号的不同，请前往手机管家、智能管理器等位置允许本应用的自动启动与后台运行。</string>
-    <string name="pref_battery_optimize_disable">已停用</string>
-    <string name="pref_battery_optimize_enable">未停用，可能丢失通知</string>
     <!-- 通知 -->
     <string name="pref_cate_notify">通知</string>
     <string name="pref_notify">通知设置</string>

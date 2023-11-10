@@ -75,9 +75,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val startUpgradeService = UpgradeService.startIfNecessary(this)
         setContent {
             val ctx = LocalContext.current
-            var upgrading by remember { mutableStateOf(UpgradeService.isRunningOrPrepared()) }
+            var upgrading by remember {
+                mutableStateOf(startUpgradeService || UpgradeService.isRunningOrPrepared())
+            }
             DisposableEffect(key1 = Unit) {
                 val receiver = object : BroadcastReceiver() {
                     override fun onReceive(ctx: Context, i: Intent?) {

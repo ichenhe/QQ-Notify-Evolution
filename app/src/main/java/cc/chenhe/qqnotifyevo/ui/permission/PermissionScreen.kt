@@ -19,6 +19,7 @@ import androidx.compose.material.icons.rounded.AccessibilityNew
 import androidx.compose.material.icons.rounded.BatterySaver
 import androidx.compose.material.icons.rounded.CircleNotifications
 import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.MotionPhotosPaused
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
@@ -42,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.IntentCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -70,7 +72,7 @@ fun PermissionScreen(navigateUp: () -> Unit, model: PermissionViewModel = viewMo
 @Preview
 private fun PermissionPreview() {
     AppTheme {
-        Permission(PermissionUiState())
+        Permission(PermissionUiState(unusedAppRestrictionsEnabled = true))
     }
 }
 
@@ -97,7 +99,7 @@ private fun Permission(uiState: PermissionUiState, navigateUp: () -> Unit = {}) 
                 LegacyModeGroup(uiState.notificationAccess, uiState.accessibility)
                 PreferenceGroupInterval()
             }
-            BatteryGroup(uiState.ignoreBatteryOptimize)
+            BatteryGroup(uiState.ignoreBatteryOptimize, uiState.unusedAppRestrictionsEnabled)
         }
     }
 }
@@ -149,10 +151,10 @@ private fun LegacyModeGroup(notificationAccess: Boolean?, accessibility: Boolean
 }
 
 @Composable
-private fun BatteryGroup(ignoreBatteryOptimize: Boolean?) {
+private fun BatteryGroup(ignoreBatteryOptimize: Boolean?, appRestrictionsEnabled: Boolean?) {
     val ctx = LocalContext.current
     PreferenceGroup(groupTitle = stringResource(id = R.string.pref_cate_background_running)) {
-        val launcher = rememberLauncherForActivityResult(contract = object :
+        val ignoreBatteryOptimezeLauncher = rememberLauncherForActivityResult(contract = object :
             ActivityResultContract<Unit, Unit>() {
             @SuppressLint("BatteryLife")
             override fun createIntent(context: Context, input: Unit): Intent {
@@ -172,7 +174,7 @@ private fun BatteryGroup(ignoreBatteryOptimize: Boolean?) {
                 null -> ""
             },
             enabled = ignoreBatteryOptimize == false,
-            onClick = { launcher.launch() },
+            onClick = { ignoreBatteryOptimezeLauncher.launch() },
             button = {
                 if (ignoreBatteryOptimize == false) {
                     Icon(
@@ -184,6 +186,54 @@ private fun BatteryGroup(ignoreBatteryOptimize: Boolean?) {
             }
         )
         PreferenceDivider()
+
+        if (appRestrictionsEnabled != null) {
+            // 应用休眠，自动移除权限
+            val disableAppHibernationLauncher = rememberLauncherForActivityResult(
+                contract = object : ActivityResultContract<Unit, Unit>() {
+                    override fun createIntent(context: Context, input: Unit): Intent =
+                        IntentCompat.createManageUnusedAppRestrictionsIntent(ctx, ctx.packageName)
+
+                    override fun parseResult(resultCode: Int, intent: Intent?) {}
+                }, onResult = {})
+            var showDisableAppHibernationDialog by remember { mutableStateOf(false) }
+            if (showDisableAppHibernationDialog) {
+                AlertDialog(
+                    icon = { Icon(Icons.Rounded.MotionPhotosPaused, contentDescription = null) },
+                    title = { Text(stringResource(id = R.string.pref_disable_app_hibernation_dialog_title)) },
+                    text = { Text(stringResource(id = R.string.pref_disable_app_hibernation_dialog_text)) },
+                    onDismissRequest = { showDisableAppHibernationDialog = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            disableAppHibernationLauncher.launch()
+                            showDisableAppHibernationDialog = false
+                        }) {
+                            Text(stringResource(id = R.string.pref_disable_app_hibernation_dialog_confirm))
+                        }
+                    }
+                )
+            }
+            PreferenceItem(title = stringResource(id = R.string.pref_disable_app_hibernation),
+                icon = Icons.Rounded.MotionPhotosPaused,
+                description = when (appRestrictionsEnabled) {
+                    true -> stringResource(id = R.string.pref_app_hibernation_enabled)
+                    false -> stringResource(id = R.string.pref_app_hibernation_disabled)
+                },
+                enabled = appRestrictionsEnabled == true,
+                onClick = { showDisableAppHibernationDialog = true },
+                button = {
+                    if (appRestrictionsEnabled == true) {
+                        Icon(
+                            Icons.Rounded.ErrorOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
+            )
+            PreferenceDivider()
+        }
+
 
         var showAutoRunCheckDialog by remember { mutableStateOf(false) }
         if (showAutoRunCheckDialog) {
