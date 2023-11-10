@@ -21,6 +21,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: 'gradle'
 
     - name: Assemble
       run: ./gradlew assemble
