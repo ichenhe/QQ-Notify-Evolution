@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.application") version "8.1.2" apply false
+    id("com.android.application") version "8.1.3" apply false
 
     // must correspond to compose compiler extension version:
     // https://developer.android.com/jetpack/androidx/releases/compose-kotlin#pre-release_kotlin_compatibility
