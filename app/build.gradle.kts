@@ -36,17 +36,6 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
-    flavorDimensions += "channel"
-    productFlavors {
-        create("normal") {
-            dimension = "channel"
-            buildConfigField("Boolean", "PLAY", "false")
-        }
-        create("play") {
-            dimension = "channel"
-            buildConfigField("Boolean", "PLAY", "true")
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
