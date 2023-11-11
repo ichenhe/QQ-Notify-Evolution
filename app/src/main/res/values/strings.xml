@@ -65,6 +65,14 @@
     <string name="warning_monitor_service_summary">请到「必要权限」里授予通知访问权，并确认已允许本应用自启动/后台运行。</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~ 权限检查
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+    <string name="permission_notification_card_title">无法发送通知</string>
+    <string name="permission_notification_card_text">需要发送通知权限来显示优化后的 QQ 通知，否则无法正常工作。</string>
+    <string name="permission_notification_card_allow">允许发送通知</string>
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 首选项：首页
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
@@ -75,6 +83,13 @@
     <string name="pref_mode_legacy">传统</string>
     <!-- 必要权限 -->
     <string name="pref_cate_permit">必要权限</string>
+    <string name="pref_send_notification_permission">发送通知</string>
+    <string name="pref_send_notification_permission_allow">已授权</string>
+    <string name="pref_send_notification_permission_deny">未授权，程序异常时可能遗漏 QQ 消息</string>
+    <string name="pref_send_notification_permission_deny_legacy">未授权，无法优化 QQ 通知</string>
+    <string name="enable_notification_guide_dialog_title">允许通知</string>
+    <string name="enable_notification_guide_dialog_text">请在即将打开的窗口中手动授予通知权限。</string>
+    <string name="enable_notification_guide_dialog_confirm">前往设置</string>
     <string name="pref_cate_legacy_permission">传统模式</string>
     <string name="pref_notf_permit">通知访问权</string>
     <string name="pref_notf_permit_allow">已启用，正在监听 QQ 通知</string>
