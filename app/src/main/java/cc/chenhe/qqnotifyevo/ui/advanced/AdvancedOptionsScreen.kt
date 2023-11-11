@@ -136,7 +136,7 @@ private fun NotificationGroup(
     onIntent: (AdvancedOptionsIntent) -> Unit,
 ) {
     PreferenceGroup(groupTitle = stringResource(id = R.string.pref_cate_advanced_notify)) {
-        // 显式特别关心前缀
+        // 显示特别关心前缀
         PreferenceItem(title = stringResource(id = R.string.pref_advanced_show_special_prefix),
             icon = Icons.Rounded.Favorite,
             description = stringResource(id = R.string.pref_advanced_show_special_prefix_summary),
@@ -298,7 +298,7 @@ private fun OtherGroup(
             }
         )
         PreferenceDivider()
-        // 在最近应用列表显式
+        // 在最近应用列表显示
         PreferenceItem(
             title = stringResource(id = R.string.pref_show_in_recent),
             icon = Icons.Rounded.TableRows,

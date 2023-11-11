@@ -206,8 +206,8 @@ private fun NevoServiceWarningCard(
 ) {
     val ctx = LocalContext.current
     ErrorCard(
-        title = stringResource(id = R.string.warning_nevo_service),
-        description = stringResource(id = R.string.warning_nevo_service_summary),
+        title = stringResource(id = R.string.nevo_service_card_title),
+        description = stringResource(id = R.string.nevo_service_card_text),
         button = {
             TextButton(
                 onClick = {
@@ -217,7 +217,7 @@ private fun NevoServiceWarningCard(
                 },
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onErrorContainer)
             ) {
-                Text(text = stringResource(id = R.string.warning_nevo_service_button))
+                Text(text = stringResource(id = R.string.nevo_service_card_button))
             }
         },
         modifier = modifier,
@@ -231,14 +231,14 @@ private fun LegacyNotificationMonitorServiceWarningCard(
     navigateToPermissionScreen: () -> Unit = {},
 ) {
     ErrorCard(
-        title = stringResource(id = R.string.warning_monitor_service),
-        description = stringResource(id = R.string.warning_monitor_service_summary),
+        title = stringResource(id = R.string.monitor_service_card_title),
+        description = stringResource(id = R.string.monitor_service_card_text),
         button = {
             TextButton(
                 onClick = navigateToPermissionScreen,
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onErrorContainer)
             ) {
-                Text(text = stringResource(id = R.string.pref_cate_permit))
+                Text(text = stringResource(id = R.string.monitor_service_card_button))
             }
         },
         modifier = modifier,
