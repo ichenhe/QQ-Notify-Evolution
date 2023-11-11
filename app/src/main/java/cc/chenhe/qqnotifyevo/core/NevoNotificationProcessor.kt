@@ -1,5 +1,7 @@
 package cc.chenhe.qqnotifyevo.core
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
@@ -51,7 +53,8 @@ class NevoNotificationProcessor(context: Context, scope: CoroutineScope) :
             // 目前关联账号的消息都会合并
             return
         }
-        if (nevoMultiMsgTip(ctx)) {
+        @SuppressLint("MissingPermission")
+        if (nevoMultiMsgTip(ctx) && ctx.hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
             val dontShow = PendingIntent.getBroadcast(
                 ctx, REQ_MULTI_MSG_DONT_SHOW,
                 Intent(ctx, StaticReceiver::class.java).also {

@@ -3,6 +3,8 @@ package cc.chenhe.qqnotifyevo.utils
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 
 /**
  * @throws IllegalStateException  can not find [Activity]
@@ -17,3 +19,6 @@ fun Context.getActivity(): Activity {
     }
     throw IllegalStateException("can not find Activity from current context")
 }
+
+fun Context.hasPermission(permission: String): Boolean =
+    ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
