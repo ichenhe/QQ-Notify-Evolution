@@ -4,10 +4,12 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -41,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cc.chenhe.qqnotifyevo.R
@@ -50,6 +53,7 @@ import cc.chenhe.qqnotifyevo.ui.common.PreferenceGroup
 import cc.chenhe.qqnotifyevo.ui.common.PreferenceGroupInterval
 import cc.chenhe.qqnotifyevo.ui.common.PreferenceItem
 import cc.chenhe.qqnotifyevo.ui.common.SingleSelectionDialog
+import cc.chenhe.qqnotifyevo.ui.common.permission.rememberNotificationPermissionState
 import cc.chenhe.qqnotifyevo.ui.theme.AppTheme
 import cc.chenhe.qqnotifyevo.utils.GITHUB_URL
 import cc.chenhe.qqnotifyevo.utils.IconStyle
@@ -57,6 +61,9 @@ import cc.chenhe.qqnotifyevo.utils.MANUAL_URL
 import cc.chenhe.qqnotifyevo.utils.Mode
 import cc.chenhe.qqnotifyevo.utils.Mode.*
 import cc.chenhe.qqnotifyevo.utils.getVersion
+import timber.log.Timber
+
+private const val TAG = "MainPreferenceScreen"
 
 @Composable
 fun MainPreferenceScreen(
@@ -117,18 +124,12 @@ private fun MainPreference(
                 )
             }
 
-            AnimatedVisibility(visible = !uiState.isServiceRunning) {
-                Column {
-                    when (uiState.mode) {
-                        Nevo -> NevoServiceWarningCard(Modifier.fillMaxWidth(), onIntent)
-                        Legacy -> LegacyNotificationMonitorServiceWarningCard(
-                            Modifier.fillMaxWidth(),
-                            navigateToPermissionScreen,
-                        )
-                    }
-                    PreferenceGroupInterval()
-                }
-            }
+            WarningCards(
+                isServiceRunning = uiState.isServiceRunning,
+                mode = uiState.mode,
+                onIntent = onIntent,
+                navigateToPermissionScreen = navigateToPermissionScreen,
+            )
 
             BasePreferenceGroup(uiState.mode, onIntent, navigateToPermissionScreen)
             PreferenceGroupInterval()
@@ -140,6 +141,64 @@ private fun MainPreference(
 }
 
 @Composable
+private fun WarningCards(
+    isServiceRunning: Boolean,
+    mode: Mode,
+    onIntent: (MainPreferenceIntent) -> Unit,
+    navigateToPermissionScreen: () -> Unit,
+) {
+    val ctx = LocalContext.current
+    // 通知权限
+    val notificationPermission = rememberNotificationPermissionState(onAlwaysDenied = {
+        openNotificationSettings(ctx)
+    })
+    val space = PaddingValues(bottom = 12.dp)
+    AnimatedVisibility(visible = !notificationPermission.isGranted) {
+        ErrorCard(
+            modifier = Modifier.padding(space),
+            title = stringResource(id = R.string.permission_notification_card_title),
+            description = stringResource(id = R.string.permission_notification_card_text),
+            button = {
+                TextButton(
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermission.launchPermissionRequest()
+                        } else {
+                            openNotificationSettings(ctx)
+                        }
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onErrorContainer)
+                ) {
+                    Text(text = stringResource(id = R.string.permission_notification_card_allow))
+                }
+            },
+        )
+    }
+
+    // 服务未运行
+    AnimatedVisibility(visible = !isServiceRunning) {
+        when (mode) {
+            Nevo -> NevoServiceWarningCard(Modifier.padding(space), onIntent)
+            Legacy -> LegacyNotificationMonitorServiceWarningCard(
+                Modifier.padding(space),
+                navigateToPermissionScreen,
+            )
+        }
+    }
+}
+
+private fun openNotificationSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+    }
+    try {
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "failed to request notification permission")
+    }
+}
+
+@Composable
 @Preview
 private fun NevoServiceWarningCard(
     modifier: Modifier = Modifier,
@@ -147,8 +206,8 @@ private fun NevoServiceWarningCard(
 ) {
     val ctx = LocalContext.current
     ErrorCard(
-        title = stringResource(id = R.string.warning_nevo_service),
-        description = stringResource(id = R.string.warning_nevo_service_summary),
+        title = stringResource(id = R.string.nevo_service_card_title),
+        description = stringResource(id = R.string.nevo_service_card_text),
         button = {
             TextButton(
                 onClick = {
@@ -158,7 +217,7 @@ private fun NevoServiceWarningCard(
                 },
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onErrorContainer)
             ) {
-                Text(text = stringResource(id = R.string.warning_nevo_service_button))
+                Text(text = stringResource(id = R.string.nevo_service_card_button))
             }
         },
         modifier = modifier,
@@ -172,14 +231,14 @@ private fun LegacyNotificationMonitorServiceWarningCard(
     navigateToPermissionScreen: () -> Unit = {},
 ) {
     ErrorCard(
-        title = stringResource(id = R.string.warning_monitor_service),
-        description = stringResource(id = R.string.warning_monitor_service_summary),
+        title = stringResource(id = R.string.monitor_service_card_title),
+        description = stringResource(id = R.string.monitor_service_card_text),
         button = {
             TextButton(
                 onClick = navigateToPermissionScreen,
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onErrorContainer)
             ) {
-                Text(text = stringResource(id = R.string.pref_cate_permit))
+                Text(text = stringResource(id = R.string.monitor_service_card_button))
             }
         },
         modifier = modifier,

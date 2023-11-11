@@ -59,14 +59,16 @@ private fun PreferencePreview() {
 }
 
 @Composable
-internal fun PreferenceGroup(groupTitle: String, content: @Composable ColumnScope.() -> Unit) {
+internal fun PreferenceGroup(groupTitle: String?, content: @Composable ColumnScope.() -> Unit) {
     Column {
-        Text(
-            text = groupTitle,
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 24.dp, bottom = 8.dp),
-            color = MaterialTheme.colorScheme.secondary
-        )
+        if (groupTitle != null) {
+            Text(
+                text = groupTitle,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp),
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
         Card(content = content, modifier = Modifier.animateContentSize())
     }
 }

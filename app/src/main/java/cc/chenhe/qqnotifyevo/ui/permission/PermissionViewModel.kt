@@ -45,20 +45,7 @@ class PermissionViewModel(application: Application) :
         refreshNotificationAccessState()
         refreshAccessibilityState()
         refreshIgnoreBatteryOptimizationState()
-
-        val unusedAppRestrictionsStatus: Boolean? =
-            when (PackageManagerCompat.getUnusedAppRestrictionsStatus(getApplication()).await()) {
-                UnusedAppRestrictionsConstants.ERROR,
-                UnusedAppRestrictionsConstants.FEATURE_NOT_AVAILABLE -> null
-
-                UnusedAppRestrictionsConstants.DISABLED -> false
-                UnusedAppRestrictionsConstants.API_30_BACKPORT,
-                UnusedAppRestrictionsConstants.API_30,
-                UnusedAppRestrictionsConstants.API_31 -> true
-
-                else -> null
-            }
-        _uiState.getAndUpdate { it.copy(unusedAppRestrictionsEnabled = unusedAppRestrictionsStatus) }
+        refreshUnusedAppRestrictionStatus()
     }
 
     private fun refreshNotificationAccessState() {
@@ -120,4 +107,21 @@ class PermissionViewModel(application: Application) :
                 ?: state.copy(ignoreBatteryOptimize = ignore)
         }
     }
+
+    private suspend fun refreshUnusedAppRestrictionStatus() {
+        val unusedAppRestrictionsStatus: Boolean? =
+            when (PackageManagerCompat.getUnusedAppRestrictionsStatus(getApplication()).await()) {
+                UnusedAppRestrictionsConstants.ERROR,
+                UnusedAppRestrictionsConstants.FEATURE_NOT_AVAILABLE -> null
+
+                UnusedAppRestrictionsConstants.DISABLED -> false
+                UnusedAppRestrictionsConstants.API_30_BACKPORT,
+                UnusedAppRestrictionsConstants.API_30,
+                UnusedAppRestrictionsConstants.API_31 -> true
+
+                else -> null
+            }
+        _uiState.getAndUpdate { it.copy(unusedAppRestrictionsEnabled = unusedAppRestrictionsStatus) }
+    }
+
 }

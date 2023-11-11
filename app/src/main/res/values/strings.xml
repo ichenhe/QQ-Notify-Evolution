@@ -58,11 +58,20 @@
     <string name="notify_upgrade">升级中</string>
     <string name="notify_upgrade_text">正在迁移数据，请勿强行停止。</string>
 
-    <string name="warning_nevo_service">Nevo 插件服务未运行</string>
-    <string name="warning_nevo_service_summary">请尝试在 Nevo 中重新启用本插件，并确认已允许 Nevo 和本应用自启动/后台运行。</string>
-    <string name="warning_nevo_service_button">转到 Nevo</string>
-    <string name="warning_monitor_service">通知监听服务未运行</string>
-    <string name="warning_monitor_service_summary">请到「必要权限」里授予通知访问权，并确认已允许本应用自启动/后台运行。</string>
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~ 权限检查
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+    <string name="permission_notification_card_title">无法发送通知</string>
+    <string name="permission_notification_card_text">需要发送通知权限来显示优化后的 QQ 通知，否则无法正常工作。</string>
+    <string name="permission_notification_card_allow">允许发送通知</string>
+    <string name="nevo_service_card_title">Nevo 插件服务未运行</string>
+    <string name="nevo_service_card_text">请尝试在 Nevo 中重新启用本插件，并确认已允许 Nevo 和本应用自启动/后台运行。若不想安装 Nevo 请切换到传统模式。</string>
+    <string name="nevo_service_card_button">转到 Nevo</string>
+    <string name="monitor_service_card_title">通知监听服务未运行</string>
+    <string name="monitor_service_card_text">传统模式依赖此服务来监听 QQ 的通知并优化它们。请到「必要权限」里授予通知访问权，并确认已允许本应用自启动/后台运行。</string>
+    <string name="monitor_service_card_button">查看必要权限</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 首选项：首页
@@ -73,28 +82,8 @@
     <string name="pref_mode">工作模式</string>
     <string name="pref_mode_nevo">Nevo 插件</string>
     <string name="pref_mode_legacy">传统</string>
-    <!-- 必要权限 -->
     <string name="pref_cate_permit">必要权限</string>
-    <string name="pref_cate_legacy_permission">传统模式</string>
-    <string name="pref_notf_permit">通知访问权</string>
-    <string name="pref_notf_permit_allow">已启用，正在监听 QQ 通知</string>
-    <string name="pref_notf_permit_deny">已禁用，无法监听 QQ 通知</string>
-    <string name="pref_aces_permit">无障碍服务</string>
-    <string name="pref_aces_permit_allow">已启用</string>
-    <string name="pref_aces_permit_deny">已禁用，可能重复显式已读消息</string>
-    <string name="pref_cate_background_running">持续运行</string>
-    <string name="pref_cancel_battery_optimize">停用电池优化</string>
-    <string name="pref_battery_optimize_disable">已停用</string>
-    <string name="pref_battery_optimize_enable">未停用，可能丢失通知</string>
-    <string name="pref_disable_app_hibernation">停用应用休眠</string>
-    <string name="pref_app_hibernation_enabled">未停用，可能丢失通知</string>
-    <string name="pref_app_hibernation_disabled">已停用</string>
-    <string name="pref_disable_app_hibernation_dialog_title">关闭应用休眠</string>
-    <string name="pref_disable_app_hibernation_dialog_text">请在即将打开的窗口中关闭「在应用程序未使用时移除权限」或「休眠未使用的应用」等类似选项。</string>
-    <string name="pref_disable_app_hibernation_dialog_confirm">前往设置</string>
-    <string name="pref_auto_start">自启动与后台运行</string>
-    <string name="pref_auto_start_summary">需要手动检查</string>
-    <string name="pref_auto_start_message">根据设备型号的不同，请前往手机管家、智能管理器等位置允许本应用的自动启动与后台运行。</string>
+
     <!-- 通知 -->
     <string name="pref_cate_notify">通知</string>
     <string name="pref_notify">通知设置</string>
@@ -104,28 +93,66 @@
     <string name="pref_icon_mode_auto">自动</string>
     <string name="pref_icon_mode_qq">QQ</string>
     <string name="pref_icon_mode_tim">TIM</string>
+
     <!-- 关于  -->
     <string name="pref_cate_about">关于</string>
+    <string name="pref_cate_advanced">高级选项</string>
     <string name="about_manual">使用手册</string>
     <string name="about_manual_summary">模式选择 · 双重通知 · 最佳实践</string>
     <string name="pref_osc">开放源代码</string>
     <string name="pref_version_code">版本号：%1$s</string>
     <string name="about_dialog_message">
 <![CDATA[
-1. 本应用完全免费开源\n
-严禁用于商用/出售/引流\n\n
-2. 支持 Nevo 插件与独立运行\n
-请参考使用手册选择合适的模式\n\n
-3. 唯一发布地址为 GitHub\n戳下面按钮直达
+1. 本应用完全免费开源，严禁用于商用/出售/引流。\n\n
+2. 支持 Nevo 插件与独立运行，请参考使用手册选择合适的模式。\n\n
+3. 唯一发布地址为 GitHub，戳下面按钮直达/
 ]]>
     </string>
     <string name="about_dialog_github">GitHub 发布页</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~ 首选项：必要权限
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+    <!-- 发送通知-->
+    <string name="pref_send_notification_permission">发送通知</string>
+    <string name="pref_send_notification_permission_allow">已授权</string>
+    <string name="pref_send_notification_permission_deny">未授权，程序异常时可能遗漏 QQ 消息</string>
+    <string name="pref_send_notification_permission_deny_legacy">未授权，无法优化 QQ 通知</string>
+    <string name="enable_notification_guide_dialog_title">允许通知</string>
+    <string name="enable_notification_guide_dialog_text">请在即将打开的窗口中手动授予通知权限。</string>
+    <string name="enable_notification_guide_dialog_confirm">前往设置</string>
+
+    <!-- 传统模式 -->
+    <string name="pref_cate_legacy_permission">传统模式</string>
+    <string name="pref_notf_permit">通知访问权</string>
+    <string name="pref_notf_permit_allow">已启用，正在监听 QQ 通知</string>
+    <string name="pref_notf_permit_deny">已禁用，无法监听 QQ 通知</string>
+    <string name="pref_aces_permit">无障碍服务</string>
+    <string name="pref_aces_permit_allow">已启用</string>
+    <string name="pref_aces_permit_deny">已禁用，可能重复显示已读消息</string>
+
+    <!-- 持续运行 -->
+    <string name="pref_cate_background_running">持续运行</string>
+    <string name="pref_cancel_battery_optimize">停用电池优化</string>
+    <string name="pref_battery_optimize_disable">已停用</string>
+    <string name="pref_battery_optimize_enable">未停用，可能丢失通知</string>
+
+    <string name="pref_disable_app_hibernation">停用应用休眠</string>
+    <string name="pref_app_hibernation_enabled">未停用，可能丢失通知</string>
+    <string name="pref_app_hibernation_disabled">已停用</string>
+    <string name="pref_disable_app_hibernation_dialog_title">关闭应用休眠</string>
+    <string name="pref_disable_app_hibernation_dialog_text">请在即将打开的窗口中关闭「在应用程序未使用时移除权限」或「休眠未使用的应用」等类似选项。</string>
+    <string name="pref_disable_app_hibernation_dialog_confirm">前往设置</string>
+
+    <string name="pref_auto_start">自启动与后台运行</string>
+    <string name="pref_auto_start_summary">需要手动检查</string>
+    <string name="pref_auto_start_message">根据设备型号的不同，请前往手机管家、智能管理器等位置允许本应用的自动启动与后台运行。</string>
+
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 首选项：高级
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-    <string name="pref_cate_advanced">高级选项</string>
     <!-- 通知 -->
     <string name="pref_cate_advanced_notify">通知</string>
     <string name="pref_advanced_show_special_prefix">显示特别关心前缀</string>
@@ -145,7 +172,7 @@
     <string name="pref_acatar_cache_period_7day">7天</string>
     <string name="pref_reset_tips">重置使用提示</string>
     <string name="pref_reset_tips_done">已重置</string>
-    <string name="pref_reset_tips_notify_dialog_title">无法显式使用提示</string>
+    <string name="pref_reset_tips_notify_dialog_title">无法显示使用提示</string>
     <string name="pref_reset_tips_notify_dialog_text">是否允许发送使用提示通知？</string>
     <string name="pref_reset_tips_notify_dialog_allow">启用通知</string>
     <string name="pref_reset_tips_notify_dialog_deny">忽略提示</string>

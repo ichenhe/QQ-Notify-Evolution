@@ -4,10 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.launch
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,9 +21,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.rounded.AccessibilityNew
 import androidx.compose.material.icons.rounded.BatterySaver
-import androidx.compose.material.icons.rounded.CircleNotifications
+import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.MarkChatRead
 import androidx.compose.material.icons.rounded.MotionPhotosPaused
+import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
@@ -53,8 +59,12 @@ import cc.chenhe.qqnotifyevo.ui.common.PreferenceDivider
 import cc.chenhe.qqnotifyevo.ui.common.PreferenceGroup
 import cc.chenhe.qqnotifyevo.ui.common.PreferenceGroupInterval
 import cc.chenhe.qqnotifyevo.ui.common.PreferenceItem
+import cc.chenhe.qqnotifyevo.ui.common.permission.rememberNotificationPermissionState
 import cc.chenhe.qqnotifyevo.ui.theme.AppTheme
 import cc.chenhe.qqnotifyevo.utils.Mode
+import timber.log.Timber
+
+private const val TAG = "PermissionScreen"
 
 @Composable
 fun PermissionScreen(navigateUp: () -> Unit, model: PermissionViewModel = viewModel()) {
@@ -95,6 +105,8 @@ private fun Permission(uiState: PermissionUiState, navigateUp: () -> Unit = {}) 
                 .clip(CardDefaults.shape)
                 .verticalScroll(scrollState)
         ) {
+            NotificationGroup(uiState.mode)
+            PreferenceGroupInterval()
             if (uiState.mode == Mode.Legacy) {
                 LegacyModeGroup(uiState.notificationAccess, uiState.accessibility)
                 PreferenceGroupInterval()
@@ -105,12 +117,79 @@ private fun Permission(uiState: PermissionUiState, navigateUp: () -> Unit = {}) 
 }
 
 @Composable
+private fun NotificationGroup(mode: Mode) {
+    var showEnableNotificationGuideDialog by remember { mutableStateOf(false) }
+    if (showEnableNotificationGuideDialog) {
+        EnableNotificationGuideDialog { showEnableNotificationGuideDialog = false }
+    }
+
+    PreferenceGroup(groupTitle = null) {
+        // 通知权限
+        val notificationPermissionState = rememberNotificationPermissionState(
+            onAlwaysDenied = {
+                showEnableNotificationGuideDialog = true
+            }
+        )
+        PreferenceItem(
+            title = stringResource(id = R.string.pref_send_notification_permission),
+            icon = Icons.Rounded.NotificationsActive,
+            description = if (notificationPermissionState.isGranted) {
+                stringResource(id = R.string.pref_send_notification_permission_allow)
+            } else {
+                when (mode) {
+                    Mode.Nevo -> stringResource(R.string.pref_send_notification_permission_deny)
+                    Mode.Legacy -> stringResource(R.string.pref_send_notification_permission_deny_legacy)
+                }
+            },
+            enabled = notificationPermissionState.isGranted.not(),
+            onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionState.launchPermissionRequest()
+                } else {
+                    showEnableNotificationGuideDialog = true
+                }
+            },
+            button = {
+                StatusIcon(notificationPermissionState.isGranted)
+            },
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun EnableNotificationGuideDialog(dismiss: () -> Unit = {}) {
+    val ctx = LocalContext.current
+    AlertDialog(
+        icon = { Icon(Icons.Rounded.NotificationsActive, contentDescription = null) },
+        title = { Text(text = stringResource(id = R.string.enable_notification_guide_dialog_title)) },
+        text = { Text(text = stringResource(id = R.string.enable_notification_guide_dialog_text)) },
+        onDismissRequest = dismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, ctx.packageName)
+                }
+                try {
+                    ctx.startActivity(intent)
+                } catch (e: Exception) {
+                    Timber.tag(TAG).e(e, "failed to request notification permission")
+                }
+                dismiss()
+            }) {
+                Text(text = stringResource(id = R.string.enable_notification_guide_dialog_confirm))
+            }
+        }
+    )
+}
+
+@Composable
 private fun LegacyModeGroup(notificationAccess: Boolean?, accessibility: Boolean?) {
     val ctx = LocalContext.current
     PreferenceGroup(groupTitle = stringResource(id = R.string.pref_cate_legacy_permission)) {
         PreferenceItem(
             title = stringResource(id = R.string.pref_notf_permit),
-            icon = Icons.Rounded.CircleNotifications,
+            icon = Icons.Rounded.MarkChatRead,
             description = when (notificationAccess) {
                 true -> stringResource(id = R.string.pref_notf_permit_allow)
                 false -> stringResource(id = R.string.pref_notf_permit_deny)
@@ -118,13 +197,7 @@ private fun LegacyModeGroup(notificationAccess: Boolean?, accessibility: Boolean
             },
             onClick = { ctx.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) },
             button = {
-                if (notificationAccess == false) {
-                    Icon(
-                        Icons.Rounded.ErrorOutline,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                }
+                StatusIcon(notificationAccess)
             },
         )
         PreferenceDivider()
@@ -138,13 +211,7 @@ private fun LegacyModeGroup(notificationAccess: Boolean?, accessibility: Boolean
             },
             onClick = { ctx.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
             button = {
-                if (accessibility == false) {
-                    Icon(
-                        Icons.Rounded.ErrorOutline,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                }
+                StatusIcon(accessibility)
             }
         )
     }
@@ -176,13 +243,7 @@ private fun BatteryGroup(ignoreBatteryOptimize: Boolean?, appRestrictionsEnabled
             enabled = ignoreBatteryOptimize == false,
             onClick = { ignoreBatteryOptimezeLauncher.launch() },
             button = {
-                if (ignoreBatteryOptimize == false) {
-                    Icon(
-                        Icons.Rounded.ErrorOutline,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                }
+                StatusIcon(ignoreBatteryOptimize)
             }
         )
         PreferenceDivider()
@@ -222,13 +283,7 @@ private fun BatteryGroup(ignoreBatteryOptimize: Boolean?, appRestrictionsEnabled
                 enabled = appRestrictionsEnabled == true,
                 onClick = { showDisableAppHibernationDialog = true },
                 button = {
-                    if (appRestrictionsEnabled == true) {
-                        Icon(
-                            Icons.Rounded.ErrorOutline,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                        )
-                    }
+                    StatusIcon(appRestrictionsEnabled.not())
                 }
             )
             PreferenceDivider()
@@ -251,5 +306,20 @@ private fun BatteryGroup(ignoreBatteryOptimize: Boolean?, appRestrictionsEnabled
             icon = Icons.Rounded.RestartAlt,
             description = stringResource(id = R.string.pref_auto_start_summary),
             onClick = { showAutoRunCheckDialog = true })
+    }
+}
+
+@Composable
+private fun StatusIcon(ok: Boolean?) {
+    AnimatedVisibility(visible = ok != null, enter = fadeIn(), exit = fadeOut()) {
+        Icon(
+            if (ok == true) Icons.Rounded.CheckCircleOutline else Icons.Rounded.ErrorOutline,
+            contentDescription = null,
+            tint = if (ok == true) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.error
+            },
+        )
     }
 }
