@@ -68,6 +68,7 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
 
     private val avatarManager =
         AvatarManager.get(getAvatarDiskCacheDir(ctx), getAvatarCachePeriod(context))
+    private val resolver: NotificationResolver = DelegateNotificationResolver()
 
     init {
         scope.launch {
@@ -169,11 +170,8 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
         val original = sbn.notification ?: return null
         val tag = getTagFromPackageName(packageName)
         if (tag == Tag.UNKNOWN) {
-            Timber.tag(TAG).d("Unknown tag, skip. pkgName=%s", packageName)
             return null
         }
-
-        val resolver: NotificationResolver = QQNotificationResolver()
 
         return when (val r = resolver.resolveNotification(packageName, tag, sbn)) {
             is QQNotification.BindingAccountMessage -> {
