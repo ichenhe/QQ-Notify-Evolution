@@ -73,7 +73,8 @@ dependencies {
     implementation("com.jakewharton.timber:timber:5.0.1")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.amshove.kluent:kluent-android:1.68")
+    testImplementation("io.kotest:kotest-assertions-core:5.7.2")
+    testImplementation("org.json:json:20231013") // JSONObject
 }
 
 fun String.runCommand(currentWorkingDir: File = file("./")): String {
