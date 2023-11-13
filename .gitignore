@@ -3,6 +3,7 @@
 .DS_Store
 release/
 /build
+/version.properties
 
 # IntelliJ
 *.iml

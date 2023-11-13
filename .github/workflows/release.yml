@@ -1,0 +1,72 @@
+name: Android Release
+
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+**
+  workflow_dispatch:
+
+env:
+  VERSION_BRANCH: version
+  VERSION_FILE: version.properties
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Generate Version Info
+        run: ./gradlew appVersion
+
+      - name: Upload version.properties
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.VERSION_FILE }}
+          path: ${{ env.VERSION_FILE }}
+          if-no-files-found: error
+          retention-days: 1
+
+
+  # commit the version file to 'version' branch so that F-Droid can utilize it for new version detecting
+  update-version:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout version branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.VERSION_BRANCH }}
+          fetch-depth: 0
+
+      - name: Delete version.properties
+        run: rm -f $VERSION_FILE
+
+      - name: Download version.properties
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.VERSION_FILE }}
+
+      - name: Show version info
+        run: cat $VERSION_FILE
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update version.properties
+          push_options: '--force'
+          skip_fetch: true

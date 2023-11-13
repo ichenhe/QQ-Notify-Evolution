@@ -1,15 +1,18 @@
 import org.jetbrains.kotlin.config.JvmTarget
 import java.io.ByteArrayOutputStream
+import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
-// The last code is 20001, make sure the result is greater than it.
-val vCode = 20000 + getVersionCode()
-val vName = getVersionName()
-logger.lifecycle("App Version: $vName ($vCode)")
+val versionProperties = Properties().apply {
+    val f = rootProject.file("version.properties")
+    if (f.isFile) {
+        load(f.reader())
+    }
+}
 
 android {
     namespace = "cc.chenhe.qqnotifyevo"
@@ -18,8 +21,8 @@ android {
         applicationId = "cc.chenhe.qqnotifyevo"
         minSdk = 26
         targetSdk = 33
-        versionCode = vCode
-        versionName = vName
+        versionCode = versionProperties.getProperty("code", "1").toIntOrNull() ?: 1
+        versionName = versionProperties.getProperty("name", "UNKNOWN")
     }
     buildFeatures {
         viewBinding = true

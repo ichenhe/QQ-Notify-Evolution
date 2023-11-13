@@ -5,10 +5,12 @@ on:
     paths-ignore:
       - '**.md'
       - LICENSE
+      - 'fastlane/**'
   pull_request:
     paths-ignore:
       - '**.md'
       - LICENSE
+      - 'fastlane/**'
 
 jobs:
   build:
