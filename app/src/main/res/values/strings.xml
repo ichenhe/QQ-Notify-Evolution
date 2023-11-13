@@ -7,13 +7,13 @@
     <string name="special_prefix">[特别关心]</string>
     <string name="special_group_prefix">[特别关注]</string>
 
-    <string name="app_name">QQ 通知</string>
-    <string name="service_notify">QQ 通知进化-通知监听服务</string>
-    <string name="service_access">QQ 通知进化</string>
-    <string name="activity_splash">QQ 通知进化</string>
-    <string name="acc_desc">用于在 QQ 打开时清除缓存的历史消息，以免下一个通知重复显示。\nQQ 通知进化内部缓存了历史通知内容，因而能够在通知中显示多个联系人的消息，但无法准确监测何时被标记为已读。启用后会在每次打开 QQ 时清除它们，下一次通知不会再包含之前的消息。\n本服务不会收集保存任何数据。QQ 通知进化未申请网络权限无法发送任何内容，并且是开源应用，请放心使用。</string>
+    <string name="app_name">企鹅通知进化</string>
+    <string name="service_notify">企鹅通知进化-通知监听服务</string>
+    <string name="service_access">企鹅通知进化</string>
+    <string name="activity_splash">企鹅通知进化</string>
+    <string name="acc_desc">用于在 QQ 打开时清除缓存的历史消息，以免下一个通知重复显示。\n企鹅通知进化内部缓存了历史通知内容，因而能够在通知中显示多个联系人的消息，但无法准确监测何时被标记为已读。启用后会在每次打开 QQ 时清除它们，下一次通知不会再包含之前的消息。\n本服务不会收集保存任何数据。企鹅通知进化未申请网络权限无法发送任何内容，并且是开源应用，请放心使用。</string>
 
-    <string name="nevo_name">QQ 通知进化</string>
+    <string name="nevo_name">企鹅通知进化</string>
     <string name="nevo_desc">适配原生分渠道通知；使用原生铃声与振动适配可穿戴设备；支持多组会话与历史消息。</string>
 
     <!-- Nevo 模式下检测到合并消息的提醒 -->
@@ -29,7 +29,7 @@
 
     <!-- 转发 QQ 的通知 -->
     <string name="notify_group_base">仅传统模式有效</string>
-    <string name="notify_nevo_prefix">Q进化-</string>
+    <string name="notify_nevo_prefix">企鹅进化-</string>
     <string name="notify_friend_channel_name">联系人消息</string>
     <string name="notify_friend_channel_des">QQ 私聊消息通知</string>
     <string name="notify_friend_special_channel_name">特别关心消息</string>
@@ -74,7 +74,7 @@
     <string name="monitor_service_card_button">查看必要权限</string>
 
     <string name="unsupported_app_card_title">检测到不支持的 QQ 版本</string>
-    <string name="unsupported_app_card_text">QQ 通知进化当前仅支持 QQ 正式版与 TIM。不再支持轻聊版、QQ HD 等其他版本。</string>
+    <string name="unsupported_app_card_text">企鹅通知进化当前仅支持 QQ 正式版与 TIM。不再支持轻聊版、QQ HD 等其他版本。</string>
     <string name="unsupported_app_card_button">不再提示</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

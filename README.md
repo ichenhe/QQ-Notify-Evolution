@@ -1,4 +1,4 @@
-# QQ Notify Evolution
+# 企鹅通知进化 - 原「QQ 通知进化」
 
 免 ROOT 优化 QQ 通知：多会话/多消息/多渠道。支持 [Nevo](https://www.coolapk.com/apk/com.oasisfeng.nevo) 插件与独立运行双模式。
 
