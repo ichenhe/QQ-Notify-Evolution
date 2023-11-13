@@ -18,6 +18,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,9 +47,10 @@ internal fun ErrorCard(
     icon: ImageVector = Icons.Rounded.ErrorOutline,
     description: String? = null,
     button: (@Composable () -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.errorContainer,
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
         modifier = modifier
     ) {
         Column(

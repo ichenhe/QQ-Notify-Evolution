@@ -18,8 +18,6 @@ class DelegateNotificationResolver : NotificationResolver {
         return when (tag) {
             Tag.UNKNOWN -> null
             Tag.QQ -> qqResolver
-            Tag.QQ_HD -> qqResolver
-            Tag.QQ_LITE -> qqResolver
             Tag.TIM -> timResolver
         }?.run { resolveNotification(tag, title, content, ticker) }
     }

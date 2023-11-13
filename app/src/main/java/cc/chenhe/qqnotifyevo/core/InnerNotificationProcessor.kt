@@ -39,8 +39,6 @@ class InnerNotificationProcessor(
 
     // 储存所有通知的 id 以便清除
     private val qqNotifyIds: MutableSet<Int> = HashSet()
-    private val qqLiteNotifyIds: MutableSet<Int> = HashSet()
-    private val qqHdNotifyIds: MutableSet<Int> = HashSet()
     private val timNotifyIds: MutableSet<Int> = HashSet()
 
     /**
@@ -50,9 +48,7 @@ class InnerNotificationProcessor(
         clearHistory(tag)
         val ids = when (tag) {
             Tag.QQ -> qqNotifyIds
-            Tag.QQ_LITE -> qqLiteNotifyIds
             Tag.TIM -> timNotifyIds
-            Tag.QQ_HD -> qqHdNotifyIds
             Tag.UNKNOWN -> null
         }
         Timber.tag(TAG).v("Clear all evolutionary notifications.")
@@ -127,8 +123,6 @@ class InnerNotificationProcessor(
     private fun addNotifyId(tag: Tag, ids: Int) {
         when (tag) {
             Tag.QQ -> qqNotifyIds.add(ids)
-            Tag.QQ_HD -> qqHdNotifyIds.add(ids)
-            Tag.QQ_LITE -> qqLiteNotifyIds.add(ids)
             Tag.TIM -> timNotifyIds.add(ids)
             Tag.UNKNOWN -> {
             }

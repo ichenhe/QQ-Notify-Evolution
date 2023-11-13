@@ -73,6 +73,10 @@
     <string name="monitor_service_card_text">传统模式依赖此服务来监听 QQ 的通知并优化它们。请到「必要权限」里授予通知访问权，并确认已允许本应用自启动/后台运行。</string>
     <string name="monitor_service_card_button">查看必要权限</string>
 
+    <string name="unsupported_app_card_title">检测到不支持的 QQ 版本</string>
+    <string name="unsupported_app_card_text">QQ 通知进化当前仅支持 QQ 正式版与 TIM。不再支持轻聊版、QQ HD 等其他版本。</string>
+    <string name="unsupported_app_card_button">不再提示</string>
+
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 首选项：首页
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->

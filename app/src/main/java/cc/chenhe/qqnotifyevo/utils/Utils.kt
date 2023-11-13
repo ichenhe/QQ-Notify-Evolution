@@ -49,8 +49,6 @@ val packageNameList: List<String>
     get() = listOf(
         Tag.QQ.pkg,
         Tag.TIM.pkg,
-        Tag.QQ_LITE.pkg,
-        Tag.QQ_HD.pkg,
     )
 
 /**

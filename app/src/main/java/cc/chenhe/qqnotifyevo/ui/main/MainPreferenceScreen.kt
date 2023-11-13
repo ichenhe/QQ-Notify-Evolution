@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,10 +42,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.ui.common.ErrorCard
@@ -70,8 +75,14 @@ fun MainPreferenceScreen(
     navigateToPermissionScreen: () -> Unit,
     navigateToAdvancedOptionsScreen: () -> Unit,
     model: MainPreferenceViewModel = viewModel(),
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     val uiState by model.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(key1 = lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            model.checkUnsupportedApp()
+        }
+    }
     MainPreference(
         uiState = uiState,
         onIntent = { model.sendIntent(it) },
@@ -125,6 +136,7 @@ private fun MainPreference(
             }
 
             WarningCards(
+                uiState.showUnsupportedAppWarning,
                 isServiceRunning = uiState.isServiceRunning,
                 mode = uiState.mode,
                 onIntent = onIntent,
@@ -142,36 +154,34 @@ private fun MainPreference(
 
 @Composable
 private fun WarningCards(
+    unsupportedAppDetected: Boolean,
     isServiceRunning: Boolean,
     mode: Mode,
     onIntent: (MainPreferenceIntent) -> Unit,
     navigateToPermissionScreen: () -> Unit,
 ) {
     val ctx = LocalContext.current
+    val space = PaddingValues(bottom = 12.dp)
+
+    // 不支持的 QQ 版本
+    AnimatedVisibility(visible = unsupportedAppDetected) {
+        UnsupportedAppWarningCard(modifier = Modifier.padding(space), onIntent = onIntent)
+    }
+
     // 通知权限
     val notificationPermission = rememberNotificationPermissionState(onAlwaysDenied = {
         openNotificationSettings(ctx)
     })
-    val space = PaddingValues(bottom = 12.dp)
     AnimatedVisibility(visible = !notificationPermission.isGranted) {
-        ErrorCard(
+        NotificationPermissionWarningCard(
             modifier = Modifier.padding(space),
-            title = stringResource(id = R.string.permission_notification_card_title),
-            description = stringResource(id = R.string.permission_notification_card_text),
-            button = {
-                TextButton(
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            notificationPermission.launchPermissionRequest()
-                        } else {
-                            openNotificationSettings(ctx)
-                        }
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onErrorContainer)
-                ) {
-                    Text(text = stringResource(id = R.string.permission_notification_card_allow))
+            requestPermission = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermission.launchPermissionRequest()
+                } else {
+                    openNotificationSettings(ctx)
                 }
-            },
+            }
         )
     }
 
@@ -196,6 +206,46 @@ private fun openNotificationSettings(context: Context) {
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "failed to request notification permission")
     }
+}
+
+@Composable
+@Preview
+private fun UnsupportedAppWarningCard(
+    modifier: Modifier = Modifier,
+    onIntent: (MainPreferenceIntent) -> Unit = {},
+) {
+    ErrorCard(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        title = stringResource(id = R.string.unsupported_app_card_title),
+        description = stringResource(id = R.string.unsupported_app_card_text),
+        button = {
+            TextButton(onClick = { onIntent(MainPreferenceIntent.DismissUnsupportedAppWarning) }) {
+                Text(text = stringResource(id = R.string.unsupported_app_card_button))
+            }
+        },
+        modifier = modifier,
+    )
+}
+
+@Composable
+@Preview
+private fun NotificationPermissionWarningCard(
+    modifier: Modifier = Modifier,
+    requestPermission: () -> Unit = {},
+) {
+    ErrorCard(
+        modifier = modifier,
+        title = stringResource(id = R.string.permission_notification_card_title),
+        description = stringResource(id = R.string.permission_notification_card_text),
+        button = {
+            TextButton(
+                onClick = requestPermission,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onErrorContainer)
+            ) {
+                Text(text = stringResource(id = R.string.permission_notification_card_allow))
+            }
+        },
+    )
 }
 
 @Composable

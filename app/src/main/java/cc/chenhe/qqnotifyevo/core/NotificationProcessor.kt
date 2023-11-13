@@ -45,8 +45,6 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
             return when (packageName) {
                 "com.tencent.mobileqq" -> Tag.QQ
                 "com.tencent.tim" -> Tag.TIM
-                "com.tencent.qqlite" -> Tag.QQ_LITE
-                "com.tencent.minihd.qq" -> Tag.QQ_HD
                 else -> Tag.UNKNOWN
             }
         }
@@ -62,8 +60,6 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
     private val qzoneSpecialTitle = context.getString(R.string.notify_qzone_special_title)
 
     private val qqHistory = ArrayList<Conversation>()
-    private val qqLiteHistory = ArrayList<Conversation>()
-    private val qqHdHistory = ArrayList<Conversation>()
     private val timHistory = ArrayList<Conversation>()
 
     private val avatarManager =
@@ -529,7 +525,7 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
         }
         when (iconStyle) {
             IconStyle.Auto -> when (tag) {
-                Tag.QQ, Tag.QQ_HD, Tag.QQ_LITE -> R.drawable.ic_notify_qq
+                Tag.QQ -> R.drawable.ic_notify_qq
                 Tag.TIM -> R.drawable.ic_notify_tim
                 else -> R.drawable.ic_notify_qq
             }
@@ -546,9 +542,7 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
     protected fun getHistoryMessage(tag: Tag): ArrayList<Conversation> {
         return when (tag) {
             Tag.TIM -> timHistory
-            Tag.QQ_LITE -> qqLiteHistory
             Tag.QQ -> qqHistory
-            Tag.QQ_HD -> qqHdHistory
             else -> throw RuntimeException("Unknown tag: $tag.")
         }
     }

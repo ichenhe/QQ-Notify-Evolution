@@ -8,9 +8,7 @@
 
 ## 主要功能
 
-⚠️最低系统要求 Android 8.0 (O)。
-
-支持原版 QQ / Tim / 轻聊版。
+支持 QQ 标准版 与 TIM。
 
 ![](https://i.loli.net/2020/07/22/g4yIqwZADcozR7K.png)
 
@@ -25,5 +23,4 @@
 
 - [QQ-Notfiy-Improve](https://github.com/Jinhaihan/QQ-Notfiy-Improve)（已获授权）
 - [QQNotfAndShare](https://github.com/ekibun/QQNotfAndShare)（原始项目）
-
 - [QQNotifyPlus](https://github.com/ekibun/QQNotifyPlus)（QQ 与 QZone 图标）
