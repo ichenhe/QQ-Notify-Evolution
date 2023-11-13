@@ -221,7 +221,8 @@ class UpgradeService : LifecycleService() {
     }
 
     private suspend fun migrateFrom_2_2_6() {
-        val sp = PreferenceManager.getDefaultSharedPreferences(ctx)
+        val sp = PreferenceManager
+            .getDefaultSharedPreferences(ctx.createDeviceProtectedStorageContext())
         ctx.dataStore.edit { prefs ->
             if (sp.contains("mode")) {
                 prefs[PREFERENCE_MODE] = when (sp.getString("mode", null)?.toIntOrNull()) {
