@@ -1,0 +1,10 @@
+⚠️ Only Android 8.0 (O) and above is supported.
+
+Support the original QQ / Tim / QQ Lite.
+
+<b>Force the decay QQ notification evolve into a modern style, including features as follows：</b>
+
+- Adapted to native sub-channel notifications, and set different prompts for private chats, group chats, special care, and space messages.
+- Using native notification volume and vibration, it is highly compatible with smart binds and watches.
+- Following Android messaging app notification style best practices, it supports displaying multiple groups of conversations and historical messages.
+- Supported as [Nevo](https://www.coolapk.com/apk/com.oasisfeng.nevo) plugin or standalone.
