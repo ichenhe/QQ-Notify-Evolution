@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.config.JvmTarget
-import java.io.ByteArrayOutputStream
 import java.util.Properties
 
 plugins {
@@ -32,11 +31,25 @@ android {
         // must correspond to kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin#pre-release_kotlin_compatibility
         kotlinCompilerExtensionVersion = "1.5.3"
     }
+    signingConfigs {
+        readSigningConfig()?.also { config ->
+            logger.lifecycle("Use key alias '{}' to sign release", config.keyAlias)
+            create("release") {
+                storeFile = config.storeFile
+                storePassword = "chenhe"
+                keyAlias = "weargallery"
+                keyPassword = "chenhe"
+
+                enableV2Signing = true
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            signingConfigs.findByName("release")?.also { signingConfig = it }
         }
     }
     compileOptions {
@@ -80,43 +93,24 @@ dependencies {
     testImplementation("org.json:json:20231013") // JSONObject
 }
 
-fun String.runCommand(currentWorkingDir: File = file("./")): String {
-    val byteOut = ByteArrayOutputStream()
-    project.exec {
-        workingDir = currentWorkingDir
-        commandLine = this@runCommand.split(" ")
-        standardOutput = byteOut
-    }
-    return String(byteOut.toByteArray()).trim()
-}
+data class SigningConfig(
+    val storeFile: File,
+    val storePwd: String,
+    val keyAlias: String,
+    val keyPwd: String,
+)
 
-fun getVersionCode(): Int {
-    val cmd = "git rev-list HEAD --first-parent --count"
-    return try {
-        cmd.runCommand().toInt()
-    } catch (e: Exception) {
-        logger.error("Failed to get version code with git, return 1 by default.\n${e.message}")
-        1
+fun readSigningConfig(): SigningConfig? {
+    val path = System.getenv("QNEVO_SIGNING_STORE_PATH") ?: return null
+    val f = File(path)
+    if (!f.isFile) {
+        logger.warn("Key store file not exist: {}", path)
+        return null
     }
-}
-
-
-fun getVersionName(): String {
-    val cmd = "git describe --tags --long --first-parent --abbrev=7 --dirty=_dev"
-    try {
-        val v = cmd.runCommand()
-        val pattern = """^v(?<v>[\d|.]+)-\d+-g[A-Za-z0-9]{7}(?<s>_dev)?$""".toRegex()
-        val g = pattern.matchEntire(v)?.groups
-        if (g == null || g["v"] == null) {
-            logger.error(
-                "Failed to get version name with git.\n" +
-                        "Cannot match git tag describe, return <UNKNOWN> by default. raw=$v"
-            )
-            return "UNKNOWN"
-        }
-        return g["v"]!!.value + (g["s"]?.value ?: "")
-    } catch (e: Exception) {
-        logger.error("Failed to get version name with git, return <UNKNOWN> by default.\n${e.message}")
-        return "UNKNOWN"
-    }
+    return SigningConfig(
+        storeFile = f,
+        storePwd = System.getenv("QNEVO_SIGNING_STORE_PWD") ?: return null,
+        keyAlias = System.getenv("QNEVO_SIGNING_KEY_ALIAS") ?: return null,
+        keyPwd = System.getenv("QNEVO_SIGNING_KEY_PWD") ?: return null
+    )
 }

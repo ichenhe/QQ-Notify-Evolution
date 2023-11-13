@@ -9,10 +9,14 @@ on:
 env:
   VERSION_BRANCH: version
   VERSION_FILE: version.properties
+  ARTIFACT_APK: release.apk
+  ARTIFACT_MAPPINGS: mappings
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      QNEVO_SIGNING_STORE_PATH: ${{ github.workspace }}/release.jks
 
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +31,33 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Write KeyStore File
+        uses: RollyPeres/base64-to-path@v1
+        with:
+          filePath: ${{ env.QNEVO_SIGNING_STORE_PATH }}
+          encodedString: ${{ secrets.SIGNING_KEYSTORE }}
+
+      - name: Assemble Release APK
+        run: ./gradlew assembleRelease
+        env:
+          QNEVO_SIGNING_STORE_PWD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          QNEVO_SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          QNEVO_SIGNING_KEY_PWD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_APK }}
+          path: "app/build/outputs/apk/release/app-release.apk"
+          if-no-files-found: error
+
+      - name: Upload Mapping Files
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_MAPPINGS }}
+          path: "app/build/outputs/mapping/release"
+          if-no-files-found: error
+
       - name: Generate Version Info
         run: ./gradlew appVersion
 
@@ -38,6 +69,37 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+  draft-release:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download APK
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_APK }}
+
+      - name: Download Mappings
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_MAPPINGS }}
+          path: mappings
+
+      - name: Tar Mapping Files
+        run: |
+          cd mappings
+          tar -zcf mappings.tar.gz ./*
+          mv mappings.tar.gz ../
+          cd ..
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          artifactErrorsFailBuild: true
+          artifacts: "app-release.apk,mappings.tar.gz"
 
   # commit the version file to 'version' branch so that F-Droid can utilize it for new version detecting
   update-version:
