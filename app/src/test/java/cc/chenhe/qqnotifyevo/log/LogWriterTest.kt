@@ -1,13 +1,13 @@
 package cc.chenhe.qqnotifyevo.log
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.equals.shouldNotBeEqual
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import java.io.File
-import java.util.*
+import java.util.Calendar
 
 
 class LogWriterTest {
@@ -53,7 +53,7 @@ class LogWriterTest {
     fun writeLog() {
         writer.write("Test", TIME)
         writer.write("Hello", TIME)
-        writer.logFile.readText() shouldBeEqualTo "Test\nHello\n"
+        writer.logFile.readText().shouldBeEqual("Test\nHello\n")
     }
 
     @Test
@@ -63,7 +63,7 @@ class LogWriterTest {
         }
         createLogWriter().use { w ->
             w.write("line2", TIME)
-            w.logFile.readText() shouldBeEqualTo "line1\nline2\n"
+            w.logFile.readText().shouldBeEqual("line1\nline2\n")
         }
     }
 
@@ -77,8 +77,8 @@ class LogWriterTest {
         writer.write("Test2", calendar.timeInMillis)
         val f2 = writer.logFile
 
-        f1.name shouldNotBeEqualTo f2.name
-        f1.readText() shouldBeEqualTo "Test\n"
-        f2.readText() shouldBeEqualTo "Test2\n"
+        f1.name.shouldNotBeEqual(f2.name)
+        f1.readText().shouldBeEqual("Test\n")
+        f2.readText().shouldBeEqual("Test2\n")
     }
 }

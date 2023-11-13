@@ -5,37 +5,64 @@ import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.IntDef
+import androidx.annotation.StringRes
 import androidx.core.content.edit
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.PreferenceManager
+import cc.chenhe.qqnotifyevo.R
 
-// ---------------------------------------------------------
-// 工作模式
-// ---------------------------------------------------------
+enum class Mode(val v: Int, @StringRes val strId: Int) {
+    Nevo(1, R.string.pref_mode_nevo),
+    Legacy(2, R.string.pref_mode_legacy);
 
-/** Nevo 插件 */
-const val MODE_NEVO = 1
+    companion object {
+        fun fromValue(v: Int?): Mode {
+            return Mode.values().firstOrNull { it.v == v } ?: Legacy
+        }
+    }
+}
 
-/** 通过通知访问权、辅助服务等特殊权限替换原生通知 */
-const val MODE_LEGACY = 2
+enum class IconStyle(val v: Int, @StringRes val strId: Int) {
+    Auto(0, R.string.pref_icon_mode_auto),
+    QQ(1, R.string.pref_icon_mode_qq),
+    TIM(2, R.string.pref_icon_mode_tim);
 
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(MODE_NEVO, MODE_LEGACY)
-annotation class Mode
+    companion object {
+        fun fromValue(v: Int?): IconStyle {
+            return values().firstOrNull { it.v == v } ?: Auto
+        }
+    }
+}
 
-// ---------------------------------------------------------
-// 通知图标
-// ---------------------------------------------------------
+enum class SpecialGroupChannel(val v: String, @StringRes val strId: Int) {
+    Group("group", R.string.pref_advanced_special_group_channel_group),
+    Special("special", R.string.pref_advanced_special_group_channel_special);
 
-const val ICON_AUTO = 0
-const val ICON_QQ = 1
-const val ICON_TIM = 2
+    companion object {
+        fun fromValue(v: String?): SpecialGroupChannel {
+            return values().firstOrNull { it.v == v } ?: PREFERENCE_SPECIAL_GROUP_CHANNEL_DEFAULT
+        }
+    }
+}
 
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(ICON_AUTO, ICON_QQ, ICON_TIM)
-annotation class Icon
+enum class AvatarCacheAge(val v: Long, @StringRes val strId: Int) {
+    TenMinute(600000, R.string.pref_acatar_cache_period_10min),
+    OneDay(86400000, R.string.pref_acatar_cache_period_1day),
+    SevenDay(604800000, R.string.pref_acatar_cache_period_7day);
+
+    companion object {
+        fun fromValue(v: Long?): AvatarCacheAge {
+            return values().firstOrNull { it.v == v } ?: PREFERENCE_AVATAR_CACHE_AGE_DEFAULT
+        }
+    }
+}
+
 
 private fun sp(context: Context): SharedPreferences = PreferenceManager
     .getDefaultSharedPreferences(context.createDeviceProtectedStorageContext())
@@ -56,81 +83,32 @@ fun nevoMultiMsgTip(context: Context): Boolean =
     sp(context).getBoolean(PREF_NEVO_MULTI_MSG_TIP, true)
 
 
-// ---------------------------------------------------------
-// Functions
-// ---------------------------------------------------------
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-@Mode
-fun getMode(context: Context): Int {
-    val mode = sp(context).getString("mode", "0") ?: "0"
-    return when (mode.toInt()) {
-        1 -> MODE_NEVO
-        2 -> MODE_LEGACY
-        else -> MODE_NEVO
-    }
-}
+val PREFERENCE_MODE = intPreferencesKey("mode")
+val PREFERENCE_ICON = intPreferencesKey("icon")
+val PREFERENCE_SHOW_SPECIAL_PREFIX = booleanPreferencesKey("show_special_prefix")
+const val PREFERENCE_SHOW_SPECIAL_PREFIX_DEFAULT = false
+val PREFERENCE_SPECIAL_GROUP_CHANNEL = stringPreferencesKey("special_in_group_channel")
+val PREFERENCE_SPECIAL_GROUP_CHANNEL_DEFAULT = SpecialGroupChannel.Group
+val PREFERENCE_FORMAT_NICKNAME = booleanPreferencesKey("format_nickname")
+const val PREFERENCE_FORMAT_NICKNAME_DEFAULT = false
+val PREFERENCE_NICKNAME_FORMAT = stringPreferencesKey("format_nickname_format")
+const val PREFERENCE_NICKNAME_FORMAT_DEFAULT = "[\$n]"
+val PREFERENCE_AVATAR_CACHE_AGE = longPreferencesKey("avatar_cache_age")
+val PREFERENCE_AVATAR_CACHE_AGE_DEFAULT = AvatarCacheAge.OneDay
+val USAGE_TIP_NEVO_MULTI_MESSAGE = booleanPreferencesKey("show_nevo_multi_message_tip")
+const val USAGE_TIP_NEVO_MULTI_MESSAGE_DEFAULT = true
+val PREFERENCE_SHOW_IN_RECENT_APPS = booleanPreferencesKey("show_in_recent_apps")
+const val PREFERENCE_SHOW_IN_RECENT_APPS_DEFAULT = true
+val PREFERENCE_ENABLE_LOG = booleanPreferencesKey("enable_log")
+const val PREFERENCE_ENABLE_LOG_DEFAULT = false
 
-fun fetchMode(context: Context): LiveData<Int> {
-    val source = SpStringLiveData(sp(context), "mode", "0", true)
-    return Transformations.map(source) { src ->
-        src!!.toInt()
-    }
-}
-
-@Icon
-fun getIconMode(context: Context): Int {
-    val icon = sp(context).getString("icon_mode", "0") ?: "0"
-    return when (icon.toInt()) {
-        0 -> ICON_AUTO
-        1 -> ICON_QQ
-        2 -> ICON_TIM
-        else -> ICON_AUTO
-    }
-}
-
-fun showSpecialPrefix(context: Context): Boolean =
-    sp(context).getBoolean("show_special_prefix", false)
-
-/**
- * 特别关注的群消息通知渠道。
- *
- * @return `true` 为特别关心渠道，`false` 为群消息渠道。
- */
-fun specialGroupMsgChannel(context: Context): Boolean =
-    sp(context).getString("special_group_channel", "group") == "special"
-
-fun wrapNickname(context: Context): Boolean = sp(context).getBoolean("wrap_nickname", false)
-
-fun nicknameWrapper(context: Context): String? = sp(context).getString("nickname_wrapper", null)
-
-/**
- * 禁用格式化昵称，且将格式重置为默认值。
- */
-fun resetNicknameWrapper(context: Context) {
-    sp(context).edit {
-        putBoolean("wrap_nickname", false)
-        putString("nickname_wrapper", "[\$n]")
-    }
-}
 
 fun getAvatarCachePeriod(context: Context): Long {
     val s = sp(context).getString("avatar_cache_period", "0") ?: "0"
     return s.toLong()
 }
-
-fun fetchAvatarCachePeriod(context: Context): LiveData<Long> {
-    val source = SpStringLiveData(sp(context), "avatar_cache_period", "0", true)
-    return Transformations.map(source) { src ->
-        src?.toLong() ?: 0L
-    }
-}
-
-fun getShowInRecent(context: Context): Boolean {
-    return sp(context).getBoolean("show_in_recent", true)
-}
-
-fun fetchLog(context: Context): SpBooleanLiveData =
-    SpBooleanLiveData(sp(context), "log", false, init = true)
 
 fun getVersion(context: Context): String {
     var versionName = ""
@@ -138,12 +116,12 @@ fun getVersion(context: Context): String {
     var isApkInDebug = false
     try {
         val pi = context.packageManager.getPackageInfo(context.packageName, 0)
-        versionName = pi.versionName
+        versionName = pi?.versionName ?: "UNKNOWN"
         versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            pi.longVersionCode
+            pi?.longVersionCode ?: 0
         } else {
             @Suppress("DEPRECATION")
-            pi.versionCode.toLong()
+            pi?.versionCode?.toLong() ?: 0
         }
         val info = context.applicationInfo
         isApkInDebug = info.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0

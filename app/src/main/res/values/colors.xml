@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#4284F3</color>
-
     <!-- 通知栏图标 -->
     <color name="colorQzoneIcon">#fece00</color>
     <color name="colorConversationIcon">#1ED0FC</color>

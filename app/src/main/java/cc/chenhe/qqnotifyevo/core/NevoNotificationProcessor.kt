@@ -1,5 +1,7 @@
 package cc.chenhe.qqnotifyevo.core
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
@@ -9,13 +11,15 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import cc.chenhe.qqnotifyevo.R
 import cc.chenhe.qqnotifyevo.StaticReceiver
-import cc.chenhe.qqnotifyevo.preference.PreferenceAty
+import cc.chenhe.qqnotifyevo.ui.MainActivity
 import cc.chenhe.qqnotifyevo.utils.*
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * 配合 [cc.chenhe.qqnotifyevo.service.NevoDecorator] 使用的通知处理器，直接创建并返回优化后的通知。
  */
-class NevoNotificationProcessor(context: Context) : NotificationProcessor(context) {
+class NevoNotificationProcessor(context: Context, scope: CoroutineScope) :
+    NotificationProcessor(context, scope) {
 
     companion object {
         private const val REQ_MULTI_MSG_LEARN_MORE = 1
@@ -49,7 +53,8 @@ class NevoNotificationProcessor(context: Context) : NotificationProcessor(contex
             // 目前关联账号的消息都会合并
             return
         }
-        if (nevoMultiMsgTip(ctx)) {
+        @SuppressLint("MissingPermission")
+        if (nevoMultiMsgTip(ctx) && ctx.hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
             val dontShow = PendingIntent.getBroadcast(
                 ctx, REQ_MULTI_MSG_DONT_SHOW,
                 Intent(ctx, StaticReceiver::class.java).also {
@@ -59,8 +64,8 @@ class NevoNotificationProcessor(context: Context) : NotificationProcessor(contex
 
             val learnMore = PendingIntent.getActivity(
                 ctx, REQ_MULTI_MSG_LEARN_MORE,
-                Intent(ctx, PreferenceAty::class.java).also {
-                    it.putExtra(PreferenceAty.EXTRA_NEVO_MULTI_MSG, true)
+                Intent(ctx, MainActivity::class.java).also {
+                    it.putExtra(MainActivity.EXTRA_NEVO_MULTI_MSG, true)
                     it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

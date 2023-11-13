@@ -1,24 +1,17 @@
 <resources>
     <string name="confirm">确定</string>
     <string name="cancel">取消</string>
-    <string name="requested">已发送请求</string>
-    <string name="done">操作完成</string>
     <string name="tip">提示</string>
     <string name="dont_show">不再提示</string>
     <string name="learn_more">了解详情</string>
     <string name="special_prefix">[特别关心]</string>
     <string name="special_group_prefix">[特别关注]</string>
 
-    <string name="day">天</string>
-    <string name="hour">小时</string>
-    <string name="minute">分钟</string>
-    <string name="second">秒</string>
-
     <string name="app_name">QQ 通知</string>
-    <string name="service_notify">QQ 通知增强服务</string>
-    <string name="service_access">QQ 通知隐藏服务</string>
+    <string name="service_notify">QQ 通知进化-通知监听服务</string>
+    <string name="service_access">QQ 通知进化</string>
     <string name="activity_splash">QQ 通知进化</string>
-    <string name="acc_desc">用于在 QQ 打开时清除通知</string>
+    <string name="acc_desc">用于在 QQ 打开时清除缓存的历史消息，以免下一个通知重复显示。\nQQ 通知进化内部缓存了历史通知内容，因而能够在通知中显示多个联系人的消息，但无法准确监测何时被标记为已读。启用后会在每次打开 QQ 时清除它们，下一次通知不会再包含之前的消息。\n本服务不会收集保存任何数据。QQ 通知进化未申请网络权限无法发送任何内容，并且是开源应用，请放心使用。</string>
 
     <string name="nevo_name">QQ 通知进化</string>
     <string name="nevo_desc">适配原生分渠道通知；使用原生铃声与振动适配可穿戴设备；支持多组会话与历史消息。</string>
@@ -65,10 +58,20 @@
     <string name="notify_upgrade">升级中</string>
     <string name="notify_upgrade_text">正在迁移数据，请勿强行停止。</string>
 
-    <string name="warning_nevo_service">Nevo 插件服务未运行</string>
-    <string name="warning_nevo_service_summary">请尝试在 Nevo 中重新启用本插件，并确认已允许 Nevo 和本应用自启动/后台运行。</string>
-    <string name="warning_monitor_service">通知监听服务未运行</string>
-    <string name="warning_monitor_service_summary">请到「必要权限」里授予通知访问权，并确认已允许本应用自启动/后台运行。</string>
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~ 权限检查
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+    <string name="permission_notification_card_title">无法发送通知</string>
+    <string name="permission_notification_card_text">需要发送通知权限来显示优化后的 QQ 通知，否则无法正常工作。</string>
+    <string name="permission_notification_card_allow">允许发送通知</string>
+    <string name="nevo_service_card_title">Nevo 插件服务未运行</string>
+    <string name="nevo_service_card_text">请尝试在 Nevo 中重新启用本插件，并确认已允许 Nevo 和本应用自启动/后台运行。若不想安装 Nevo 请切换到传统模式。</string>
+    <string name="nevo_service_card_button">转到 Nevo</string>
+    <string name="monitor_service_card_title">通知监听服务未运行</string>
+    <string name="monitor_service_card_text">传统模式依赖此服务来监听 QQ 的通知并优化它们。请到「必要权限」里授予通知访问权，并确认已允许本应用自启动/后台运行。</string>
+    <string name="monitor_service_card_button">查看必要权限</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 首选项：首页
@@ -77,85 +80,86 @@
     <!-- 基础 -->
     <string name="pref_cate_base">基础</string>
     <string name="pref_mode">工作模式</string>
-    <string-array name="pref_mode_entries">
-        <item>Nevo 插件</item>
-        <item>传统</item>
-    </string-array>
-    <string-array name="pref_mode_values">
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-    <!-- 必要权限 -->
+    <string name="pref_mode_nevo">Nevo 插件</string>
+    <string name="pref_mode_legacy">传统</string>
     <string name="pref_cate_permit">必要权限</string>
-    <string name="pref_notf_permit">通知访问权</string>
-    <string name="pref_aces_permit">无障碍服务</string>
-    <string name="pref_cancel_battery_optimize">停用电池优化</string>
-    <string name="pref_auto_start">自启动与后台运行</string>
-    <string name="pref_auto_start_summary">需要手动检查</string>
-    <string name="pref_auto_start_message">根据设备型号的不同，请前往手机管家、智能管理器等位置允许本应用的自动启动与后台运行。</string>
-    <string name="pref_enable_permit">已启用</string>
-    <string name="pref_disable_permit">已禁用</string>
-    <string name="pref_battery_optimize_disable">已停用</string>
-    <string name="pref_battery_optimize_enable">未停用</string>
+
     <!-- 通知 -->
     <string name="pref_cate_notify">通知</string>
-    <string name="pref_notify_system">系统设置</string>
+    <string name="pref_notify">通知设置</string>
     <string name="pref_notify_system_summary">前往系统原生页面设置不同渠道的声音与振动</string>
-    <string name="pref_notify_nevo">Nevo 设置</string>
     <string name="pref_notify_nevo_summary">前往 Nevo 页面设置不同渠道的声音与振动（内源模式自行前往 QQ 页面设置）\n由于 Nevo 限制需要触发一次通知对应渠道才会显示。</string>
     <string name="pref_icon_mode">图标样式</string>
-    <string-array name="pref_icon_mode">
-        <item>自动</item>
-        <item>QQ</item>
-        <item>TIM</item>
-    </string-array>
-    <string-array name="pref_icon_mode_value">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
+    <string name="pref_icon_mode_auto">自动</string>
+    <string name="pref_icon_mode_qq">QQ</string>
+    <string name="pref_icon_mode_tim">TIM</string>
+
     <!-- 关于  -->
     <string name="pref_cate_about">关于</string>
+    <string name="pref_cate_advanced">高级选项</string>
     <string name="about_manual">使用手册</string>
     <string name="about_manual_summary">模式选择 · 双重通知 · 最佳实践</string>
-    <string name="pref_donate">捐助</string>
-    <string name="pref_donate_message">请选择扶贫方式</string>
-    <string-array name="pref_donate_options">
-        <item>支付宝</item>
-    </string-array>
-    <string name="pref_donate_alipay_error">打开支付宝失败</string>
     <string name="pref_osc">开放源代码</string>
     <string name="pref_version_code">版本号：%1$s</string>
-    <string name="about_dialog_title">关于</string>
     <string name="about_dialog_message">
 <![CDATA[
-1. 本应用完全免费开源\n
-严禁用于商用/出售/引流\n\n
-2. 支持 Nevo 插件与独立运行\n
-请参考使用手册选择合适的模式\n\n
-3. 唯一发布地址为 GitHub\n戳下面按钮直达
+1. 本应用完全免费开源，严禁用于商用/出售/引流。\n\n
+2. 支持 Nevo 插件与独立运行，请参考使用手册选择合适的模式。\n\n
+3. 唯一发布地址为 GitHub，戳下面按钮直达/
 ]]>
     </string>
     <string name="about_dialog_github">GitHub 发布页</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~ 首选项：必要权限
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+    <!-- 发送通知-->
+    <string name="pref_send_notification_permission">发送通知</string>
+    <string name="pref_send_notification_permission_allow">已授权</string>
+    <string name="pref_send_notification_permission_deny">未授权，程序异常时可能遗漏 QQ 消息</string>
+    <string name="pref_send_notification_permission_deny_legacy">未授权，无法优化 QQ 通知</string>
+    <string name="enable_notification_guide_dialog_title">允许通知</string>
+    <string name="enable_notification_guide_dialog_text">请在即将打开的窗口中手动授予通知权限。</string>
+    <string name="enable_notification_guide_dialog_confirm">前往设置</string>
+
+    <!-- 传统模式 -->
+    <string name="pref_cate_legacy_permission">传统模式</string>
+    <string name="pref_notf_permit">通知访问权</string>
+    <string name="pref_notf_permit_allow">已启用，正在监听 QQ 通知</string>
+    <string name="pref_notf_permit_deny">已禁用，无法监听 QQ 通知</string>
+    <string name="pref_aces_permit">无障碍服务</string>
+    <string name="pref_aces_permit_allow">已启用</string>
+    <string name="pref_aces_permit_deny">已禁用，可能重复显示已读消息</string>
+
+    <!-- 持续运行 -->
+    <string name="pref_cate_background_running">持续运行</string>
+    <string name="pref_cancel_battery_optimize">停用电池优化</string>
+    <string name="pref_battery_optimize_disable">已停用</string>
+    <string name="pref_battery_optimize_enable">未停用，可能丢失通知</string>
+
+    <string name="pref_disable_app_hibernation">停用应用休眠</string>
+    <string name="pref_app_hibernation_enabled">未停用，可能丢失通知</string>
+    <string name="pref_app_hibernation_disabled">已停用</string>
+    <string name="pref_disable_app_hibernation_dialog_title">关闭应用休眠</string>
+    <string name="pref_disable_app_hibernation_dialog_text">请在即将打开的窗口中关闭「在应用程序未使用时移除权限」或「休眠未使用的应用」等类似选项。</string>
+    <string name="pref_disable_app_hibernation_dialog_confirm">前往设置</string>
+
+    <string name="pref_auto_start">自启动与后台运行</string>
+    <string name="pref_auto_start_summary">需要手动检查</string>
+    <string name="pref_auto_start_message">根据设备型号的不同，请前往手机管家、智能管理器等位置允许本应用的自动启动与后台运行。</string>
+
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 首选项：高级
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-    <string name="pref_cate_advanced">高级选项</string>
     <!-- 通知 -->
     <string name="pref_cate_advanced_notify">通知</string>
     <string name="pref_advanced_show_special_prefix">显示特别关心前缀</string>
     <string name="pref_advanced_show_special_prefix_summary">添加[特别关心]或群聊中[特别关注]前缀</string>
     <string name="pref_advanced_special_group_channel">特别关注群消息的通知渠道</string>
-    <string-array name="pref_advanced_special_group_channel_entries">
-        <item>群消息</item>
-        <item>特别关心消息</item>
-    </string-array>
-    <string-array name="pref_advanced_special_group_channel_values">
-        <item>group</item>
-        <item>special</item>
-    </string-array>
+    <string name="pref_advanced_special_group_channel_group">群消息</string>
+    <string name="pref_advanced_special_group_channel_special">特别关心消息</string>
     <string name="pref_advanced_wrap_nickname">格式化昵称</string>
     <string name="pref_advanced_nickname_wrapper">自定义格式</string>
     <string name="pref_advanced_nickname_wrapper_message">使用 $n 指代原始昵称，其他字符将原样保留。如果你喜欢输入 Emoji 也行。</string>
@@ -163,32 +167,32 @@
     <!-- 其他 -->
     <string name="pref_cate_advanced_other">其他</string>
     <string name="pref_avatar_cache_period">头像缓存刷新间隔</string>
-    <string-array name="pref_avatar_cache_period_entries">
-        <item>10分钟</item>
-        <item>1天</item>
-        <item>7天</item>
-    </string-array>
-    <string-array name="pref_avatar_cache_period_values">
-        <item>600000</item>
-        <item>86400000</item>
-        <item>604800000</item>
-    </string-array>
+    <string name="pref_acatar_cache_period_10min">10分钟</string>
+    <string name="pref_acatar_cache_period_1day">1天</string>
+    <string name="pref_acatar_cache_period_7day">7天</string>
     <string name="pref_reset_tips">重置使用提示</string>
-    <string name="pref_reset_tips_notify_dialog">使用提示通知已被关闭，是否打开？</string>
+    <string name="pref_reset_tips_done">已重置</string>
+    <string name="pref_reset_tips_notify_dialog_title">无法显示使用提示</string>
+    <string name="pref_reset_tips_notify_dialog_text">是否允许发送使用提示通知？</string>
+    <string name="pref_reset_tips_notify_dialog_allow">启用通知</string>
+    <string name="pref_reset_tips_notify_dialog_deny">忽略提示</string>
     <string name="pref_delete_avatar_cache">删除头像缓存</string>
+    <string name="pref_delete_avatar_cache_done">缓存已删除</string>
     <string name="pref_delete_nevo_channel">删除 Nevo 通知渠道</string>
+    <string name="pref_delete_nevo_channel_done">已发送删除请求</string>
     <string name="pref_show_in_recent">在「最近使用的应用」中显示</string>
-    <string-array name="pref_show_in_recent_summaries">
-        <item>便于锁定最近任务以免被杀</item> <!-- checked -->
-        <item>按返回键退出后将从最近任务界面隐藏</item> <!-- non-checked -->
-    </string-array>
+    <string name="pref_show_in_recent_on">便于锁定最近任务以免被杀</string>
+    <string name="pref_show_in_recent_off">按返回键退出后将从最近任务界面隐藏</string>
     <!-- 调试 -->
     <string name="pref_cat_debug">调试</string>
     <string name="pref_log">记录日志</string>
     <string name="pref_log_dialog_message">开启后将记录应用日志并明文保存在本地，其中包含您的通知详情，请注意隐私安全。\n请不要从应用外部删除日志文件以免影响完整性。</string>
+    <string name="pref_log_dialog_confirm">开启日志</string>
+    <string name="pref_log_dialog_cancel">取消</string>
     <string name="pref_delete_log">删除日志</string>
     <string name="pref_delete_log_summary">%1$d个日志 总大小%2$s</string>
     <string name="pref_delete_log_dialog_message">删除所有日志？</string>
+    <string name="pref_delete_log_dialog_confirm">删除</string>
 
     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~ 主界面

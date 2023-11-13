@@ -1,5 +1,7 @@
 package cc.chenhe.qqnotifyevo.core
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.content.Context
 import android.service.notification.StatusBarNotification
@@ -9,6 +11,8 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import cc.chenhe.qqnotifyevo.utils.NotifyChannel
 import cc.chenhe.qqnotifyevo.utils.Tag
+import cc.chenhe.qqnotifyevo.utils.hasPermission
+import kotlinx.coroutines.CoroutineScope
 import timber.log.Timber
 import java.util.*
 
@@ -22,7 +26,8 @@ import java.util.*
 class InnerNotificationProcessor(
     private val commander: Commander,
     context: Context,
-) : NotificationProcessor(context) {
+    scope: CoroutineScope,
+) : NotificationProcessor(context, scope) {
 
     companion object {
         private const val TAG = "InnerNotifyProcessor"
@@ -58,8 +63,11 @@ class InnerNotificationProcessor(
     }
 
     private fun sendNotification(context: Context, tag: Tag, id: Int, notification: Notification) {
-        NotificationManagerCompat.from(context).notify(id, notification)
-        addNotifyId(tag, id)
+        @SuppressLint("MissingPermission")
+        if (context.hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
+            NotificationManagerCompat.from(context).notify(id, notification)
+            addNotifyId(tag, id)
+        }
     }
 
     override fun renewQzoneNotification(
