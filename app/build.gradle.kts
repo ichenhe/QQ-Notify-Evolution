@@ -36,9 +36,9 @@ android {
             logger.lifecycle("Use key alias '{}' to sign release", config.keyAlias)
             create("release") {
                 storeFile = config.storeFile
-                storePassword = "chenhe"
-                keyAlias = "weargallery"
-                keyPassword = "chenhe"
+                storePassword = config.storePwd
+                keyAlias = config.keyAlias
+                keyPassword = config.keyPwd
 
                 enableV2Signing = true
             }
