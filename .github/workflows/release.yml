@@ -37,6 +37,9 @@ jobs:
           filePath: ${{ env.QNEVO_SIGNING_STORE_PATH }}
           encodedString: ${{ secrets.SIGNING_KEYSTORE }}
 
+      - name: Generate Version Info
+        run: ./gradlew appVersion
+
       - name: Assemble Release APK
         run: ./gradlew assembleRelease
         env:
@@ -57,9 +60,6 @@ jobs:
           name: ${{ env.ARTIFACT_MAPPINGS }}
           path: "app/build/outputs/mapping/release"
           if-no-files-found: error
-
-      - name: Generate Version Info
-        run: ./gradlew appVersion
 
       - name: Upload version.properties
         uses: actions/upload-artifact@v3
