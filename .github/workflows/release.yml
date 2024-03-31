@@ -5,6 +5,12 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+**
   workflow_dispatch:
+    inputs:
+      sshDebug:
+        description: "Setup an ssh connection for debugging."
+        required: true
+        type: boolean
+        default: false
 
 env:
   VERSION_BRANCH: version
@@ -36,6 +42,10 @@ jobs:
         with:
           filePath: ${{ env.QNEVO_SIGNING_STORE_PATH }}
           encodedString: ${{ secrets.SIGNING_KEYSTORE }}
+
+      - name: Setup Debug Session
+        if: ${{ inputs.sshDebug }}
+        uses: csexton/debugger-action@master
 
       - name: Assemble Release APK
         run: ./gradlew assembleRelease
