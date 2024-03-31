@@ -47,6 +47,9 @@ jobs:
         if: ${{ inputs.sshDebug }}
         uses: csexton/debugger-action@master
 
+      - name: Generate version properties
+        run: ./gradlew appVersion
+
       - name: Assemble Release APK
         run: ./gradlew assembleRelease
         env:
