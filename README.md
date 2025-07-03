@@ -24,3 +24,11 @@
 - [QQ-Notfiy-Improve](https://github.com/Jinhaihan/QQ-Notfiy-Improve)（已获授权）
 - [QQNotfAndShare](https://github.com/ekibun/QQNotfAndShare)（原始项目）
 - [QQNotifyPlus](https://github.com/ekibun/QQNotifyPlus)（QQ 与 QZone 图标）
+
+## Sponsorship
+
+CDN acceleration and security protection for this project are sponsored by Tencent EdgeOne
+
+<img src="https://edgeone.ai/media/34fe3a45-492d-4ea4-ae5d-ea1087ca7b4b.png" width="50%">
+
+<a href="https://edgeone.ai/?from=github" rel="nofollow">Best Asian CDN, Edge, and Secure Solutions - Tencent EdgeOne</a>
