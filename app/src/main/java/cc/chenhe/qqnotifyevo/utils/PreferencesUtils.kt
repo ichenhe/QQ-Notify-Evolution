@@ -101,6 +101,8 @@ val PREFERENCE_SHOW_IN_RECENT_APPS = booleanPreferencesKey("show_in_recent_apps"
 const val PREFERENCE_SHOW_IN_RECENT_APPS_DEFAULT = true
 val PREFERENCE_ENABLE_LOG = booleanPreferencesKey("enable_log")
 const val PREFERENCE_ENABLE_LOG_DEFAULT = false
+val PREFERENCE_CONVERSATION_BUBBLES = booleanPreferencesKey("conversation_bubbles")
+const val PREFERENCE_CONVERSATION_BUBBLES_DEFAULT = false
 
 val USAGE_TIP_NEVO_MULTI_MESSAGE = booleanPreferencesKey("show_nevo_multi_message_tip")
 const val USAGE_TIP_NEVO_MULTI_MESSAGE_DEFAULT = true

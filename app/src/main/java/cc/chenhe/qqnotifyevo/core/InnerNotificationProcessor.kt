@@ -109,6 +109,8 @@ class InnerNotificationProcessor(
         return notification ?: Notification() // 此处返回值没有实际意义
     }
 
+    override fun supportsConversationBubbles(): Boolean = true
+
     override fun buildNotification(
         builder: NotificationCompat.Builder,
         shortcutInfo: ShortcutInfoCompat?

@@ -210,4 +210,6 @@
 
     <string name="upgrade_message">升级中\n正在迁移数据，请勿强行停止。</string>
 
+    <string name="pref_conversation_bubbles">系统会话气泡（实验性）</string>
+    <string name="pref_conversation_bubbles_summary">仅 Android 11+，默认关闭。为学习 QQ/TIM 的会话入口，每个会话首次通知可能自动打开对应应用并影响已读状态；每次进程运行仅尝试一次，且至少间隔 30 秒。入口仅保存在内存中，验证失败时不会创建气泡。</string>
 </resources>
