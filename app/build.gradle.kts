@@ -85,7 +85,8 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0") // support ListenableFuture
-    implementation("com.oasisfeng.nevo:sdk:2.0.0-rc01")
+
+    implementation(files("libs/nevo-sdk-2.0.0-rc01.aar"))
     implementation("com.jakewharton.timber:timber:5.0.1")
 
     testImplementation("junit:junit:4.13.2")
