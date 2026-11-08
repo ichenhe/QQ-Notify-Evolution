@@ -12,13 +12,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        @Suppress("DEPRECATION")
-        //noinspection JcenterRepositoryObsolete
-        jcenter {
-            content {
-                includeModule("com.oasisfeng.nevo", "sdk")
-            }
-        }
     }
 }
 
