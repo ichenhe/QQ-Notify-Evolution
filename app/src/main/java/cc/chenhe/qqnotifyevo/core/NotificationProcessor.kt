@@ -6,10 +6,12 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.content.ContextCompat
+import androidx.core.content.LocusIdCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -65,6 +67,7 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
     private val avatarManager =
         AvatarManager.get(getAvatarDiskCacheDir(ctx), getAvatarCachePeriod(context))
     private val resolver: NotificationResolver = DelegateNotificationResolver()
+    private val bubbleManager = ConversationBubbleManager(ctx)
 
     init {
         scope.launch {
@@ -79,6 +82,10 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
                 specialGroupChannel =
                     SpecialGroupChannel.fromValue(pref[PREFERENCE_SPECIAL_GROUP_CHANNEL])
                 avatarManager.period = AvatarCacheAge.fromValue(pref[PREFERENCE_AVATAR_CACHE_AGE]).v
+                bubbleManager.setEnabled(
+                    supportsConversationBubbles() &&
+                        (pref[PREFERENCE_CONVERSATION_BUBBLES] ?: PREFERENCE_CONVERSATION_BUBBLES_DEFAULT)
+                )
             }
         }
     }
@@ -351,7 +358,8 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
         original: Notification,
         subtext: String? = null,
         title: String? = null, text: String? = null, ticker: String? = null,
-        shortcutInfo: ShortcutInfoCompat? = null
+        shortcutInfo: ShortcutInfoCompat? = null,
+        bubbleShortcutId: String? = null
     ): Notification {
         val channelId = getChannelId(channel)
 
@@ -382,11 +390,21 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
             builder.setTicker(ticker)
 
         setIcon(builder, tag, channel == NotifyChannel.QZONE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && bubbleShortcutId != null) {
+            builder.setBubbleMetadata(
+                NotificationCompat.BubbleMetadata.Builder(bubbleShortcutId)
+                    .setDesiredHeight(ConversationBubblePolicy.DESIRED_HEIGHT_DP)
+                    .build()
+            )
+            builder.setLocusId(LocusIdCompat(bubbleShortcutId))
+        }
 
         return buildNotification(builder, shortcutInfo).apply {
             extras.putString(NOTIFICATION_EXTRA_TAG, tag.name)
         }
     }
+
+    protected open fun supportsConversationBubbles(): Boolean = false
 
     protected open fun buildNotification(
         builder: NotificationCompat.Builder,
@@ -442,26 +460,34 @@ abstract class NotificationProcessor(context: Context, scope: CoroutineScope) {
             if (num > 1) context.getString(R.string.notify_subtext_message_num, num) else null
         Timber.tag(TAG).v("Create conversation notification for $num messages.")
 
-        val shortcut = ShortcutInfoCompat.Builder(context, conversation.name)
+        // The resolver exposes no account/conversation ID. Hash source + parsed conversation
+        // name so the system identifier is stable without exposing the human-readable name.
+        val shortcutId = ConversationBubblePolicy.shortcutId(tag.pkg, conversation.name)
+        if (supportsConversationBubbles()) {
+            bubbleManager.maybeLearn(shortcutId, tag.pkg, original.contentIntent)
+        }
+        val directRoute = bubbleManager.route(shortcutId, tag.pkg)
+        val shortcutIntent = directRoute
+            ?: context.packageManager.getLaunchIntentForPackage(tag.pkg)
+            ?: Intent(context, MainActivity::class.java).apply { action = Intent.ACTION_MAIN }
+        val shortcut = ShortcutInfoCompat.Builder(context, shortcutId)
             .setIsConversation()
             .setPersons(conversation.messages.map { it.person }.toSet().toTypedArray())
             .setShortLabel(conversation.name)
             .setLongLabel(conversation.name)
+            .setLongLived(true)
+            .setLocusId(LocusIdCompat(shortcutId))
             .setIcon(
                 avatarManager.getAvatar(conversation.name.hashCode())
                     ?.let { IconCompat.createWithBitmap(it) }
             )
-            .setIntent(
-                context.packageManager.getLaunchIntentForPackage(tag.pkg)
-                    ?: Intent(context, MainActivity::class.java).apply {
-                        action = Intent.ACTION_MAIN
-                    }
-            )
+            .setIntent(shortcutIntent)
             .build()
         return createNotification(
             context, tag, channel, style,
             avatarManager.getAvatar(conversation.name.hashCode()), original, subtext,
-            shortcutInfo = shortcut
+            shortcutInfo = shortcut,
+            bubbleShortcutId = shortcutId.takeIf { directRoute != null }
         )
     }
 

@@ -16,6 +16,8 @@ import cc.chenhe.qqnotifyevo.utils.PREFERENCE_AVATAR_CACHE_AGE
 import cc.chenhe.qqnotifyevo.utils.PREFERENCE_AVATAR_CACHE_AGE_DEFAULT
 import cc.chenhe.qqnotifyevo.utils.PREFERENCE_ENABLE_LOG
 import cc.chenhe.qqnotifyevo.utils.PREFERENCE_ENABLE_LOG_DEFAULT
+import cc.chenhe.qqnotifyevo.utils.PREFERENCE_CONVERSATION_BUBBLES
+import cc.chenhe.qqnotifyevo.utils.PREFERENCE_CONVERSATION_BUBBLES_DEFAULT
 import cc.chenhe.qqnotifyevo.utils.PREFERENCE_FORMAT_NICKNAME
 import cc.chenhe.qqnotifyevo.utils.PREFERENCE_FORMAT_NICKNAME_DEFAULT
 import cc.chenhe.qqnotifyevo.utils.PREFERENCE_NICKNAME_FORMAT
@@ -50,6 +52,7 @@ data class AdvancedOptionsUiState(
     val resetUsageTipDone: Boolean = false,
     val showInRecentApps: Boolean = PREFERENCE_SHOW_IN_RECENT_APPS_DEFAULT,
     val enableLog: Boolean = PREFERENCE_ENABLE_LOG_DEFAULT,
+    val conversationBubbles: Boolean = PREFERENCE_CONVERSATION_BUBBLES_DEFAULT,
     val logSize: String = "",
 )
 
@@ -64,6 +67,7 @@ sealed interface AdvancedOptionsIntent {
     data object ResetUsageTips : AdvancedOptionsIntent
     data class SetShowInRecentApps(val v: Boolean) : AdvancedOptionsIntent
     data class SetEnableLog(val v: Boolean) : AdvancedOptionsIntent
+    data class SetConversationBubbles(val v: Boolean) : AdvancedOptionsIntent
     data object DeleteLog : AdvancedOptionsIntent
 }
 
@@ -101,6 +105,8 @@ class AdvancedOptionsViewModel(application: Application) :
                 showInRecentApps = prefs[PREFERENCE_SHOW_IN_RECENT_APPS]
                     ?: PREFERENCE_SHOW_IN_RECENT_APPS_DEFAULT,
                 enableLog = prefs[PREFERENCE_ENABLE_LOG] ?: PREFERENCE_ENABLE_LOG_DEFAULT,
+                conversationBubbles = prefs[PREFERENCE_CONVERSATION_BUBBLES]
+                    ?: PREFERENCE_CONVERSATION_BUBBLES_DEFAULT,
             )
         }
     }
@@ -169,6 +175,9 @@ class AdvancedOptionsViewModel(application: Application) :
 
             is AdvancedOptionsIntent.SetEnableLog ->
                 setBoolPreference(PREFERENCE_ENABLE_LOG, intent.v)
+
+            is AdvancedOptionsIntent.SetConversationBubbles ->
+                setBoolPreference(PREFERENCE_CONVERSATION_BUBBLES, intent.v)
 
             AdvancedOptionsIntent.DeleteLog -> {
                 getApplication<MyApplication>().deleteLog()

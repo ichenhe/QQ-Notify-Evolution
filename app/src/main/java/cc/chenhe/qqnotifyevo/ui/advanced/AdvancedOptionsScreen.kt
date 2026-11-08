@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkRemove
 import androidx.compose.material.icons.rounded.CheckCircleOutline
+import androidx.compose.material.icons.rounded.ChatBubble
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FolderDelete
 import androidx.compose.material.icons.rounded.FormatQuote
@@ -110,6 +111,7 @@ private fun AdvancedOptions(
                 uiState.specialInGroupChannel,
                 uiState.formatNickname,
                 uiState.nicknameFormat,
+                uiState.conversationBubbles,
                 onIntent
             )
             PreferenceGroupInterval()
@@ -133,9 +135,21 @@ private fun NotificationGroup(
     specialInGroupChannel: SpecialGroupChannel,
     formatNickname: Boolean,
     nicknameFormat: String,
+    conversationBubbles: Boolean,
     onIntent: (AdvancedOptionsIntent) -> Unit,
 ) {
     PreferenceGroup(groupTitle = stringResource(id = R.string.pref_cate_advanced_notify)) {
+        PreferenceItem(
+            title = stringResource(id = R.string.pref_conversation_bubbles),
+            icon = Icons.Rounded.ChatBubble,
+            description = stringResource(id = R.string.pref_conversation_bubbles_summary),
+            button = { Switch(checked = conversationBubbles, onCheckedChange = null) },
+            onClick = {
+                onIntent(AdvancedOptionsIntent.SetConversationBubbles(!conversationBubbles))
+            }
+        )
+        PreferenceDivider()
+
         // 显示特别关心前缀
         PreferenceItem(title = stringResource(id = R.string.pref_advanced_show_special_prefix),
             icon = Icons.Rounded.Favorite,
